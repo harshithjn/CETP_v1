@@ -96,3 +96,4 @@ credentials.json
 
 # Compiled probe binaries (regenerate from compute_probe.c)
 scripts/collection/compute_probe_O*
+scripts/collection/tpch_data/
