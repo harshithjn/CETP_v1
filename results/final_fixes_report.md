@@ -4,7 +4,7 @@ Local-only, no EC2, no re-collection. Base dataset: `tpch_dataset_corrected.csv`
 
 ## Fix 1: correcting the `rows` feature (rows processed, not rows returned)
 
-`benchmark/extract_plan_features.py` runs `EXPLAIN (ANALYZE, VERBOSE, FORMAT JSON)` for all 21 queries and sums `Actual Rows x Actual Loops` across every node in the plan tree (loops-multiplication matters because `Actual Rows` is a per-loop average, not a cumulative field — unlike the buffer-bug fields, so no double-counting risk here). Written to `results/plan_structure_features.csv`.
+`scripts/collection/extract_plan_features.py` runs `EXPLAIN (ANALYZE, VERBOSE, FORMAT JSON)` for all 21 queries and sums `Actual Rows x Actual Loops` across every node in the plan tree (loops-multiplication matters because `Actual Rows` is a per-loop average, not a cumulative field — unlike the buffer-bug fields, so no double-counting risk here). Written to `results/plan_structure_features.csv`.
 
 The effect is exactly as hypothesized: `q1` (aggregate over all of `lineitem`) has `root_actual_rows=4` but `rows_processed=5,927,485`; `q18` goes from `root_actual_rows=9` to `rows_processed=19,803,951`.
 
@@ -21,7 +21,7 @@ The effect is exactly as hypothesized: `q1` (aggregate over all of `lineitem`) h
 
 ## Fix 2: plan-structure features for the bottleneck classifier
 
-`benchmark/extract_plan_features.py` additionally extracts, per query, hardware-invariant plan-structure features: `join_count` (Nested Loop/Hash Join/Merge Join node count), `node_count` (total plan nodes), `plan_depth`, `has_aggregate`, `has_sort`, and `correlated_pattern_count` (SubPlan/InitPlan nodes plus nodes with `Actual Loops > 1`, i.e. nested-loop-with-rescan or per-tuple subplan evaluation).
+`scripts/collection/extract_plan_features.py` additionally extracts, per query, hardware-invariant plan-structure features: `join_count` (Nested Loop/Hash Join/Merge Join node count), `node_count` (total plan nodes), `plan_depth`, `has_aggregate`, `has_sort`, and `correlated_pattern_count` (SubPlan/InitPlan nodes plus nodes with `Actual Loops > 1`, i.e. nested-loop-with-rescan or per-tuple subplan evaluation).
 
 `fix2_classifier_plan_structure.py` re-runs the exact leave-one-query-out `RandomForestClassifier(n_estimators=300, class_weight="balanced", random_state=42)` from `phase5_classifier.py`/the buffer-bug correction, on `tpch_dataset_corrected_v2.csv`, for three feature sets:
 
@@ -41,7 +41,7 @@ Per spec, since the (buffers + structure) classifier did not improve, the headli
 
 ## Fix 3: controlled parallelism experiment
 
-`benchmark/parallelism_timing.py` ran all 21 queries on the local SF1 instance under `max_parallel_workers_per_gather = 0` (OFF) and `= 2` (ON, the collection default), 1 untimed warmup + 5 timed repeats per query per config (median of 5 used), via `EXPLAIN (ANALYZE, FORMAT JSON)`. Raw and median times: `results/fix3_parallel_timing.csv`.
+`scripts/collection/parallelism_timing.py` ran all 21 queries on the local SF1 instance under `max_parallel_workers_per_gather = 0` (OFF) and `= 2` (ON, the collection default), 1 untimed warmup + 5 timed repeats per query per config (median of 5 used), via `EXPLAIN (ANALYZE, FORMAT JSON)`. Raw and median times: `results/fix3_parallel_timing.csv`.
 
 `parallel_speedup = median(OFF) / median(ON)` was correlated against `benefit` (MAPE-reduction from switching to the multi-core compute signal, from `results/addition4b_per_query_benefit.csv`), across the same 21 queries:
 
@@ -68,8 +68,8 @@ Sanity check passes: q11 and q20, the two queries whose plans never use `Gather`
 
 ## Artifacts
 
-- `benchmark/extract_plan_features.py`, `results/plan_structure_features.csv`
+- `scripts/collection/extract_plan_features.py`, `results/plan_structure_features.csv`
 - `fix1_rows_processed.py`, `tpch_dataset_corrected_v2.csv`, `results/fix1_rows_processed_correlation.csv`, `results/fix1_rows_processed_correlation_by_class.csv`
 - `fix2_classifier_plan_structure.py`, `results/fix2_classifier_structural_summary.json`, `models/bottleneck_classifier_structural.pkl`, `models/bottleneck_classifier_structural_features.json`
-- `benchmark/parallelism_timing.py`, `results/fix3_parallel_timing.csv`
+- `scripts/collection/parallelism_timing.py`, `results/fix3_parallel_timing.csv`
 - `fix3_parallelism_mechanism.py`, `results/fix3_parallelism_mechanism_summary.csv`, `results/fix3_parallelism_per_query.csv`

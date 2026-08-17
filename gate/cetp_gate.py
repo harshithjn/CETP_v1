@@ -7,7 +7,7 @@ import joblib
 import numpy as np
 import yaml
 
-PROJECT_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = Path(__file__).resolve().parent.parent
 MODELS_DIR = PROJECT_DIR / "models"
 RESULTS_DIR = PROJECT_DIR / "results"
 

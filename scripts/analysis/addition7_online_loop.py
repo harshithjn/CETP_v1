@@ -1,17 +1,20 @@
 import inspect
 import json
 import re
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+PROJECT_DIR = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_DIR / "gate"))
+
 import cetp_gate
 import measurement_store as ms
 
-PROJECT_DIR = Path(__file__).resolve().parent
 RESULTS_DIR = PROJECT_DIR / "results"
-CORRECTED_CSV = PROJECT_DIR / "tpch_dataset_corrected.csv"
+CORRECTED_CSV = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected.csv"
 DEMO_DB_PATH = PROJECT_DIR / "cetp_measurements_addition7_demo.db"
 
 RANDOM_STATE = 42

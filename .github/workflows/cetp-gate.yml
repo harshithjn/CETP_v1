@@ -3,9 +3,9 @@ name: CETP SLA Gate
 on:
   push:
     paths:
-      - "examples/gate_queries/**"
-      - "cetp.yml"
-      - "cetp_gate.py"
+      - "gate/examples/gate_queries/**"
+      - "gate/cetp.yml"
+      - "gate/cetp_gate.py"
       - "models/**"
 
 jobs:
@@ -15,11 +15,11 @@ jobs:
       matrix:
         query:
           - id: q19
-            features: examples/gate_queries/q19_c7i_dev_features.json
+            features: gate/examples/gate_queries/q19_c7i_dev_features.json
           - id: q1
-            features: examples/gate_queries/q1_c7i_dev_features.json
+            features: gate/examples/gate_queries/q1_c7i_dev_features.json
           - id: q18
-            features: examples/gate_queries/q18_c7i_dev_features.json
+            features: gate/examples/gate_queries/q18_c7i_dev_features.json
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -34,8 +34,8 @@ jobs:
       - name: Run CETP gate for ${{ matrix.query.id }}
         id: gate
         run: |
-          python cetp_gate.py \
-            --config cetp.yml \
+          python gate/cetp_gate.py \
+            --config gate/cetp.yml \
             --query-id ${{ matrix.query.id }} \
             --dev-features ${{ matrix.query.features }} \
             --json > verdict.json

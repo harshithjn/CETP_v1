@@ -3,7 +3,7 @@ from pathlib import Path
 
 from cetp_gate import run_gate, format_report, PROJECT_DIR, RESULTS_DIR
 
-EXAMPLES_DIR = PROJECT_DIR / "examples" / "gate_queries"
+EXAMPLES_DIR = Path(__file__).resolve().parent / "examples" / "gate_queries"
 
 SCENARIOS = [
     {

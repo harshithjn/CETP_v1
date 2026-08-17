@@ -8,7 +8,7 @@ from sklearn.model_selection import LeaveOneGroupOut
 from sklearn.metrics import precision_recall_fscore_support, confusion_matrix, f1_score
 
 PROJECT_DIR = Path("/Users/harshithj/Main/Resources/CETP")
-CSV_PATH = PROJECT_DIR / "tpch_dataset_corrected_v2.csv"
+CSV_PATH = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected_v2.csv"
 PLAN_FEATURES_CSV = PROJECT_DIR / "results" / "plan_structure_features.csv"
 MODELS_DIR = PROJECT_DIR / "models"
 RESULTS_DIR = PROJECT_DIR / "results"

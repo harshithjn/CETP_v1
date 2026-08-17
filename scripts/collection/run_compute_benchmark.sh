@@ -4,8 +4,8 @@ set -euo pipefail
 AMI_ID="ami-094f1b962b34950d5"
 KEY_NAME="cloud"
 KEY_PATH="/Users/harshithj/Main/Archive/OtherFiles/cloud.pem"
-PROBE_SRC="/Users/harshithj/Main/Resources/CETP/benchmark/compute_probe.c"
-OUT_DIR="/Users/harshithj/Main/Resources/CETP/benchmark/results"
+PROBE_SRC="/Users/harshithj/Main/Resources/CETP/scripts/collection/compute_probe.c"
+OUT_DIR="/Users/harshithj/Main/Resources/CETP/scripts/collection/results"
 mkdir -p "$OUT_DIR"
 
 MACHINE_KEYS=(c5a m5a r5n z1d c7i)

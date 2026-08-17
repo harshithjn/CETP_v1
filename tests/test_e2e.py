@@ -10,6 +10,10 @@ import numpy as np
 import pytest
 import yaml
 
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+GATE_DIR = PROJECT_DIR / "gate"
+sys.path.insert(0, str(GATE_DIR))
+
 import cetp_gate
 from cetp_gate import (
     RAW_BOTTLENECK_COLS,
@@ -27,10 +31,10 @@ from cetp_gate_demo import SCENARIOS
 random.seed(42)
 np.random.seed(42)
 
-PROJECT_DIR = Path(__file__).resolve().parent
-FIXTURES_DIR = PROJECT_DIR / "test_fixtures"
-GATE_SCRIPT = PROJECT_DIR / "cetp_gate.py"
-CONFIG_PATH = PROJECT_DIR / "cetp.yml"
+FIXTURES_DIR = Path(__file__).resolve().parent / "test_fixtures"
+GATE_SCRIPT = GATE_DIR / "cetp_gate.py"
+CONFIG_PATH = GATE_DIR / "cetp.yml"
+EXAMPLES_DIR = GATE_DIR / "examples" / "gate_queries"
 
 REAL_EXPLAIN_Q19 = FIXTURES_DIR / "q19_local_real_explain.json"
 REAL_EXPLAIN_Q1 = FIXTURES_DIR / "q1_local_real_explain.json"
@@ -61,7 +65,7 @@ KNOWN_ANSWER_TRIPLES = [
         "expected_p50": 1.1380, "expected_p95": 1.4818, "expected_p99": 2.3697,
     },
     # q12 and q6 have no raw EXPLAIN plan retained from the original dataset collection run
-    # (benchmark/collect_query.py only ever wrote the pre-reduced, buffer-inflated dict to disk,
+    # (scripts/collection/collect_query.py only ever wrote the pre-reduced, buffer-inflated dict to disk,
     # never the underlying "Plan" tree). These two dev_features_raw dicts are therefore still the
     # inflated values collect_query.py's old sum_buffers() wrote into tpch_dataset.csv, kept as a
     # frozen regression lock on the model's arithmetic only -- not verified against a real plan.
@@ -272,12 +276,12 @@ class TestMalformedInputHandling:
         print(f"\nplan node missing 'Actual Rows' -> {type(exc_info.value).__name__}: {exc_info.value}")
 
     def test_negative_sla_is_rejected(self):
-        dev_features_raw = json.loads((PROJECT_DIR / "examples" / "gate_queries" / "q19_c5a_dev_features.json").read_text())
+        dev_features_raw = json.loads((EXAMPLES_DIR / "q19_c5a_dev_features.json").read_text())
         with pytest.raises(ValueError):
             run_gate(dev_features_raw, {"bandwidth": 14.9, "compute": 0.593}, {"bandwidth": 8.44, "compute": 0.807}, sla_ms=-50.0)
 
     def test_zero_sla_is_rejected(self):
-        dev_features_raw = json.loads((PROJECT_DIR / "examples" / "gate_queries" / "q19_c5a_dev_features.json").read_text())
+        dev_features_raw = json.loads((EXAMPLES_DIR / "q19_c5a_dev_features.json").read_text())
         with pytest.raises(ValueError):
             run_gate(dev_features_raw, {"bandwidth": 14.9, "compute": 0.593}, {"bandwidth": 8.44, "compute": 0.807}, sla_ms=0.0)
 
@@ -294,7 +298,7 @@ class TestConfigRoundTrip:
 
     def test_changing_sla_in_config_changes_verdict(self, tmp_path):
         config = load_config(CONFIG_PATH)
-        dev_features_raw = json.loads((PROJECT_DIR / "examples" / "gate_queries" / "q19_c5a_dev_features.json").read_text())
+        dev_features_raw = json.loads((EXAMPLES_DIR / "q19_c5a_dev_features.json").read_text())
         dev_signature = resolve_signature(config, "dev_hardware", None, None)
         prod_signature = resolve_signature(config, "prod_hardware", None, None)
 
@@ -338,7 +342,7 @@ class TestConfidenceBoundary:
         assert confidence >= 0.6
 
     def test_low_confidence_routes_to_warn_and_defer(self, hw_table):
-        dev_features_raw = json.loads((PROJECT_DIR / "examples" / "gate_queries" / "q19_c7i_dev_features.json").read_text())
+        dev_features_raw = json.loads((EXAMPLES_DIR / "q19_c7i_dev_features.json").read_text())
         result = run_gate(dev_features_raw, hw_table["c7i"], {"bandwidth": 30.0, "compute": 1.4}, sla_ms=100.0)
         assert result["verdict"]["state"] == "WARN"
         assert "LOW CONFIDENCE" in result["verdict"]["reason"]
@@ -364,7 +368,7 @@ class TestBufferAccounting:
         )
 
     def test_collection_script_and_gate_parser_share_identical_buffer_logic(self):
-        collect_script = (PROJECT_DIR / "benchmark" / "collect_query.py").read_text()
+        collect_script = (PROJECT_DIR / "scripts" / "collection" / "collect_query.py").read_text()
         gate_body = inspect.getsource(cetp_gate.root_buffers).split("\n", 1)[1]
         collect_func = collect_script.split("def root_buffers(plan_node, key):", 1)[1]
         collect_body = collect_func.split("\n\n", 1)[0]
@@ -373,7 +377,7 @@ class TestBufferAccounting:
             return re.sub(r"\s+", " ", s).strip()
 
         assert normalize(gate_body) == normalize(collect_body), (
-            "cetp_gate.root_buffers() and benchmark/collect_query.py's root_buffers() have diverged: "
+            "cetp_gate.root_buffers() and scripts/collection/collect_query.py's root_buffers() have diverged: "
             "the CI-time EXPLAIN parser and the offline dataset-collection parser must stay identical "
             "or predictions will be trained on a different feature definition than they are served with."
         )

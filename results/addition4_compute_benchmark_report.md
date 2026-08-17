@@ -4,7 +4,7 @@ Real EC2 measurement (not a pure-analysis addition): 5 spot instances launched f
 
 ## Part 1: The new compute benchmark
 
-`benchmark/compute_probe.c`. Design decisions, each made explicit:
+`scripts/collection/compute_probe.c`. Design decisions, each made explicit:
 
 - **What it measures**: peak *vectorized* FLOPS (not a serial dependency-chain latency benchmark) — chosen because it's the more representative proxy for what a real query executor's arithmetic-heavy inner loops can achieve, and because TPC-H aggregation (sums, products like `l_extendedprice * (1 - l_discount)`) is exactly this kind of bulk, vectorizable arithmetic.
 - **Anti-elimination**: 8 independent accumulators (exposes ILP for the vectorizer without serializing), each accumulating `data[i]^2` — bounded, no overflow/cancellation risk. A per-outer-iteration perturbation (`data[it & mask] += 1e-12`) prevents the compiler from proving the nested loop is invariant across outer iterations and hoisting/eliminating it. A data-dependent checksum (seeded from a runtime argument, not a compile-time constant) is printed and cannot be predicted by the compiler.
@@ -94,8 +94,8 @@ This doesn't overturn Phases 6/7's central deployment recommendation (naive-line
 
 ## Artifacts
 
-- `benchmark/compute_probe.c` — the validated compute benchmark source.
-- `benchmark/run_compute_benchmark.sh` — the launch/measure/terminate orchestration script (bash-3.2-compatible).
-- `benchmark/results/*_compute_benchmark.txt` — raw per-machine benchmark output (all 5 machines, single- and multi-threaded, with checksums).
+- `scripts/collection/compute_probe.c` — the validated compute benchmark source.
+- `scripts/collection/run_compute_benchmark.sh` — the launch/measure/terminate orchestration script (bash-3.2-compatible).
+- `scripts/collection/results/*_compute_benchmark.txt` — raw per-machine benchmark output (all 5 machines, single- and multi-threaded, with checksums).
 - `addition4_reevaluate.py` — full re-evaluation script (correlations, gated-formula MAPE, LOMO comparison) for all 3 compute-signal variants.
 - `results/addition4_reevaluation.csv` — summary table.

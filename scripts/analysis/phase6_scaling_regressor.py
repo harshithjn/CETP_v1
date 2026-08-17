@@ -7,7 +7,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import precision_score, recall_score
 
 PROJECT_DIR = Path("/Users/harshithj/Main/Resources/CETP")
-CSV_PATH = PROJECT_DIR / "tpch_dataset.csv"
+CSV_PATH = PROJECT_DIR / "data" / "raw" / "tpch_dataset.csv"
 MODELS_DIR = PROJECT_DIR / "models"
 MODELS_DIR.mkdir(exist_ok=True)
 

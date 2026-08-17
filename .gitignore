@@ -86,4 +86,13 @@ Thumbs.db
 *.db
 *.sqlite
 *.sqlite3
-!test_fixtures/*.db
+!tests/test_fixtures/*.db
+
+# Credentials and keys - never commit these
+*.pem
+*.key
+credentials.json
+.env
+
+# Compiled probe binaries (regenerate from compute_probe.c)
+scripts/collection/compute_probe_O*

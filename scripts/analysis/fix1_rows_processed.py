@@ -3,9 +3,9 @@ import pandas as pd
 from pathlib import Path
 
 PROJECT_DIR = Path("/Users/harshithj/Main/Resources/CETP")
-BASE_CSV = PROJECT_DIR / "tpch_dataset_corrected.csv"
+BASE_CSV = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected.csv"
 PLAN_FEATURES_CSV = PROJECT_DIR / "results" / "plan_structure_features.csv"
-OUT_CSV = PROJECT_DIR / "tpch_dataset_corrected_v2.csv"
+OUT_CSV = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected_v2.csv"
 RESULTS_DIR = PROJECT_DIR / "results"
 
 BOTTLENECK_LABELS = {

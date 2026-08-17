@@ -65,8 +65,8 @@ Group means: **parallel-plan queries +11.70pp mean benefit; serial-plan queries 
 
 ## Artifacts
 
-- `benchmark/tpch_data/` — local SF1 TPC-H data (DuckDB-generated) and Postgres load script.
-- `benchmark/check_parallelism.py` — EXPLAIN-based parallel-node detector for all 21 queries.
+- `scripts/collection/tpch_data/` — local SF1 TPC-H data (DuckDB-generated) and Postgres load script.
+- `scripts/collection/check_parallelism.py` — EXPLAIN-based parallel-node detector for all 21 queries.
 - `addition4b_mechanism_check.py` — per-query benefit ranking, mechanism test, confound check.
 - `results/addition4b_parallel_plan_check.csv` — per-query parallel-node presence and worker counts.
 - `results/addition4b_per_query_benefit.csv` — per-query benefit ranking merged with parallel-plan status.
