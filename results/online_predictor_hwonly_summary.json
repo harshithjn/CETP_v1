@@ -1,0 +1,9 @@
+{
+  "n_total": 294,
+  "n_predict": 293,
+  "n_measure": 1,
+  "predicted_subset_mape": 40.49638394843954,
+  "blind_all_mape": 40.98865385183597,
+  "first_half_measure_rate": 0.6802721088435374,
+  "second_half_measure_rate": 0.0
+}

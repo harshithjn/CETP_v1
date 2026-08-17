@@ -1,0 +1,19 @@
+dev_hardware:
+  machine_id: c7i
+  bandwidth_gbs: 8.44
+  compute_score: 0.807
+
+prod_hardware:
+  machine_id: c5a
+  bandwidth_gbs: 14.9
+  compute_score: 0.593
+
+sla:
+  default_ms: 500
+  per_query:
+    q1: 3000
+    q18: 8000
+    q19: 200
+
+confidence:
+  low_confidence_threshold: 0.6

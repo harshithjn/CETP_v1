@@ -1,0 +1,82 @@
+[
+  {
+    "label": "PASS",
+    "query_label": "q19 (c5a -> c7i)",
+    "sla_ms": 200.0,
+    "dev_time_ms": 43.73350000000001,
+    "bandwidth_ratio": 0.5664429530201341,
+    "compute_ratio": 1.360876897133221,
+    "bottleneck_probabilities": {
+      "bandwidth": 1.0,
+      "compute": 0.0,
+      "io": 0.0,
+      "mixed": 0.0
+    },
+    "predicted_p50": 54.062306483896485,
+    "predicted_p95": 74.76166859034069,
+    "predicted_p99": 95.29971115021571,
+    "confidence": 1.0,
+    "state": "PASS",
+    "reason": "predicted p99 (95.3 ms) clears SLA (200.0 ms)."
+  },
+  {
+    "label": "BLOCK",
+    "query_label": "q1 (r5n -> z1d)",
+    "sla_ms": 3000.0,
+    "dev_time_ms": 7103.264,
+    "bandwidth_ratio": 1.040468583599574,
+    "compute_ratio": 1.251063829787234,
+    "bottleneck_probabilities": {
+      "bandwidth": 0.006666666666666667,
+      "compute": 0.9933333333333333,
+      "io": 0.0,
+      "mixed": 0.0
+    },
+    "predicted_p50": 6070.705814465776,
+    "predicted_p95": 9951.95332132753,
+    "predicted_p99": 10742.530976288923,
+    "confidence": 1.0,
+    "state": "BLOCK",
+    "reason": "predicted p50 (6070.7 ms) exceeds SLA (3000.0 ms)."
+  },
+  {
+    "label": "WARN (in-between)",
+    "query_label": "q18 (c7i -> r5n)",
+    "sla_ms": 8000.0,
+    "dev_time_ms": 5414.1975,
+    "bandwidth_ratio": 1.1125592417061612,
+    "compute_ratio": 0.8736059479553903,
+    "bottleneck_probabilities": {
+      "bandwidth": 0.0,
+      "compute": 0.0,
+      "io": 0.0033333333333333335,
+      "mixed": 0.9966666666666667
+    },
+    "predicted_p50": 6255.641197803654,
+    "predicted_p95": 7641.962143996069,
+    "predicted_p99": 8043.813533523211,
+    "confidence": 1.0,
+    "state": "WARN",
+    "reason": "predicted p50 (6255.6 ms) is under SLA but predicted p99 (8043.8 ms) exceeds it (8000.0 ms). Recommend a canary run before deploying."
+  },
+  {
+    "label": "WARN (low confidence)",
+    "query_label": "q19 (c7i -> hypothetical high-bandwidth prod tier)",
+    "sla_ms": 100.0,
+    "dev_time_ms": 53.158,
+    "bandwidth_ratio": 3.5545023696682465,
+    "compute_ratio": 1.7348203221809169,
+    "bottleneck_probabilities": {
+      "bandwidth": 1.0,
+      "compute": 0.0,
+      "io": 0.0,
+      "mixed": 0.0
+    },
+    "predicted_p50": 36.0916672061323,
+    "predicted_p95": 53.27505883524182,
+    "predicted_p99": 81.02305646056188,
+    "confidence": 0.0,
+    "state": "WARN",
+    "reason": "LOW CONFIDENCE (hw-distance confidence=0.00 < 0.6): prod hardware signature is an outlier relative to the training set. Recommend a canary run or real measurement instead of trusting this prediction."
+  }
+]

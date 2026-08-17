@@ -1,0 +1,9 @@
+{
+  "overall_blind_mape": 31.261196520406955,
+  "aurc_hw_distance": 24.062661424019442,
+  "aurc_random": 29.697145646284493,
+  "operating_threshold": 0.6,
+  "operating_coverage_pct": 80.0,
+  "operating_selective_mape": 26.59070092930263,
+  "operating_abstain_pct": 20.0
+}

@@ -1,0 +1,37 @@
+{
+  "narrative_query": {
+    "dev_machine": "c7i",
+    "prod_machine": "c5a",
+    "query_id": "q19",
+    "actual_scaling_factor": 0.8227077768162836,
+    "predicted_before": 1.2574928420723583,
+    "error_pct_before": 52.8480558356464,
+    "predicted_after": 0.6744961932459185,
+    "error_pct_after": 18.015094514350483,
+    "confidence_before": 0.0,
+    "confidence_after": 1.0,
+    "state_before": "WARN",
+    "state_after": "PASS"
+  },
+  "held_out_mape": {
+    "n": 36,
+    "before_pct": 77.71737126821228,
+    "after_pct": 15.011920306238535,
+    "improvement_pp": 62.70545096197374
+  },
+  "known_machines_before": [
+    "c7i",
+    "m5a",
+    "r5n",
+    "z1d"
+  ],
+  "known_machines_after": [
+    "c5a",
+    "c7i",
+    "m5a",
+    "r5n",
+    "z1d"
+  ],
+  "retrain_trigger_n": 12,
+  "leakage_check_passed": true
+}

@@ -1,0 +1,15 @@
+[
+  "dev_cost",
+  "dev_total_buffers",
+  "dev_shared_hit",
+  "dev_shared_read",
+  "dev_rows",
+  "dev_io_ratio",
+  "bandwidth_ratio",
+  "compute_ratio",
+  "p_compute",
+  "p_bandwidth",
+  "p_io",
+  "p_mixed",
+  "analytical_scaling"
+]

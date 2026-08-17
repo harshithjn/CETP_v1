@@ -1,0 +1,5 @@
+{
+  "sla_scaling_threshold": 1.5,
+  "compute_gate_threshold": 0.5,
+  "gate_logic": "block if analytical_pred > threshold; else pass if learned_p99 <= threshold; else warn"
+}

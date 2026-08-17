@@ -1,0 +1,126 @@
+{
+  "buggy_dataset": {
+    "old_single_core_compute": {
+      "mape": {
+        "naive": 31.972008546032367,
+        "naive_linear": 23.0254233944231,
+        "analytical": 31.135227600482253,
+        "gated": 28.05883911992862,
+        "learned": 31.26119652040696
+      },
+      "bootstrap_naive_linear_minus_analytical": {
+        "point": -8.109804206059152,
+        "ci95": [
+          -11.818699584537534,
+          -4.400908827580761
+        ]
+      },
+      "bootstrap_naive_linear_minus_gated": {
+        "point": -5.03341572550552,
+        "ci95": [
+          -7.165292656594506,
+          -3.022232903272817
+        ]
+      },
+      "bootstrap_naive_linear_minus_learned": {
+        "point": -8.235773125983858,
+        "ci95": [
+          -22.38095021960414,
+          2.4145135721386453
+        ]
+      }
+    },
+    "new_multi_core_compute": {
+      "mape": {
+        "naive": 31.972008546032367,
+        "naive_linear": 23.0254233944231,
+        "analytical": 21.599002941755867,
+        "gated": 22.295816818141116,
+        "learned": 23.99953361492541
+      },
+      "bootstrap_naive_linear_minus_analytical": {
+        "point": 1.4264204526672337,
+        "ci95": [
+          0.2990044151151565,
+          2.553836490219311
+        ]
+      },
+      "bootstrap_naive_linear_minus_gated": {
+        "point": 0.7296065762819843,
+        "ci95": [
+          0.2771471286970487,
+          1.2702789015135316
+        ]
+      },
+      "bootstrap_naive_linear_minus_learned": {
+        "point": -0.9741102205023111,
+        "ci95": [
+          -8.242337087345145,
+          4.272196655313472
+        ]
+      }
+    }
+  },
+  "corrected_dataset": {
+    "old_single_core_compute": {
+      "mape": {
+        "naive": 31.972008546032367,
+        "naive_linear": 23.0254233944231,
+        "analytical": 31.11564001017395,
+        "gated": 28.05883911992862,
+        "learned": 32.7880052355104
+      },
+      "bootstrap_naive_linear_minus_analytical": {
+        "point": -8.090216615750851,
+        "ci95": [
+          -11.796106970987246,
+          -4.384326260514449
+        ]
+      },
+      "bootstrap_naive_linear_minus_gated": {
+        "point": -5.03341572550552,
+        "ci95": [
+          -7.165292656594506,
+          -3.022232903272817
+        ]
+      },
+      "bootstrap_naive_linear_minus_learned": {
+        "point": -9.762581841087297,
+        "ci95": [
+          -22.78256199838737,
+          0.33498193061585013
+        ]
+      }
+    },
+    "new_multi_core_compute": {
+      "mape": {
+        "naive": 31.972008546032367,
+        "naive_linear": 23.0254233944231,
+        "analytical": 21.599077652957416,
+        "gated": 22.295816818141116,
+        "learned": 23.38201477798266
+      },
+      "bootstrap_naive_linear_minus_analytical": {
+        "point": 1.4263457414656848,
+        "ci95": [
+          0.3003567229917756,
+          2.5523347599395976
+        ]
+      },
+      "bootstrap_naive_linear_minus_gated": {
+        "point": 0.7296065762819843,
+        "ci95": [
+          0.2771471286970487,
+          1.2702789015135316
+        ]
+      },
+      "bootstrap_naive_linear_minus_learned": {
+        "point": -0.3565913835595609,
+        "ci95": [
+          -6.567894188301036,
+          4.9378667920638115
+        ]
+      }
+    }
+  }
+}

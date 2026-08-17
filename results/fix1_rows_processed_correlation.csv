@@ -1,0 +1,2 @@
+corr_old_rows_pooled,corr_rows_processed_pooled,n_pairs,verdict
+-0.0132256289299923,0.00033612008059645884,420,"UNCHANGED: rows_processed and old rows correlate with scaling_factor_p50 at essentially the same (weak) magnitude. Rewriting rows-as-work-done does not, by itself, make this feature a stronger predictor of cross-machine scaling."

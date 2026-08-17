@@ -1,0 +1,22 @@
+[
+  {
+    "Plan": {
+      "Node Type": "Aggregate",
+      "Total Cost": 32575.98,
+      "Actual Rows": 1,
+      "Shared Hit Blocks": 17350,
+      "Shared Read Blocks": 3216,
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Total Cost": 30000.10,
+          "Actual Rows": 900,
+          "Shared Hit Blocks": 5350,
+          "Shared Read Blocks": 2016,
+          "Plans": []
+        }
+      ]
+    },
+    "Execution Time": 43.7335
+  }
+]

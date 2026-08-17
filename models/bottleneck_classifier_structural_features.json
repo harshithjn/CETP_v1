@@ -1,0 +1,15 @@
+[
+  "cost",
+  "shared_hit",
+  "shared_read",
+  "total_buffers",
+  "io_ratio",
+  "rows",
+  "rows_processed",
+  "join_count",
+  "node_count",
+  "plan_depth",
+  "has_aggregate",
+  "has_sort",
+  "correlated_pattern_count"
+]

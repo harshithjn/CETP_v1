@@ -1,0 +1,121 @@
+=== Launching c5a (c5a.xlarge) ===
+Instance ID: i-045c3835fdd3b74cc
+Waiting for instance to be running...
+Public IP: 13.233.119.84
+Confirmed instance type: , nproc: 4
+--- single-threaded ---
+threads=1 iters=37397819 array_size=2048 target_seconds=15.0
+wall_seconds=14.9323
+checksum=121209173491.699478
+total_flops=153181466624
+gflops_aggregate=10.2584
+gflops_per_thread=10.2585
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+--- multi-threaded (nproc=4) ---
+threads=4 iters=37632988 array_size=2048 target_seconds=15.0
+wall_seconds=15.1096
+checksum=487885496419.229797
+total_flops=616578875392
+gflops_aggregate=40.8071
+gflops_per_thread=10.2019
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+Terminating i-045c3835fdd3b74cc
+=== Done with c5a ===
+
+=== Launching m5a (m5a.xlarge) ===
+Instance ID: i-0608f1957b35b6186
+Waiting for instance to be running...
+Public IP: 13.232.51.121
+Confirmed instance type: , nproc: 4
+--- single-threaded ---
+threads=1 iters=29360034 array_size=2048 target_seconds=15.0
+wall_seconds=14.9662
+checksum=95158101183.541565
+total_flops=120258699264
+gflops_aggregate=8.0354
+gflops_per_thread=8.0354
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+--- multi-threaded (nproc=4) ---
+threads=4 iters=29169805 array_size=2048 target_seconds=15.0
+wall_seconds=15.1544
+checksum=378166218130.971680
+total_flops=477918085120
+gflops_aggregate=31.5366
+gflops_per_thread=7.8843
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+Terminating i-0608f1957b35b6186
+=== Done with m5a ===
+
+=== Launching r5n (r5n.large) ===
+Instance ID: i-0836e4a70a39113f9
+Waiting for instance to be running...
+Public IP: 3.6.93.241
+Confirmed instance type: , nproc: 2
+--- single-threaded ---
+threads=1 iters=46385404 array_size=2048 target_seconds=15.0
+wall_seconds=14.9757
+checksum=150338620170.173218
+total_flops=189994614784
+gflops_aggregate=12.6869
+gflops_per_thread=12.6870
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+--- multi-threaded (nproc=2) ---
+threads=2 iters=46366132 array_size=2048 target_seconds=15.0
+wall_seconds=15.2127
+checksum=300552316303.024292
+total_flops=379831353344
+gflops_aggregate=24.9681
+gflops_per_thread=12.4842
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+Terminating i-0836e4a70a39113f9
+=== Done with r5n ===
+
+=== Launching z1d (z1d.large) ===
+Instance ID: i-0667041a00379c938
+Waiting for instance to be running...
+Public IP: 13.233.126.45
+Confirmed instance type: , nproc: 2
+--- single-threaded ---
+threads=1 iters=58023821 array_size=2048 target_seconds=15.0
+wall_seconds=15.0316
+checksum=188059615482.063049
+total_flops=237665570816
+gflops_aggregate=15.8111
+gflops_per_thread=15.8112
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+--- multi-threaded (nproc=2) ---
+threads=2 iters=57942174 array_size=2048 target_seconds=15.0
+wall_seconds=16.9037
+checksum=375589982679.813904
+total_flops=474662289408
+gflops_aggregate=28.0804
+gflops_per_thread=14.0403
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+Terminating i-0667041a00379c938
+=== Done with z1d ===
+
+=== Launching c7i (c7i.large) ===
+Instance ID: i-00a5cb8c9e401a9ee
+Waiting for instance to be running...
+Public IP: 3.110.179.235
+Confirmed instance type: , nproc: 2
+--- single-threaded ---
+threads=1 iters=47425630 array_size=2048 target_seconds=15.0
+wall_seconds=14.9452
+checksum=153710071800.711426
+total_flops=194255380480
+gflops_aggregate=12.9978
+gflops_per_thread=12.9979
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+--- multi-threaded (nproc=2) ---
+threads=2 iters=48094937 array_size=2048 target_seconds=15.0
+wall_seconds=15.2175
+checksum=311758693448.245789
+total_flops=393993723904
+gflops_aggregate=25.8909
+gflops_per_thread=12.9455
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+Terminating i-00a5cb8c9e401a9ee
+=== Done with c7i ===
+
+All 5 machines measured and terminated. Results in /Users/harshithj/Main/Resources/CETP/benchmark/results

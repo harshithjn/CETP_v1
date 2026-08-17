@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CETP — Cross-Environment TPC-H Runtime Prediction</title>
+<style>
+:root {
+  --bg: #000000;
+  --bg-alt: #121212;
+  --ink: #f0f0ec;
+  --ink-soft: #a8a8a4;
+  --line: #2c2c2c;
+  --line-soft: #202020;
+  --accent: #5b9bd0;
+  --accent-soft: #10202c;
+  --good: #5fb56e;
+  --good-soft: #10241a;
+  --bad: #e0685a;
+  --bad-soft: #2a1512;
+  --warn: #d4ac4a;
+  --warn-soft: #2a2210;
+  --radius: 3px;
+  --maxw: 980px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+h1, h2, h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0 0 0.4em 0;
+}
+
+h2 { font-size: 1.5rem; letter-spacing: 0.01em; }
+h3 { font-size: 1.05rem; margin-top: 1.4em; }
+
+p { margin: 0.6em 0; color: var(--ink-soft); }
+
+a { color: var(--accent); }
+
+nav.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+nav.topnav .bar {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+}
+
+nav.topnav .inner {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+nav.topnav .inner::-webkit-scrollbar {
+  display: none;
+}
+
+nav.topnav a {
+  display: inline-block;
+  padding: 12px 10px;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+nav.topnav a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.nav-toggle {
+  display: none;
+  margin-left: auto;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-toggle span,
+.nav-toggle span::before,
+.nav-toggle span::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--ink-soft);
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.nav-toggle span::before,
+.nav-toggle span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.nav-toggle span::before { top: -6px; }
+.nav-toggle span::after { top: 6px; }
+
+.nav-toggle:hover span,
+.nav-toggle:hover span::before,
+.nav-toggle:hover span::after {
+  background: var(--accent);
+}
+
+nav.topnav.compact .bar { height: 48px; }
+
+nav.topnav.compact .inner {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  flex-direction: column;
+  gap: 0;
+  overflow-x: visible;
+  white-space: normal;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+nav.topnav.compact .inner.open { display: flex; }
+
+nav.topnav.compact a {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+nav.topnav.compact .nav-toggle { display: flex; }
+
+header.hero {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 48px 20px 28px 20px;
+}
+
+header.hero .eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+header.hero h1 {
+  font-size: 2.05rem;
+  max-width: 720px;
+}
+
+header.hero .lede {
+  max-width: 640px;
+  font-size: 1rem;
+  color: var(--ink-soft);
+}
+
+.cards {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.card {
+  flex: 1 1 200px;
+  min-width: 180px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  background: var(--bg-alt);
+}
+
+.card .stat {
+  font-family: Georgia, serif;
+  font-size: 1.7rem;
+  color: var(--accent);
+}
+
+.card .label {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+section {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 44px 20px;
+  border-top: 1px solid var(--line-soft);
+}
+
+section .section-tag {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.caption {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  border-left: 2px solid var(--line);
+  padding-left: 12px;
+  margin-top: 14px;
+}
+
+.caption.honest {
+  border-left-color: var(--warn);
+  background: var(--warn-soft);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 0.88rem;
+}
+
+table caption { caption-side: bottom; }
+
+th, td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+th {
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--line);
+}
+
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+tr.beats td { background: var(--good-soft); }
+tr.beats td.name::before { content: "▲ "; color: var(--good); }
+tr.baseline td.name { font-weight: 600; }
+tr.outlier-row td { background: var(--bad-soft); }
+
+.tablewrap { overflow-x: auto; }
+
+.beat-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  padding: 1px 6px;
+  border-radius: var(--radius);
+  background: var(--good-soft);
+  color: var(--good);
+  margin-left: 8px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+.chart-box {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  background: var(--bg-alt);
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.bar-row .bar-label {
+  width: 46px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-track {
+  flex: 1;
+  background: var(--line-soft);
+  border-radius: var(--radius);
+  height: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+}
+
+.bar-fill.learned { background: #8a8a86; }
+.bar-fill.analytical { background: var(--accent); }
+.bar-fill.naive { background: #55554f; }
+.bar-fill.outlier { background: var(--bad); }
+
+.bar-value {
+  width: 54px;
+  text-align: right;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.legend span.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.calib-box {
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 24px;
+  background: var(--accent-soft);
+}
+
+.calib-flow {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.calib-state {
+  flex: 1 1 260px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.calib-state h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+}
+
+.calib-state .big {
+  font-family: Georgia, serif;
+  font-size: 1.6rem;
+  color: var(--ink);
+}
+
+.calib-state .big.bad { color: var(--bad); }
+.calib-state .big.good { color: var(--good); }
+
+.calib-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: var(--ink-soft);
+  padding: 0 4px;
+}
+
+figure {
+  margin: 16px 0 0 0;
+}
+
+figure img {
+  max-width: 100%;
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+figcaption {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 8px;
+}
+
+.op-point {
+  display: inline-block;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+.sla-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.sla-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  background: var(--bg-alt);
+}
+
+.sla-card .state-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+
+.state-PASS { background: var(--good-soft); color: var(--good); }
+.state-BLOCK { background: var(--bad-soft); color: var(--bad); }
+.state-WARN { background: var(--warn-soft); color: var(--warn); }
+
+.sla-card .query { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 8px; }
+.sla-card dl { margin: 0; font-size: 0.82rem; }
+.sla-card dt { color: var(--ink-soft); float: left; clear: left; width: 90px; }
+.sla-card dd { margin: 0 0 4px 0; }
+.sla-card .reason { margin-top: 10px; font-size: 0.8rem; color: var(--ink-soft); font-style: italic; }
+.pre-tag { font-size: 0.7rem; color: var(--ink-soft); float: right; text-transform: uppercase; letter-spacing: 0.03em; }
+
+.integrity-box {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  background: var(--bg-alt);
+}
+
+.integrity-box .steps {
+  list-style: none;
+  margin: 12px 0 0 0;
+  padding: 0;
+  counter-reset: step;
+}
+
+.integrity-box .steps li {
+  counter-increment: step;
+  padding: 6px 0 6px 30px;
+  position: relative;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.integrity-box .steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.integrity-metrics {
+  display: flex;
+  gap: 14px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.integrity-metric {
+  flex: 1 1 200px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  background: var(--bg);
+}
+
+.integrity-metric .before-after {
+  font-family: Georgia, serif;
+  font-size: 1.15rem;
+}
+
+.integrity-metric .before-after .arrow { color: var(--ink-soft); margin: 0 6px; font-family: -apple-system, sans-serif; }
+.integrity-metric .before-after .worse { color: var(--bad); }
+.integrity-metric .before-after .unchanged { color: var(--good); }
+.integrity-metric .metric-label { font-size: 0.78rem; color: var(--ink-soft); margin-top: 4px; }
+
+ol.limitations, ul.limitations {
+  padding-left: 20px;
+}
+
+ol.limitations li, ul.limitations li {
+  margin: 10px 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+footer {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 30px 20px 60px 20px;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--line-soft);
+}
+
+.src {
+  font-size: 0.74rem;
+  color: #6a6a66;
+  margin-top: 10px;
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="bar">
+    <div class="inner" id="nav-inner">
+      <a href="#overview">Overview</a>
+      <a href="#central-result">Central Result</a>
+      <a href="#compute-signal">Compute Signal</a>
+      <a href="#generalization">Generalization</a>
+      <a href="#self-calibration">Self-Calibration</a>
+      <a href="#learning-curve">Learning Curve</a>
+      <a href="#confidence">Confidence</a>
+      <a href="#sla-gate">SLA Gate</a>
+      <a href="#data-integrity">Data Integrity</a>
+      <a href="#limitations">Limitations</a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-inner">
+      <span></span>
+    </button>
+  </div>
+</nav>
+
+<header class="hero" id="overview">
+  <div class="eyebrow">CETP — Final Results</div>
+  <h1>Cross-Environment TPC-H Runtime Prediction</h1>
+  <p class="lede">
+    Predicting how a query's runtime scales from a development machine to a different production machine,
+    evaluated under honest leave-one-machine-out cross-validation on 5 AWS instance types and 21 TPC-H queries.
+    All numbers on this page come from the buffer-accounting-corrected dataset and result files.
+  </p>
+  <div class="cards" id="summary-cards"></div>
+</header>
+
+<section id="central-result">
+  <div class="section-tag">01 — The Central Result</div>
+  <h2>A single hardware ratio is the state of the art</h2>
+  <p>
+    <code>naive-linear (1 / bandwidth_ratio)</code> beats every more sophisticated approach tried against it —
+    except when the compute signal is measured as aggregate multi-core throughput rather than single-core speed,
+    in which case the physics-informed formula wins instead, by a real but modest margin (about 1.4 percentage
+    points, statistically significant under a 2000-resample cluster bootstrap). Rows below that beat naive-linear
+    are marked.
+  </p>
+  <div class="tablewrap">
+    <table id="mape-table"></table>
+  </div>
+  <div class="caption" id="mape-caption"></div>
+</section>
+
+<section id="compute-signal">
+  <div class="section-tag">02 — The Compute-Signal Discovery</div>
+  <h2>Single-core is wrong-signed; aggregate multi-core is not</h2>
+  <p>
+    Correlation of the compute-hardware ratio with actual scaling factor, pooled across all 420 dev→prod pairs.
+    A positive correlation is physically backwards — it implies more compute capacity predicts a slower production run.
+  </p>
+  <div class="grid-2">
+    <div class="chart-box">
+      <svg id="corr-svg" width="100%" height="140" viewBox="0 0 460 140"></svg>
+      <div class="legend">
+        <span><span class="swatch" style="background:#9a3b2f"></span>single-thread (wrong sign)</span>
+        <span><span class="swatch" style="background:#1f5f8b"></span>multi-thread (correct sign)</span>
+      </div>
+    </div>
+    <div>
+      <h3>Confound ruled out</h3>
+      <p>Measured multi-core throughput is not just a proxy for core count.</p>
+      <table id="confound-table"></table>
+    </div>
+  </div>
+</section>
+
+<section id="generalization">
+  <div class="section-tag">03 — Generalization vs. Interpolation</div>
+  <h2>The learned model interpolates; it does not extrapolate to c5a</h2>
+  <p>
+    Per-machine MAPE when that machine is held out entirely from training. c5a is this dataset's hardware outlier
+    (highest bandwidth, lowest compute) — this is the headline scientific finding of the project.
+  </p>
+  <div class="chart-box" id="per-machine-chart"></div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#8a8a86"></span>learned quantile GBR</span>
+    <span><span class="swatch" style="background:#1f5f8b"></span>analytical roofline</span>
+    <span><span class="swatch" style="background:#55554f"></span>naive-linear</span>
+  </div>
+  <div class="caption">
+    On every machine but c5a, the learned model is competitive or better. On c5a — the one machine whose hardware
+    profile sits outside the other four's envelope — the learned model's error more than triples while the
+    analytical and naive-linear formulas barely move. The model is interpolating between hardware profiles it has
+    seen, not extrapolating to genuinely unseen hardware.
+  </div>
+</section>
+
+<section id="self-calibration">
+  <div class="section-tag">04 — Self-Calibration Loop (Addition 7)</div>
+  <h2>Closing the project's central limitation</h2>
+  <p>
+    The system detects unfamiliar hardware, defers instead of guessing, captures a real measurement when one
+    becomes available, and retrains — so a machine that was unknown becomes known, and future predictions on it
+    are materially more accurate.
+  </p>
+  <div class="calib-box">
+    <div class="calib-flow">
+      <div class="calib-state">
+        <h4>Before — c5a unseen</h4>
+        <div class="big bad" id="calib-conf-before"></div>
+        <div>hardware-distance confidence</div>
+        <div class="big bad" style="margin-top:10px" id="calib-mape-before"></div>
+        <div>held-out MAPE, 36 dev→c5a pairs</div>
+      </div>
+      <div class="calib-arrow">→</div>
+      <div class="calib-state">
+        <h4>After — 12 measurements captured, retrained</h4>
+        <div class="big good" id="calib-conf-after"></div>
+        <div>hardware-distance confidence</div>
+        <div class="big good" style="margin-top:10px" id="calib-mape-after"></div>
+        <div>held-out MAPE, same 36 pairs</div>
+      </div>
+    </div>
+    <div class="caption" style="margin-top:20px" id="calib-narrative"></div>
+  </div>
+  <div class="caption honest">
+    This closes the project's central limitation: the system detects novel hardware, defers, learns, and the gap
+    closes. Honest caveat: this is demonstrated on held-out data standing in for a live measurement — it has not
+    been tested against a live production stream.
+  </div>
+</section>
+
+<section id="learning-curve">
+  <div class="section-tag">05 — Learning Curve</div>
+  <h2>Accuracy improves as more dev machines are seen</h2>
+  <figure>
+    <img src="assets/learning_curve_corrected.png" alt="Learning curve: MAPE vs machines seen and query fraction">
+    <figcaption id="learning-curve-caption"></figcaption>
+  </figure>
+</section>
+
+<section id="confidence">
+  <div class="section-tag">06 — Confidence / Abstention</div>
+  <h2>A sharp outlier detector, not a graded estimate</h2>
+  <p>
+    Hardware-distance confidence lets the system abstain (defer to measurement) on the requests it is least
+    equipped to predict, under honest leave-one-machine-out evaluation.
+  </p>
+  <figure>
+    <img src="assets/risk_coverage_curve_corrected.png" alt="Risk-coverage curve: hardware-distance vs random abstention">
+    <figcaption id="risk-coverage-caption"></figcaption>
+  </figure>
+  <div class="op-point" id="op-point"></div>
+  <div class="tablewrap">
+    <table id="tiers-table"></table>
+  </div>
+  <div class="caption">
+    The confidence score takes only 5 distinct values (one per held-out machine) — it is a discrete outlier
+    detector, not a continuously graded confidence score. Its value is concentrated almost entirely in isolating
+    one catastrophic tier: predictions where c5a is the deployment target and was held out of training.
+  </div>
+</section>
+
+<section id="sla-gate">
+  <div class="section-tag">07 — SLA Gate Demo</div>
+  <h2>Four worked verdicts</h2>
+  <p>Pre-computed examples covering every verdict branch of the three-state gate.</p>
+  <div class="sla-cards" id="sla-cards"></div>
+</section>
+
+<section id="data-integrity">
+  <div class="section-tag">08 — Data Integrity</div>
+  <h2>A bug was found, diagnosed, and fixed — and that is reported here</h2>
+  <div class="integrity-box">
+    <p>
+      End-to-end testing caught a buffer-accounting bug: PostgreSQL reports <code>EXPLAIN (BUFFERS)</code> counts
+      cumulatively at the root plan node, but the original collection script summed them again across every node
+      in the tree, inflating buffer counts by a query-dependent factor.
+    </p>
+    <ol class="steps">
+      <li>Root cause confirmed on real EXPLAIN plans: inflation ranges <span id="infl-range"></span> across the 21-query workload — not a constant multiplier.</li>
+      <li>Buffers are hardware-independent for a fixed query and dataset, so correct values were regenerated on a locally-verified matching PostgreSQL SF1 instance rather than by re-running the original cloud machines.</li>
+      <li>Every buffer-accounting code path (the live gate and the collection script) was fixed to read the root node directly.</li>
+      <li>The corrected dataset was rebuilt and every headline result was re-evaluated against it.</li>
+    </ol>
+    <div class="integrity-metrics">
+      <div class="integrity-metric">
+        <div class="before-after"><span class="worse" id="clf-f1-before"></span><span class="arrow">→</span><span id="clf-f1-after"></span></div>
+        <div class="metric-label">bottleneck classifier macro-F1 (buggy → corrected)</div>
+      </div>
+      <div class="integrity-metric">
+        <div class="before-after"><span class="worse" id="io-recall-before"></span><span class="arrow">→</span><span id="io-recall-after"></span></div>
+        <div class="metric-label">io-class recall (buggy → corrected)</div>
+      </div>
+      <div class="integrity-metric">
+        <div class="before-after"><span class="unchanged">21.60%</span><span class="arrow">=</span><span class="unchanged">21.60%</span></div>
+        <div class="metric-label">headline multi-core analytical MAPE (buggy → corrected, unchanged)</div>
+      </div>
+    </div>
+    <p style="margin-top:16px">
+      Every headline scaling-prediction result — naive-linear MAPE, the multi-core flip, its bootstrap
+      significance, and the c5a generalization finding — was confirmed unchanged or shifted by at most ~2
+      percentage points on the corrected dataset. Only the bottleneck classifier's own accuracy was materially
+      affected, and its honest, corrected number (0.375 macro-F1, not the previously reported 0.562) is what is
+      shown throughout this page. Including this is a credibility feature, not a confession to hide.
+    </p>
+  </div>
+</section>
+
+<section id="limitations">
+  <div class="section-tag">09 — Limitations</div>
+  <h2>Stated plainly</h2>
+  <ul class="limitations" id="limitations-list"></ul>
+</section>
+
+<footer>
+  Static results dashboard. No backend, no network calls, no build step. All figures and numbers are read from
+  <code>data.js</code>, itself extracted from the project's corrected result files.
+</footer>
+
+<script src="data.js"></script>
+<script>
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+function renderCards() {
+  const wrap = document.getElementById("summary-cards");
+  const cards = [
+    { stat: DATA.meta.bestMape.toFixed(2) + "%", label: "best corrected scaling-factor MAPE (multi-core analytical)" },
+    { stat: "flip", label: "physics-informed formula now beats naive-linear with the multi-core compute signal" },
+    { stat: DATA.meta.machines + " / " + DATA.meta.queries, label: "AWS instance types / TPC-H queries" },
+    { stat: "LOMO CV", label: DATA.meta.method },
+  ];
+  cards.forEach(c => {
+    const card = el("div", "card");
+    card.appendChild(el("div", "stat", c.stat));
+    card.appendChild(el("div", "label", c.label));
+    wrap.appendChild(card);
+  });
+}
+
+function renderMapeTable() {
+  const t = document.getElementById("mape-table");
+  const thead = el("thead", null, "<tr><th>approach</th><th>MAPE</th></tr>");
+  t.appendChild(thead);
+  const tbody = el("tbody");
+  DATA.mapeTable.rows.forEach(r => {
+    const tr = el("tr");
+    if (r.beats === true) tr.className = "beats";
+    if (r.baseline) tr.className += " baseline";
+    const nameCell = el("td", "name", r.name + (r.beats === true ? '<span class="beat-tag">beats naive-linear</span>' : ""));
+    tr.appendChild(nameCell);
+    tr.appendChild(el("td", "num", r.value.toFixed(2) + "%"));
+    tbody.appendChild(tr);
+  });
+  t.appendChild(tbody);
+
+  const cap = document.getElementById("mape-caption");
+  cap.innerHTML = "Bootstrap 95% CI on (naive-linear − analytical): old single-core compute " +
+    "[" + DATA.mapeTable.ciOldCompute[0].toFixed(2) + ", " + DATA.mapeTable.ciOldCompute[1].toFixed(2) + "] (naive-linear significantly better) " +
+    "→ multi-core compute [" + DATA.mapeTable.ciMultiCore[0].toFixed(2) + ", " + DATA.mapeTable.ciMultiCore[1].toFixed(2) + "] (analytical significantly better). " +
+    "Both intervals computed on the corrected dataset, 2000-resample cluster bootstrap, seed 42. " +
+    '<div class="src">' + DATA.mapeTable.source + "</div>";
+}
+
+function renderCorrelationSvg() {
+  const svg = document.getElementById("corr-svg");
+  const W = 460, H = 140, midX = 230, top = 20;
+  const scale = 180;
+  const rows = [
+    { label: "single-thread", value: DATA.computeSignal.singleThreadCorr, color: "#9a3b2f", y: 40 },
+    { label: "multi-thread", value: DATA.computeSignal.multiThreadCorr, color: "#1f5f8b", y: 90 },
+  ];
+  let svgContent = '<line x1="' + midX + '" y1="10" x2="' + midX + '" y2="130" stroke="#3a3a38" stroke-width="1"/>';
+  rows.forEach(r => {
+    const barW = Math.abs(r.value) * scale;
+    const x = r.value >= 0 ? midX : midX - barW;
+    svgContent += '<text x="' + (midX - scale - 20) + '" y="' + (r.y + 5) + '" font-size="12" fill="#a8a8a4" font-family="-apple-system,sans-serif">' + r.label + '</text>';
+    svgContent += '<rect x="' + x + '" y="' + (r.y - 12) + '" width="' + barW + '" height="24" fill="' + r.color + '" opacity="0.85"/>';
+    const labelX = r.value >= 0 ? x + barW + 8 : x - 8;
+    const anchor = r.value >= 0 ? "start" : "end";
+    svgContent += '<text x="' + labelX + '" y="' + (r.y + 5) + '" font-size="12" fill="#f0f0ec" text-anchor="' + anchor + '" font-family="-apple-system,sans-serif">' + r.value.toFixed(3) + '</text>';
+  });
+  svgContent += '<text x="' + midX + '" y="135" font-size="10" fill="#78786e" text-anchor="middle" font-family="-apple-system,sans-serif">0</text>';
+  svg.innerHTML = svgContent;
+}
+
+function renderConfoundTable() {
+  const t = document.getElementById("confound-table");
+  const c = DATA.computeSignal.confound;
+  t.innerHTML =
+    "<tbody>" +
+    "<tr><td>correlation, measured throughput</td><td class='num'>" + c.measuredCorr.toFixed(3) + "</td></tr>" +
+    "<tr><td>correlation, raw vCPU count</td><td class='num'>" + c.vcpuCorr.toFixed(3) + "</td></tr>" +
+    "<tr><td>LOMO MAPE, measured throughput</td><td class='num'>" + c.measuredMape.toFixed(2) + "%</td></tr>" +
+    "<tr><td>LOMO MAPE, raw vCPU count</td><td class='num'>" + c.vcpuMape.toFixed(2) + "%</td></tr>" +
+    "</tbody>";
+  const wrap = t.parentElement;
+  wrap.appendChild(el("div", "src", DATA.computeSignal.source));
+}
+
+function renderPerMachine() {
+  const box = document.getElementById("per-machine-chart");
+  const maxVal = 60;
+  DATA.perMachine.rows.forEach(r => {
+    const group = el("div");
+    const title = el("div", null, "<strong>" + r.machine + "</strong>" + (r.outlier ? ' <span style="color:#9a3b2f;font-size:0.78rem">hardware outlier</span>' : ""));
+    title.style.marginTop = "14px";
+    title.style.marginBottom = "4px";
+    group.appendChild(title);
+    [
+      { label: "learned", value: r.learned, cls: r.outlier ? "outlier" : "learned" },
+      { label: "analytical", value: r.analytical, cls: "analytical" },
+      { label: "naive-linear", value: r.naiveLinear, cls: "naive" },
+    ].forEach(bar => {
+      const row = el("div", "bar-row");
+      row.appendChild(el("div", "bar-label", bar.label));
+      const track = el("div", "bar-track");
+      const fill = el("div", "bar-fill " + bar.cls);
+      fill.style.width = Math.min(100, (bar.value / maxVal) * 100) + "%";
+      track.appendChild(fill);
+      row.appendChild(track);
+      row.appendChild(el("div", "bar-value", bar.value.toFixed(1) + "%"));
+      group.appendChild(row);
+    });
+    box.appendChild(group);
+  });
+  box.appendChild(el("div", "src", DATA.perMachine.source));
+}
+
+function renderCalibration() {
+  const s = DATA.selfCalibration;
+  document.getElementById("calib-conf-before").textContent = s.confidenceBefore.toFixed(3);
+  document.getElementById("calib-conf-after").textContent = s.confidenceAfter.toFixed(3);
+  document.getElementById("calib-mape-before").textContent = s.heldOutMapeBefore.toFixed(2) + "%";
+  document.getElementById("calib-mape-after").textContent = s.heldOutMapeAfter.toFixed(2) + "%";
+  const n = s.narrative;
+  document.getElementById("calib-narrative").innerHTML =
+    "Single-query trace, " + n.devMachine + " → " + n.prodMachine + ", " + n.query + " " +
+    "(actual scaling factor " + n.actual.toFixed(4) + "): predicted " + n.predictedBefore.toFixed(4) +
+    " before (" + n.errorBefore.toFixed(1) + "% error, deferred as low-confidence) → predicted " +
+    n.predictedAfter.toFixed(4) + " after (" + n.errorAfter.toFixed(1) + "% error, confident PASS). " +
+    "Improvement over " + s.heldOutN + " held-out pairs: " + s.improvementPp.toFixed(2) + " percentage points. " +
+    "Known machines before: " + s.knownMachinesBefore.join(", ") + ". After " + s.measurementsToRetrain +
+    " captured measurements and one retrain: " + s.knownMachinesAfter.join(", ") + "." +
+    '<div class="src">' + s.source + "</div>";
+}
+
+function renderLearningCurve() {
+  const lc = DATA.learningCurve;
+  document.getElementById("learning-curve-caption").innerHTML =
+    "Learned model MAPE falls from " + lc.kAt1.toFixed(1) + "% with one dev machine seen to " +
+    lc.kAt4.toFixed(1) + "% with four seen. " + '<span class="src">' + lc.source + "</span>";
+}
+
+function renderConfidence() {
+  const c = DATA.confidenceAbstention;
+  document.getElementById("risk-coverage-caption").innerHTML =
+    "Area under the risk-coverage curve (lower is better): hardware-distance " + c.aurcHwDistance.toFixed(2) +
+    " vs. random " + c.aurcRandom.toFixed(2) + ". " + '<span class="src">' + c.source + "</span>";
+  document.getElementById("op-point").innerHTML =
+    "<strong>Operating point</strong> (threshold " + c.operatingThreshold + "): predicts " +
+    c.operatingCoveragePct.toFixed(1) + "% of requests at " + c.operatingSelectiveMape.toFixed(2) +
+    "% MAPE; defers the remaining " + (100 - c.operatingCoveragePct).toFixed(1) + "% to measurement.";
+
+  const tt = document.getElementById("tiers-table");
+  tt.appendChild(el("thead", null, "<tr><th>confidence value</th><th>n</th><th>selective MAPE</th><th>cumulative coverage</th></tr>"));
+  const tb = el("tbody");
+  c.tiers.forEach(t => {
+    const tr = el("tr");
+    if (t.catastrophic) tr.className = "outlier-row";
+    tr.innerHTML =
+      "<td>" + t.confidence.toFixed(3) + "</td>" +
+      "<td class='num'>" + t.n + "</td>" +
+      "<td class='num'>" + t.mape.toFixed(2) + "%" + (t.catastrophic ? " — c5a held out" : "") + "</td>" +
+      "<td class='num'>" + t.cumCoveragePct.toFixed(0) + "%</td>";
+    tb.appendChild(tr);
+  });
+  tt.appendChild(tb);
+}
+
+function renderSlaCards() {
+  const wrap = document.getElementById("sla-cards");
+  DATA.slaGateDemo.forEach(s => {
+    const stateClass = "state-" + s.label.split(" ")[0];
+    const card = el("div", "sla-card");
+    card.innerHTML =
+      '<span class="pre-tag">pre-computed</span>' +
+      '<span class="state-tag ' + stateClass + '">' + s.label + '</span>' +
+      '<div class="query">' + s.query + "</div>" +
+      "<dl>" +
+      "<dt>SLA</dt><dd>" + s.slaMs.toFixed(1) + " ms</dd>" +
+      "<dt>dev time</dt><dd>" + s.devTimeMs.toFixed(1) + " ms</dd>" +
+      "<dt>bandwidth_ratio</dt><dd>" + s.bandwidthRatio.toFixed(3) + "</dd>" +
+      "<dt>compute_ratio</dt><dd>" + s.computeRatio.toFixed(3) + "</dd>" +
+      "<dt>predicted p50</dt><dd>" + s.p50.toFixed(1) + " ms</dd>" +
+      "<dt>predicted p95</dt><dd>" + s.p95.toFixed(1) + " ms</dd>" +
+      "<dt>predicted p99</dt><dd>" + s.p99.toFixed(1) + " ms</dd>" +
+      "<dt>confidence</dt><dd>" + s.confidence.toFixed(2) + "</dd>" +
+      "</dl>" +
+      '<div class="reason">' + s.reason + "</div>";
+    wrap.appendChild(card);
+  });
+  wrap.parentElement.appendChild(el("div", "src", DATA.slaGateSource));
+}
+
+function renderDataIntegrity() {
+  const d = DATA.dataIntegrity;
+  document.getElementById("infl-range").textContent = d.inflationMin.toFixed(2) + "x–" + d.inflationMax.toFixed(2) + "x";
+  document.getElementById("clf-f1-before").textContent = d.classifierF1Buggy.toFixed(3);
+  document.getElementById("clf-f1-after").textContent = d.classifierF1Corrected.toFixed(3);
+  document.getElementById("io-recall-before").textContent = d.ioRecallBuggy.toFixed(2);
+  document.getElementById("io-recall-after").textContent = d.ioRecallCorrected.toFixed(2);
+  document.querySelector("#data-integrity .integrity-box").appendChild(el("div", "src", d.source));
+}
+
+function renderLimitations() {
+  const list = document.getElementById("limitations-list");
+  DATA.limitations.forEach(l => list.appendChild(el("li", null, l)));
+}
+
+function initNavToggle() {
+  const nav = document.querySelector("nav.topnav");
+  const toggle = document.getElementById("nav-toggle");
+  const inner = document.getElementById("nav-inner");
+
+  function closeMenu() {
+    inner.classList.remove("open");
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  function updateNavMode() {
+    nav.classList.remove("compact");
+    closeMenu();
+    if (inner.scrollWidth > inner.clientWidth + 1) {
+      nav.classList.add("compact");
+    }
+  }
+
+  toggle.addEventListener("click", () => {
+    const open = inner.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  inner.querySelectorAll("a").forEach(a => {
+    a.addEventListener("click", closeMenu);
+  });
+
+  updateNavMode();
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(updateNavMode, 100);
+  });
+}
+
+initNavToggle();
+renderCards();
+renderMapeTable();
+renderCorrelationSvg();
+renderConfoundTable();
+renderPerMachine();
+renderCalibration();
+renderLearningCurve();
+renderConfidence();
+renderSlaCards();
+renderDataIntegrity();
+renderLimitations();
+</script>
+
+</body>
+</html>

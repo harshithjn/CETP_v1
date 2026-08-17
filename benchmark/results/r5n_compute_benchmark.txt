@@ -1,0 +1,18 @@
+--- single-threaded ---
+threads=1 iters=46385404 array_size=2048 target_seconds=15.0
+wall_seconds=14.9757
+checksum=150338620170.173218
+total_flops=189994614784
+gflops_aggregate=12.6869
+gflops_per_thread=12.6870
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+--- multi-threaded (nproc=2) ---
+threads=2 iters=46366132 array_size=2048 target_seconds=15.0
+wall_seconds=15.2127
+checksum=300552316303.024292
+total_flops=379831353344
+gflops_aggregate=24.9681
+gflops_per_thread=12.4842
+PLAUSIBILITY CHECK PASSED: gflops_per_thread within [0.3, 300] GFLOPS.
+real_instance_type=
+nproc=2

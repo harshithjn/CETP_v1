@@ -1,0 +1,2 @@
+mean_benefit_parallel_queries,mean_benefit_serial_queries,point_biserial_corr,corr_measured_throughput,corr_vcpu_count,analytical_mape_measured,analytical_mape_vcpu
+11.69978890242327,-11.017635656394043,0.36296097916961384,-0.69108280706675,-0.47863407817353304,21.59900294175587,26.320964673621425
