@@ -4,10 +4,10 @@
     "prod_machine": "c5a",
     "query_id": "q19",
     "actual_scaling_factor": 0.8227077768162836,
-    "predicted_before": 1.2574928420723583,
-    "error_pct_before": 52.8480558356464,
-    "predicted_after": 0.6744961932459185,
-    "error_pct_after": 18.015094514350483,
+    "predicted_before": 1.257492842072358,
+    "error_pct_before": 52.84805583564635,
+    "predicted_after": 0.6406562938147292,
+    "error_pct_after": 22.128328931818007,
     "confidence_before": 0.0,
     "confidence_after": 1.0,
     "state_before": "WARN",
@@ -15,9 +15,9 @@
   },
   "held_out_mape": {
     "n": 36,
-    "before_pct": 77.71737126821228,
-    "after_pct": 15.011920306238535,
-    "improvement_pp": 62.70545096197374
+    "before_pct": 77.7173712682122,
+    "after_pct": 16.11725901368083,
+    "improvement_pp": 61.600112254531375
   },
   "known_machines_before": [
     "c7i",

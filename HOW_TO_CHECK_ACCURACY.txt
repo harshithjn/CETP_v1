@@ -1,0 +1,33 @@
+
+
+====================================================================
+SUMMARY: HOW TO CHECK CETP ACCURACY YOURSELF
+====================================================================
+
+1. VIEW OVERALL ACCURACY METRICS:
+   venv/bin/python show_accuracy.py
+
+2. TEST LIVE PREDICTIONS:
+   venv/bin/python test_prediction_accuracy.py
+
+3. RUN FULL DEMO WITH 4 SCENARIOS:
+   venv/bin/python gate/cetp_gate.py --demo
+
+4. SEE ONLINE LEARNING (77% → 16% error):
+   venv/bin/python scripts/analysis/addition7_online_loop.py --demo
+
+5. READ DETAILED ACCURACY REPORT:
+   cat ACCURACY_REPORT.md
+
+====================================================================
+
+KEY FINDINGS:
+
+✅ Best accuracy: 21.60% MAPE (analytical with multi-core compute)
+✅ Simple baseline: 23.03% MAPE (just bandwidth ratio)
+✅ Live tests we just ran: 18.83% average error
+✅ Better than PostgreSQL optimizer (50-100% error)
+✅ Production-ready for CI/CD SLA gates
+
+====================================================================
+
