@@ -26,7 +26,8 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          # 3.13 to match models/PROVENANCE.json: the gate unpickles models/*.pkl, which were built on 3.13.2 with the versions in requirements.txt (numpy 2.5.3 has no 3.11 wheel).
+          python-version: "3.13"
 
       - name: Install dependencies
         # Pinned, not floating. The gate unpickles models/scaling_quantile_models.pkl, and
