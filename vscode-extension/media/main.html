@@ -24,13 +24,14 @@
   </div>
 
   <div id="manual-fields" class="manual-fields">
+    <label class="group-label">Hardware signature &mdash; get it with <code>scripts/collection/hw_signature.py</code></label>
     <div class="field-inline">
       <label for="bandwidth-input">Bandwidth (GB/s)</label>
       <input type="text" id="bandwidth-input" placeholder="e.g. 14.9" inputmode="decimal">
     </div>
     <div class="field-inline">
-      <label for="compute-input">Compute score</label>
-      <input type="text" id="compute-input" placeholder="e.g. 0.593" inputmode="decimal">
+      <label for="compute-input">Compute score (multi-core)</label>
+      <input type="text" id="compute-input" placeholder="e.g. 40.81 (multi-core)" inputmode="decimal">
     </div>
     <div class="field-checkbox">
       <label><input type="checkbox" id="save-profile-checkbox"> Save as profile</label>
@@ -77,6 +78,21 @@
     <span id="confidence-value"></span>
   </div>
   <div id="reason" class="reason"></div>
+
+  <div class="accuracy-note">
+    <strong>Expected error ~21.6%</strong> on a machine the model has not seen, measured
+    leave-one-machine-out over 5 instance types and 21 TPC-H queries. A one-line
+    <code>1/compute_ratio</code> scores 20.06% on the same data, so treat this as a
+    scaling estimate, not a measurement.
+  </div>
+
+  <div class="caveat">
+    <div class="caveat-title">Different CPU architecture?</div>
+    Do not trust this number across an architecture boundary (Apple Silicon to x86, say).
+    Measured on four x86 machines, the uncalibrated model scored ~68.9% against ~21.7% for
+    simply assuming production matches your machine. Measure 3&ndash;5 queries on the target
+    and calibrate &mdash; that brings it back to ~22%.
+  </div>
 </div>
 
 <script nonce="{{nonce}}" src="{{scriptUri}}"></script>

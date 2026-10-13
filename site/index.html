@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CETP — Cross-Environment Runtime Prediction</title>
+<meta name="description" content="Predicting PostgreSQL query runtime on a production machine from a developer's machine: what works, what does not, and the measurements behind both.">
+<style>
+:root{
+  --bg:#fbfbfa; --panel:#fff; --ink:#15181d; --muted:#5a6472; --line:#e3e6ea;
+  --accent:#1d4ed8; --good:#0f7b4f; --bad:#b4232a; --warn:#8a5a00;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0e1116; --panel:#161b22; --ink:#e7edf3; --muted:#9aa7b4; --line:#263040;
+  --accent:#7aa2ff; --good:#4ac08a; --bad:#ff8084; --warn:#e0b25c;
+}}
+:root[data-theme=dark]{
+  --bg:#0e1116; --panel:#161b22; --ink:#e7edf3; --muted:#9aa7b4; --line:#263040;
+  --accent:#7aa2ff; --good:#4ac08a; --bad:#ff8084; --warn:#e0b25c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+header{border-bottom:1px solid var(--line);padding:0 0 36px}
+h1{font-size:clamp(1.9rem,5vw,2.6rem);margin:18px 0 .3em;letter-spacing:-.02em;line-height:1.15}
+.sub{color:var(--muted);font-size:1.08rem;max-width:62ch;margin:0}
+.meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+.tag{font:600 .74rem/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;
+  border:1px solid var(--line);border-radius:999px;padding:7px 11px;color:var(--muted)}
+h2{font-size:1.35rem;margin:52px 0 .5em;letter-spacing:-.01em}
+h3{font-size:1.02rem;margin:30px 0 .4em}
+p,li{font-size:1rem}
+a{color:var(--accent)}
+.lede{font-size:1.06rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:18px 20px;margin:18px 0}
+.callout{border-left:3px solid var(--accent)}
+.callout.bad{border-left-color:var(--bad)}
+.callout.good{border-left-color:var(--good)}
+.callout.warn{border-left-color:var(--warn)}
+.callout h3{margin-top:0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.93rem}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+th{font-weight:650;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.win{color:var(--good);font-weight:650}
+.lose{color:var(--bad);font-weight:650}
+code,pre{font-family:var(--mono)}
+code{background:rgba(125,135,150,.14);padding:.12em .36em;border-radius:4px;font-size:.88em}
+pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;overflow-x:auto;font-size:.86rem;line-height:1.55}
+pre code{background:none;padding:0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin:18px 0}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.stat .v{font:650 1.6rem/1.1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .k{color:var(--muted);font-size:.82rem;margin-top:6px}
+.stat.ok .v{color:var(--good)} .stat.no .v{color:var(--bad)}
+ul{padding-left:1.15em} li{margin:.3em 0}
+footer{border-top:1px solid var(--line);margin-top:64px;padding:28px 0 60px;
+  color:var(--muted);font-size:.9rem}
+/* In the header flow, not fixed: a fixed button overlapped the headings on narrow
+   viewports, which is exactly where there is least room to spare. */
+.topbar{display:flex;justify-content:flex-end;padding-top:14px}
+.toggle{background:var(--panel);color:var(--muted);border:1px solid var(--line);
+  border-radius:8px;padding:7px 11px;cursor:pointer;font:600 .78rem var(--sans)}
+.toggle:hover{color:var(--ink);border-color:var(--muted)}
+.note{color:var(--muted);font-size:.88rem}
+.srcs{font-size:.86rem}
+.srcs li{margin:.45em 0}
+@media (max-width:560px){header{padding:0 0 26px}h2{margin-top:40px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="topbar"><button class="toggle" id="t" aria-label="Toggle colour theme">theme</button></div>
+  <h1>Cross-environment runtime prediction for PostgreSQL</h1>
+  <p class="sub">Can a developer's machine predict how long a query will take in production?
+  Within one CPU architecture, yes — about 29% error against 37% for guessing. Across
+  architectures the same method is <strong>three times worse than guessing</strong>, and this
+  is the measurement of why.</p>
+  <div class="meta">
+    <span class="tag">PostgreSQL 15</span>
+    <span class="tag">11 environments</span>
+    <span class="tag">242 measured pairs</span>
+    <span class="tag">2 instruction sets</span>
+    <span class="tag">Reproducible</span>
+  </div>
+</div></header>
+
+<main class="wrap">
+
+<h2>The headline</h2>
+<div class="grid">
+  <div class="stat ok"><div class="v">29.3%</div><div class="k">same-ISA error (naive: 37.4%)</div></div>
+  <div class="stat no"><div class="v">68.9%</div><div class="k">cross-ISA error (naive: 21.7%)</div></div>
+  <div class="stat ok"><div class="v">~22%</div><div class="k">cross-ISA after 5 calibration queries</div></div>
+  <div class="stat"><div class="v">4 / 4</div><div class="k">x86 machines where it failed</div></div>
+</div>
+
+<p class="lede">The useful finding is not a better predictor. It is that
+<strong>encoding hardware capability as a measured number works within a CPU architecture and
+fails across one</strong> — and that one cheap correction fixes it.</p>
+
+<h2>What the system does</h2>
+<p>You capture a query plan on your own machine. The tool measures each machine's capability
+by running PostgreSQL's own operators in SQL, works out how your plan's time is distributed
+across those operators, and scales it:</p>
+<pre><code>T_prod  =  T_dev  ×  Σ  w_op · rate_dev(op)·s_dev / (rate_prod(op)·s_prod)  ×  calibration  ×  N^e</code></pre>
+<p class="note"><code>w_op</code> is where your machine actually spent wall time,
+<code>s</code> is the parallel speedup each machine grants, <code>N^e</code> is concurrency,
+and <code>calibration</code> is learned from queries measured on the target.</p>
+
+<div class="card callout">
+<h3>Why the capability probe is SQL</h3>
+<p>It measures six things by running them: sequential scan, hash join, sort, hash
+aggregation, indexed nested loop, and the parallel speedup the machine actually delivers.
+Being only SQL, it runs on <strong>managed PostgreSQL</strong> — RDS, Aurora, Cloud SQL —
+where you have no shell and cannot compile a benchmark. The predecessor was a C program
+measuring floating-point throughput, which no database query issues.</p>
+</div>
+
+<h2>Results</h2>
+<h3>Within one architecture, it works</h3>
+<div class="scroll"><table>
+<thead><tr><th>Predictor</th><th class="n">MAPE</th><th class="n">Median</th></tr></thead>
+<tbody>
+<tr><td>Assume production = development</td><td class="n">37.39%</td><td class="n">30.6%</td></tr>
+<tr><td><strong>Per-operator model</strong></td><td class="n win">29.31%</td><td class="n">21.5%</td></tr>
+</tbody></table></div>
+<p class="note">7 capability environments on one arm64 host, 22 TPC-H queries, 154 pairs. The
+gain concentrates where capability genuinely differs: on the most constrained machine,
+62.6% → 23.5%.</p>
+
+<h3>Across architectures, it fails — on every machine tried</h3>
+<div class="scroll"><table>
+<thead><tr><th>Production machine</th><th>CPU</th><th class="n">Naive</th><th class="n">Model</th></tr></thead>
+<tbody>
+<tr><td>gha-x86</td><td>AMD EPYC 7763</td><td class="n">21.41%</td><td class="n lose">72.84%</td></tr>
+<tr><td>gha-ubuntu-latest</td><td>AMD EPYC 7763</td><td class="n">21.00%</td><td class="n lose">69.44%</td></tr>
+<tr><td>gha-ubuntu-24.04</td><td>AMD EPYC 7763</td><td class="n">21.79%</td><td class="n lose">66.15%</td></tr>
+<tr><td>gha-ubuntu-22.04</td><td>AMD EPYC 7763</td><td class="n">22.75%</td><td class="n lose">67.26%</td></tr>
+</tbody></table></div>
+<p class="note">Four independent hosts; the four capability signatures agree within 5% of each
+other, so this is systematic, not measurement noise.</p>
+
+<div class="card callout bad">
+<h3>The cause, and it is not what we expected</h3>
+<p>We expected the architecture boundary to change the <em>relative</em> cost of operators —
+that a sort might be comparatively dearer on one chip than another. <strong>Measured
+directly, it does not.</strong> arm64 → x86 perturbs the operator mix by <strong>1.365×</strong>;
+the worst pair of containers <em>on one host</em> perturbs it by <strong>1.371×</strong>.</p>
+<p>What breaks is the <strong>absolute scale</strong>. The probe reported the x86 machine
+1.667× slower than the laptop; it was actually 1.044× — essentially the same speed. Tuples
+per second on a synthetic operator is simply not comparable across microarchitectures. That
+is the same defect as the floating-point signature it replaced: swapping one
+architecture-sensitive number for five did not fix it.</p>
+</div>
+
+<div class="card callout good">
+<h3>Calibration is not an optimisation — it is the fix</h3>
+<p>Measure a handful of queries on the target machine and fit one multiplicative correction.
+A constant scale error is removed <em>exactly</em> by a constant factor:</p>
+<div class="scroll"><table>
+<thead><tr><th>Queries measured on production</th><th class="n">Cross-ISA error</th></tr></thead>
+<tbody>
+<tr><td>0 — zero-shot</td><td class="n lose">72.84%</td></tr>
+<tr><td>3</td><td class="n">23.86%</td></tr>
+<tr><td>5</td><td class="n win">23.38%</td></tr>
+<tr><td colspan="2" class="note">Best possible for any single-factor model on that pair: 16.75%</td></tr>
+</tbody></table></div>
+<p><strong>Honest limit:</strong> calibrated, the cross-architecture model reaches parity with
+simply assuming production equals development (23.4% against 21.4%). It does not beat it. On
+that pair the capability model contributes nothing the calibration did not.</p>
+</div>
+
+<h2>How it improves with use</h2>
+<p>Accuracy improves <strong>per environment pair</strong> as observations accumulate — a
+correction is stored for each (development, production) pair and refitted as the median of
+everything seen. One pair went from 72.84% to 23.38% on five observations.</p>
+<div class="card callout warn">
+<p><strong>What it does not do.</strong> Accuracy does <em>not</em> improve with the number of
+machines in the registry. A correction learned for one production machine says nothing about
+another, because it absorbs <em>that machine's</em> specific scale error. Pooling across
+machines has not been demonstrated here, and the code says so rather than implying otherwise.</p>
+<p>A correction from one or two queries is marked <strong>provisional</strong>: a single
+arbitrary observation measured <em>worse</em> than no calibration at all (19.51% against
+15.84%). Three is where it became reliably better.</p>
+</div>
+
+<h2>Negative results worth more than the positive one</h2>
+<ul>
+<li><strong>Per-operator weighting earns nothing.</strong> One capability scalar, with the
+parallelism correction applied to the right part of the plan, scores 24.58% against the full
+per-operator model's 24.95% — a difference of −0.08 pp, confidence interval [−0.73, +0.44].
+The complexity is not justified by the evidence.</li>
+<li><strong>Parallelism is the whole result.</strong> Remove that term and the model is level
+with doing nothing (76.2% against 72.5%). Localising it to the nodes below a <code>Gather</code>
+— rather than applying it to the whole query — is worth +6.91 pp, CI [+0.95, +14.73].</li>
+<li><strong>The classic roofline model is indistinguishable from its simplest part.</strong>
+On the original 5-machine cloud dataset, an analytical roofline scores 21.61% and
+<code>1/compute_ratio</code> alone scores <strong>20.06%</strong> — better, with the
+difference not significant.</li>
+<li><strong>Concurrency cannot be predicted from a plan.</strong> Leave-one-query-out, plan
+features predict the elasticity exponent at MAE 0.191 against 0.167 for simply using the
+median. A global default halves the error at 8 clients (73.8% → 41.8%), but knowing the
+query's own value would reach 6.7%. So load is an input the caller must supply.</li>
+<li><strong>Measuring hardware capability as a scalar has a hard ceiling.</strong> On the
+cloud dataset the scaling factor varies 18–43× <em>across queries on one machine</em>, which
+puts a floor of <strong>59.7%</strong> on any per-machine single-factor predictor. The best
+measurement reached 55.88% — already at the floor.</li>
+</ul>
+
+<h2>Measurement hygiene, which turned out to decide the answers</h2>
+<div class="card">
+<p>Published numbers in this project were corrected <strong>four times</strong>, every time
+because of the instrument rather than the model:</p>
+<ul>
+<li>The reliability gate checked run-to-run spread, but the reported figure is a
+<em>median</em>. Parallel measurements jitter wildly per run (cv 0.587) while their median
+reproduces to 3%. The old gate rejected half the good machines, which shifted the population
+and moved headline numbers by 5–15 points. It now checks the bootstrap standard error of the
+median.</li>
+<li>Probe runs were 20× too short: a parallel scan finished in 18 ms, so worker startup
+dominated and one machine reported an <em>impossible</em> 1.81× speedup on a single CPU. At
+realistic size the same machine reports 0.78× — parallelism correctly making it slower when
+three workers share one core.</li>
+<li>Probing a machine that was not idle moved its measured speedup from 2.47× to 1.14×. Any
+capability probe taken under load is discarded.</li>
+<li>A storage axis was built, and it does not measure storage: it tracks CPU quota (+0.762)
+over memory (+0.548). It is kept, documented as such, and unused by the model.</li>
+</ul>
+<p class="note">This is reported because it is the finding most likely to generalise: nobody
+in this literature reports probe repeatability, and here it changed the conclusions.</p>
+</div>
+
+<h2>Try it</h2>
+<pre><code>pip install -e .
+cetp selftest
+
+# register both machines — SQL only, so this works on RDS/Aurora.
+# run it on an IDLE machine: under load it measures contention, not capability.
+python scripts/collection/operator_probe.py --machine-id dev-laptop --db mydb
+python scripts/collection/operator_probe.py --machine-id prod-db   --db mydb \
+    --host prod.example.com --user readonly
+
+# predict. production is only EXPLAINed, never executed.
+python scripts/collection/predict_prod.py --query-file q.sql \
+    --dev dev-laptop --prod prod-db --prod-host prod.example.com \
+    --prod-db mydb --prod-user readonly --dev-db mydb --sla-ms 2000</code></pre>
+<p>Across architectures an uncalibrated prediction is <strong>refused</strong>, not warned
+about — it is the one configuration measured to be far worse than doing nothing. Measure
+three to five queries on the target and the refusal lifts.</p>
+
+<h2>What this is not</h2>
+<ul>
+<li><strong>Not a replacement for a staging benchmark</strong> when an SLA decision rests on
+an absolute number.</li>
+<li><strong>Not validated for differing data volumes.</strong> Every experiment has identical
+data on both sides, so the data-size term has never been exercised at anything but a ratio of
+one.</li>
+<li><strong>Not tested on non-AMD x86, nor on a non-CI host.</strong> Four x86 machines, two
+CPU models, all AMD EPYC on one cloud.</li>
+<li><strong>Single client throughout.</strong> Concurrency is an input you supply, and at
+eight clients it moved runtime 8.57× — larger than every other effect measured here.</li>
+<li><strong>22 TPC-H queries at one scale factor, one engine version.</strong></li>
+</ul>
+
+<h2>Where the numbers come from</h2>
+<p class="note">Every figure on this page is generated by a script and written to a file in
+<code>results/</code>. Nothing here is typed by hand.</p>
+<ul class="srcs">
+<li><code>results/laptop_to_prod.md</code> — laptop → 11 production machines, 242 pairs</li>
+<li><code>results/cross_isa_prediction.md</code> — the cross-architecture failure and its repair</li>
+<li><code>results/cross_isa_operator_rates.md</code> — why it is not operator mix</li>
+<li><code>results/operator_model.md</code> — the capability grid and the ablations</li>
+<li><code>results/laptop_to_ec2.md</code> — the 59.7% ceiling on scalar capability models</li>
+<li><code>results/concurrency.md</code> — concurrency fitted and cross-validated</li>
+<li><code>results/CANONICAL.md</code> — the original 5-machine cloud dataset</li>
+<li><code>OPERATOR_MODEL.md</code> — design, status, and what remains unvalidated</li>
+</ul>
+
+</main>
+
+<footer><div class="wrap">
+  <p><strong>CETP</strong> — cross-environment runtime prediction for PostgreSQL.
+  A capstone project at PES University.</p>
+  <p>Research artifact, not a production service. Figures regenerate with
+  <code>make results</code>, <code>make operator-results</code>, and the evaluation scripts
+  in <code>scripts/analysis/</code>.</p>
+</div></footer>
+
+<script>
+(function(){
+  var b=document.documentElement, t=document.getElementById('t');
+  try{var s=localStorage.getItem('cetp-theme'); if(s) b.setAttribute('data-theme',s);}catch(e){}
+  t.addEventListener('click',function(){
+    var cur=b.getAttribute('data-theme');
+    if(!cur) cur = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark':'light';
+    var nxt = cur==='dark' ? 'light':'dark';
+    b.setAttribute('data-theme',nxt);
+    try{localStorage.setItem('cetp-theme',nxt);}catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
