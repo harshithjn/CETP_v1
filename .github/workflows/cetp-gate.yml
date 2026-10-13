@@ -29,7 +29,12 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install scikit-learn pandas numpy joblib pyyaml
+        # Pinned, not floating. The gate unpickles models/scaling_quantile_models.pkl, and
+        # an unpinned scikit-learn fails on it with ModuleNotFoundError: No module named
+        # '_loss' -- the pickle-staleness problem this project documents in
+        # models/MODEL_CARD.md, biting in CI. requirements.txt holds the versions the
+        # artifacts were built with.
+        run: pip install -r requirements.txt
 
       - name: Run CETP gate for ${{ matrix.query.id }}
         id: gate

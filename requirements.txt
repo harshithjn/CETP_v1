@@ -4,12 +4,17 @@
 # models_online/ is a pickled estimator, and pickled sklearn estimators carry no
 # cross-version compatibility guarantee.
 #
-# KNOWN MISMATCH: the shipped models/*.pkl were pickled with scikit-learn 1.6.1,
-# not the 1.8.0 pinned here, so loading them raises InconsistentVersionWarning.
-# The 28 tests in tests/test_e2e.py still pass. This is deliberately NOT resolved
-# by pinning 1.6.1, because those artifacts are stale for two further and more
-# serious reasons (trained on the buffer-bug dataset; single-core compute signal).
-# They need regenerating, not accommodating -- see models/MODEL_CARD.md.
+# RESOLVED 2026-10-13: models/*.pkl are now pickled with the 1.8.0 pinned here, and
+# retrained on the buffer-corrected dataset with the multi-core compute signal. There is
+# no longer a version mismatch (models/PROVENANCE.json records version_mismatch: false).
+#
+# The pin still matters, and CI proved it: installing scikit-learn unpinned makes the gate
+# fail with `ModuleNotFoundError: No module named '_loss'` when it unpickles
+# scaling_quantile_models.pkl. Workflows must install from THIS file, not a loose list.
+#
+# The installable `cetp` package deliberately avoids this whole class of problem: it has no
+# runtime dependencies and ships the analytical formula plus models/calibration.json rather
+# than a pickle.
 #
 # results/CANONICAL.md does not load these pickles; it refits everything from the
 # corrected dataset inside each fold, so its numbers are unaffected.
