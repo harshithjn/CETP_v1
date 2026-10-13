@@ -3,7 +3,8 @@ PY := python3
 CANON := scripts/analysis/canonical_evaluation.py
 
 .PHONY: help install results verify-determinism test gate-demo clean-pyc \
-        grid-setup grid-collect grid-reprobe operator-results probe-here
+        grid-setup grid-collect grid-reprobe operator-results probe-here \
+        docs version-compat
 
 help:
 	@echo "make install            install pinned dependencies"
@@ -18,6 +19,8 @@ help:
 	@echo "  make grid-collect     sweep the 4x2 capability grid (~2-3 h)"
 	@echo "  make grid-reprobe     re-probe every grid cell without recollecting"
 	@echo "  make operator-results evaluate the per-operator model on the grid"
+	@echo "  make version-compat   parse every stored plan on every PG version"
+	@echo "  make docs             rebuild docs/LLD.pdf and docs/HANDBOOK.pdf"
 
 install:
 	$(PY) -m pip install -r requirements.txt
@@ -116,3 +119,15 @@ grid-reprobe:
 
 operator-results:
 	$(PY) scripts/analysis/operator_model_evaluation.py
+
+# ------------------------------------------------------------------------ docs
+
+# The PDFs are generated from the Markdown, so the Markdown is the single source and the
+# PDFs never drift from it. Needs Chrome or Chromium (used headless to render).
+docs:
+	$(PY) scripts/docs/build_pdf.py docs/LLD.md
+	$(PY) scripts/docs/build_pdf.py docs/HANDBOOK.md
+
+# Parse every stored plan from every PostgreSQL version collected, and report what differs.
+version-compat:
+	$(PY) scripts/analysis/version_compat_check.py

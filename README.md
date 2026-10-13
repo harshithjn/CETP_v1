@@ -67,7 +67,7 @@ cetp/
   TIER1_RESULTS.md / TIER2_RESULTS.md / TIER3_RESULTS.md   findings by phase
   cetp/                  the installable package: predict, regress, redact, signature, cli
   gate/                  cetp_gate.py (SLA gate CLI), cetp_gate_demo.py, cetp.yml, example queries
-  dashboard/              static research dashboard (index.html, data.js, plot assets)
+  site/                   single-file project page (site/index.html), hostable as-is
   models/                 final trained model artifacts (classifier, quantile regressors, hardware signatures)
   models_online/          versioned self-calibration snapshots from the online learning addition
   data/
@@ -135,10 +135,13 @@ To see the online self-calibration loop, which detects an unfamiliar machine, le
 python scripts/analysis/addition7_online_loop.py
 ```
 
-To view the research dashboard:
+To read the project page, open `site/index.html` in a browser, or host that one
+file anywhere. It is self-contained: no external requests, no build step. Every
+figure on it comes from `results/`.
 
-```bash
-python3 -m http.server 8000 --directory dashboard
+The old `dashboard/` was removed on 2026-10-13: it was a static snapshot of
+superseded numbers (21.60% headline, no `cmp_only`, none of the per-operator
+work) and `site/index.html` replaces it. Recover it from git history if needed.
 ```
 
 Then open `http://localhost:8000`.

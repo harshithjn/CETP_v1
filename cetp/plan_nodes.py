@@ -43,6 +43,12 @@ OPERATOR_MAP = {
     "Index Only Scan": "nestloop",
     "Bitmap Heap Scan": "nestloop",
     "Bitmap Index Scan": "nestloop",
+    # Bitmap combination nodes. Found by running the parser over every stored plan from
+    # PostgreSQL 14/15/17/18 (scripts/analysis/version_compat_check.py), which reported
+    # BitmapAnd as the only node type in the corpus with no axis. Grouped with the other
+    # bitmap work, which the nestloop axis measures.
+    "BitmapAnd": "nestloop",
+    "BitmapOr": "nestloop",
 }
 
 # Aggregate is split by strategy: hashed aggregation is the hashagg axis, sorted/plain

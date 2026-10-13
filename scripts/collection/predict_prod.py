@@ -40,7 +40,9 @@ sys.path.insert(0, str(PROJECT_DIR))
 sys.path.insert(0, str(PROJECT_DIR / "scripts" / "collection"))
 
 from cetp import cross_env                                          # noqa: E402
+from cetp.calibration_store import CalibrationStore                 # noqa: E402
 from cetp.operator_model import fit_calibration, select_calibration_queries  # noqa: E402
+from cetp.telemetry import Telemetry                                # noqa: E402
 
 try:
     import psycopg2
@@ -110,7 +112,14 @@ def main():
                     help="do not force production's plan on dev (needs no pg_hint_plan)")
     ap.add_argument("--no-prod-plan", action="store_true",
                     help="do not contact production at all; predicts DEV's plan")
-    ap.add_argument("--calibration", type=float, default=1.0)
+    ap.add_argument("--calibration", type=float, default=1.0,
+                    help="override; by default the stored correction for this pair is used")
+    ap.add_argument("--no-store", action="store_true",
+                    help="ignore the calibration store and do not log telemetry")
+    ap.add_argument("--actual-ms", type=float,
+                    help="the measured production runtime, if you already know it. "
+                         "Resolves the telemetry row and feeds the calibration store, "
+                         "which is how the correction for this pair improves.")
     ap.add_argument("--sla-ms", type=float)
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
@@ -139,11 +148,46 @@ def main():
             dev_plan, dev_ms, forced = dev_measure(
                 cur, sql, prod_plan, args.reps, force=not args.no_force)
 
-    out = cross_env.predict(prod_plan, dev_plan, dev_ms, dev_rates, prod_rates,
-                            plan_forced=forced, calibration=args.calibration,
-                            dev_speedup=dev_rec.get("parallel_speedup") or 1.0,
-                            prod_speedup=prod_rec.get("parallel_speedup") or 1.0)
+    # Use the stored correction for this pair unless the caller overrode it. This is the
+    # mechanism by which accuracy improves with use: each resolved observation refits it.
+    store = None if args.no_store else CalibrationStore()
+    calibration, calib_meta = args.calibration, None
+    if store is not None and args.calibration == 1.0:
+        calib_meta = store.calibration(args.dev, args.prod)
+        calibration = calib_meta["factor"]
+
+    try:
+        out = cross_env.predict(prod_plan, dev_plan, dev_ms, dev_rates, prod_rates,
+                                plan_forced=forced, calibration=calibration,
+                                dev_speedup=dev_rec.get("parallel_speedup") or 1.0,
+                                prod_speedup=prod_rec.get("parallel_speedup") or 1.0,
+                                dev_rec=dev_rec, prod_rec=prod_rec)
+    except cross_env.CrossArchitectureUncalibrated as exc:
+        # An expected outcome, not a crash. Say what to do about it.
+        print(f"\nREFUSED: {exc}\n", file=sys.stderr)
+        print(f"To calibrate: run this query on {args.prod}, then re-run with "
+              f"--actual-ms <measured ms>. Repeat for 3-5 queries and the refusal lifts.",
+              file=sys.stderr)
+        return 4
     out["query_file"] = args.query_file
+    out["calibration_source"] = calib_meta
+
+    query_id = Path(args.query_file).stem
+    if store is not None:
+        tel = Telemetry()
+        tel.record_prediction(
+            query_id, args.dev, args.prod,
+            predicted_ms=out["predicted_prod_ms"], dev_ms=dev_ms,
+            scaling=out["scaling"], trust=out["trust"],
+            calibration=calibration,
+            cross_architecture=out.get("cross_architecture"))
+        if args.actual_ms:
+            tel.resolve(query_id, args.actual_ms, dev=args.dev, prod=args.prod)
+            store.record(args.dev, args.prod, query_id,
+                         out["scaling"] / max(calibration, 1e-12), args.actual_ms / dev_ms,
+                         dev_arch=dev_rec.get("client_platform"),
+                         prod_arch=prod_rec.get("client_platform")).save()
+            out["calibration_after"] = store.calibration(args.dev, args.prod)
 
     if args.json:
         print(json.dumps(out, indent=2, sort_keys=True, default=float))
@@ -166,6 +210,14 @@ def main():
     if args.sla_ms:
         print(f"  SLA {args.sla_ms:,.0f} ms -> "
               f"{'PASS' if out['predicted_prod_ms'] <= args.sla_ms else 'BREACH'}")
+    if calib_meta is not None:
+        prov = " (PROVISIONAL)" if calib_meta["provisional"] else ""
+        print(f"  calibration:        x{calib_meta['factor']:.4f} from "
+              f"{calib_meta['n']} observation(s){prov}")
+    if out.get("calibration_after"):
+        a = out["calibration_after"]
+        print(f"  recorded the actual; correction for this pair is now "
+              f"x{a['factor']:.4f} over {a['n']} observation(s)")
     print(f"  trust:              {out['trust']}")
     for w in out["warnings"]:
         print(f"  ! {w}")

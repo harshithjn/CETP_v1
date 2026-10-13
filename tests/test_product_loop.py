@@ -242,3 +242,110 @@ def test_non_positive_observations_are_rejected(tmp_path):
         st.record("d", "p", "q", 0.0, 1.0)
     with pytest.raises(ValueError):
         st.record("d", "p", "q", 1.0, -1.0)
+
+
+# ------------------------------------------------- telemetry
+
+from cetp.telemetry import Telemetry                               # noqa: E402
+
+
+def test_telemetry_records_and_resolves(tmp_path):
+    t = Telemetry(tmp_path / "t.jsonl")
+    t.record_prediction("q1", "dev", "prod", predicted_ms=120.0, dev_ms=100.0,
+                        scaling=1.2, trust="MEDIUM")
+    assert t.summary()["n"] == 0            # nothing resolved yet
+    t.resolve("q1", 150.0)
+    s = t.summary()
+    assert s["n"] == 1
+    assert s["mape"] == pytest.approx(20.0)          # |120-150|/150
+    # naive assumes prod == dev, i.e. predicts 100 ms against an actual 150: 33.3% off.
+    assert s["naive_mape"] == pytest.approx(100 / 3, abs=1e-6)
+    assert s["beats_naive"] is True                  # 20% against 33.3%
+
+
+def test_telemetry_reports_the_naive_baseline_alongside(tmp_path):
+    """A MAPE with no baseline cannot tell you the model is helping."""
+    t = Telemetry(tmp_path / "t.jsonl")
+    t.record_prediction("q1", "d", "p", predicted_ms=900.0, dev_ms=100.0)
+    t.resolve("q1", 110.0)
+    s = t.summary()
+    assert s["naive_mape"] < s["mape"]
+    assert s["beats_naive"] is False
+
+
+def test_telemetry_resolves_most_recent_unresolved_only(tmp_path):
+    t = Telemetry(tmp_path / "t.jsonl")
+    t.record_prediction("q1", "d", "p", predicted_ms=100.0, dev_ms=100.0)
+    t.record_prediction("q1", "d", "p", predicted_ms=200.0, dev_ms=100.0)
+    t.resolve("q1", 210.0)
+    rows = t.rows()
+    assert rows[0]["actual_ms"] is None
+    assert rows[1]["actual_ms"] == 210.0
+
+
+def test_telemetry_refuses_to_log_query_text(tmp_path):
+    """Stripping literals from plans and then logging the SQL would be absurd."""
+    t = Telemetry(tmp_path / "t.jsonl")
+    for field in ("query_text", "sql", "plan"):
+        with pytest.raises(ValueError, match="must not contain"):
+            t.record_prediction("q1", "d", "p", 1.0, extra={field: "select 1"})
+
+
+def test_telemetry_feeds_the_calibration_store(tmp_path):
+    """The loop that makes the system improve with use."""
+    t = Telemetry(tmp_path / "t.jsonl")
+    for i, (pred, act) in enumerate([(120.0, 150.0), (120.0, 156.0), (120.0, 144.0)]):
+        t.record_prediction(f"q{i}", "d", "p", predicted_ms=pred, dev_ms=100.0,
+                            scaling=pred / 100.0)
+        t.resolve(f"q{i}", act)
+    obs = t.observations_for_calibration("d", "p")
+    assert len(obs) == 3
+    store = CalibrationStore(tmp_path / "c.json")
+    for p_, a_, q_ in obs:
+        store.record("d", "p", q_, p_, a_)
+    c = store.calibration("d", "p")
+    assert c["n"] == 3 and c["provisional"] is False
+    # actual/predicted scaling is 1.50/1.2, 1.56/1.2, 1.44/1.2 = 1.25, 1.30, 1.20.
+    # The correction is their MEDIAN, 1.25.
+    assert c["factor"] == pytest.approx(1.25)
+
+
+def test_telemetry_survives_a_corrupt_line(tmp_path):
+    p = tmp_path / "t.jsonl"
+    t = Telemetry(p)
+    t.record_prediction("q1", "d", "p", 1.0)
+    with p.open("a") as fh:
+        fh.write("{ not json\n")
+    t.record_prediction("q2", "d", "p", 2.0)
+    assert len(t.rows()) == 2
+
+
+def test_telemetry_empty_summary_is_safe(tmp_path):
+    s = Telemetry(tmp_path / "none.jsonl").summary()
+    assert s["n"] == 0 and s["mape"] is None
+
+
+# ------------------------------------------------- version compatibility
+
+@pytest.mark.parametrize("ntype", ["BitmapAnd", "BitmapOr"])
+def test_bitmap_combination_nodes_have_an_axis(ntype):
+    """Found by running the parser over every stored plan from pg14/15/17/18."""
+    from cetp.plan_nodes import operator_for as _op
+    assert _op({"Node Type": ntype}) == "nestloop"
+
+
+def test_pg18_only_fields_do_not_break_decomposition():
+    """
+    Disabled, Index Searches, Full-sort Groups and Presorted Key appear only in pg18;
+    Params Evaluated only in pg14/15. A parser written against one release must not choke
+    on another's fields.
+    """
+    from cetp.plan_nodes import decompose as _dec
+    node = {"Node Type": "Sort", "Actual Total Time": 10.0, "Actual Loops": 1,
+            "Actual Rows": 5, "Plan Rows": 5,
+            "Disabled": False, "Index Searches": 3,
+            "Full-sort Groups": {"Group Count": 2, "Sort Methods Used": ["quicksort"]},
+            "Presorted Key": ["a"], "Params Evaluated": ["$1"]}
+    d = _dec({"Plan": node, "Execution Time": 10.0})
+    assert len(d["nodes"]) == 1
+    assert d["nodes"][0]["self_ms"] == pytest.approx(10.0)

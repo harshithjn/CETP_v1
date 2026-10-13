@@ -37,7 +37,21 @@ Verified against code and data on 2026-10-12. Each row cites where the true valu
 | 14 | "Quantile regressors predict p95/p99" | They under-cover badly (80.7% empirical at nominal 95%) **and** those targets are warmup-contaminated. Regenerate before claiming anything about tails. |
 | 15 | "The classifier identifies the bottleneck" | The 4 labels are **21 hand-assigned judgement calls** (Q2 and Q13 acknowledged coin flips), and because all six classifier features are machine-invariant it is effectively a 21-row lookup table. |
 | 16 | "The system generalises across hardware" | Across **5** EBS-backed instance types at **SF1** only, single-query-at-a-time. One outlier machine (c5a) demonstrates the extrapolation failure mode exists; n=1 cannot say how often it occurs. |
-| 17 | "The gate uses the validated hardware signature" | `models/hardware_signature.pkl` and `gate/cetp.yml` still ship the **old single-core** compute scores. **The deployed gate does not embody the headline finding.** |
+| 17 | ~~"The gate uses the validated hardware signature"~~ | **FIXED 2026-10-13.** Both `models/hardware_signature.pkl` and `gate/cetp.yml` now carry the multi-core scores, and `canonical_evaluation.py` verifies that at runtime instead of asserting it. The gate does embody the headline finding. |
+
+## Superseded entirely — row 5 and the "class inventory" problem
+
+Row 5 said no `cetp.*` packages existed. **They exist now**: `cetp/` is an installable
+package (`predict`, `regress`, `redact`, `signature`, `cross_env`, `operator_model`,
+`plan_nodes`, `calibration_store`, `ingest`, `telemetry`, `cli`). A rewritten LLD should
+document the real module list rather than either the old fiction or the old flat scripts.
+
+**The LLD and deck are not in this repository, so they still cannot be edited from here.**
+What has been done instead is to write a correct one from scratch:
+**[`docs/LLD.md`](docs/LLD.md)** and its PDF, generated entirely from verified numbers in
+`results/`. Treat the old PDF as superseded rather than patching it row by row — every
+headline figure in it predates the buffer-bug correction, the multi-core fix, and the
+per-operator work.
 
 ## Design-vocabulary mapping
 
