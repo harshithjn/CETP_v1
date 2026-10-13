@@ -157,6 +157,27 @@ capability genuinely differs: on the 1-CPU cells, 62.58% → 25.18% and 59.78% �
 | 4. few-shot calibration | **modest** — 28.54% → ~23% at k=5–8, but **k=1 is worse than not calibrating** (33.74%) |
 | **missing: I/O axis** | **diagnosed as the residual error** — the probe measures no storage throughput |
 
+### Cross-ISA: measured, and it fails without calibration
+
+[results/cross_isa_prediction.md](results/cross_isa_prediction.md) — 176 pairs, 8 production
+machines, one of them a real x86_64 AMD EPYC:
+
+| population | naive | operator, zero-shot | operator, k=5 |
+|---|---:|---:|---:|
+| same ISA (7 arm64 cells) | 37.39% | **29.31%** | ~25% |
+| cross ISA (1 x86_64 cell) | 21.41% | **72.84%** | **23.38%** |
+
+**The probe transfers within an architecture and not across one.** It reports the M1 faster
+on every axis and predicts x86 is 1.667× slower; it is actually 1.044×. Not operator-mix
+divergence (that was tested and refuted — 1.365× cross-ISA against 1.371× within the arm64
+grid) but the **absolute scale**: tuples/s on a synthetic operator is not comparable across
+microarchitectures. Same defect as the original FP-GFLOPS signature; five architecture-
+sensitive scalars instead of one did not fix it.
+
+**Calibration is the fix, and it is mandatory across an ISA.** Five production queries take
+the x86 cell from 72.84% to 23.38%, near its 16.75% floor — but only to *parity* with naive's
+21.41%, not past it.
+
 ### The honest headline
 
 **Parallelism is the finding; per-operator detail is not.** A capability signature without a
@@ -187,9 +208,16 @@ three cells from failing the repeatability gate to passing it and reversed the v
    (~120 MB tables against a 128 MB buffer pool) while TPC-H reads ~850 MB past it, so
    over-prediction correlates with each query's I/O fraction (Spearman r = +0.302). Needs a
    probe table several times `shared_buffers`.
-2. **Get a second ISA.** GitHub Actions runners are x86_64 and free for public repos; Oracle
-   Cloud Always Free gives an arm64 Ampere server. This is what would test move 2b on its
-   merits — and what tests the thesis claim that broke the original signature.
+2. ~~**Get a second ISA.**~~ **DONE, and the answer is NEGATIVE** — see
+   [results/cross_isa_operator_rates.md](results/cross_isa_operator_rates.md). An x86_64 AMD
+   EPYC 9V74 runner was probed via `.github/workflows/x86-operator-probe.yml`. Crossing
+   arm64 → x86_64 perturbs the operator mix by **1.365×**, while the worst pair *within* the
+   arm64 container grid perturbs it by **1.371×** — no more than changing a CPU quota on one
+   machine. **The stated motivation for per-operator rates does not survive measurement**, so
+   the 59.7% cross-ISA floor is not caused by operator-mix divergence. With the grid ablation
+   (−0.08 pp, CI [−0.73, +0.44]), two independent experiments now agree that per-operator
+   *rates* are not the useful part of this model; the parallelism term and its plan-structure
+   localisation are. **What explains the floor is now the open question.**
 3. **Vary settings, not just quotas,** to create plan divergence and make move 3 testable.
 4. **Validate the cardinality term** with a second scale factor.
 5. **Make concurrency an explicit input.** Still the largest unmodelled term (8.57× at 8

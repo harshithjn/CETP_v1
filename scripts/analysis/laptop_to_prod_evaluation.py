@@ -80,11 +80,21 @@ def main():
     dev_rates, dev_rec = cross_env.load_rates(str(REGISTRY), DEV_ID)
     dev_speedup = dev_rec.get("parallel_speedup") or 1.0
 
+    # Any reliable non-dev machine that also has a timings CSV. The filter used to require
+    # a "c" prefix (container cells); that silently excluded the x86 GitHub Actions cell,
+    # which is the only cross-ISA production machine available.
     prod_cells = sorted(m for m, v in reg.items()
-                        if m != DEV_ID and v.get("reliable") and m.startswith("c"))
+                        if m != DEV_ID and v.get("reliable")
+                        and (GRID_DIR / f"tpch_{m}.csv").exists())
     if not prod_cells:
         sys.exit("no reliable container cells to use as production targets")
-    print(f"dev: {DEV_ID} (speedup {dev_speedup:.3f}x)")
+    dev_arch = dev_rec.get("client_platform", "?")
+    print(f"dev: {DEV_ID} ({dev_arch}, speedup {dev_speedup:.3f}x)")
+    cross = [m for m in reg
+             if reg[m].get("client_platform", "").split()[-1:]
+             != dev_arch.split()[-1:] and m != DEV_ID]
+    if cross:
+        print(f"cells on a DIFFERENT ISA from dev: {sorted(cross)}")
     print(f"prod targets (probe passed the repeatability gate): {prod_cells}")
 
     dev_settings = settings(dev)

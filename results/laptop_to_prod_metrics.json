@@ -1,137 +1,165 @@
 {
   "dev": "m1-host",
-  "dev_parallel_speedup": 2.6512716806659222,
+  "dev_parallel_speedup": 2.6252440946069227,
   "few_shot": [
     {
       "k": 0,
-      "n_scored": 88,
-      "naive_mape": 33.515901513994876,
-      "operator_mape": 35.662434102722145,
+      "n_scored": 176,
+      "naive_mape": 35.39623918916716,
+      "operator_mape": 34.754639445828175,
       "rule": "spread"
     },
     {
       "k": 1,
-      "n_scored": 84,
-      "naive_mape": 33.42089171579702,
-      "operator_mape": 43.26901381843407,
+      "n_scored": 168,
+      "naive_mape": 35.66041681537119,
+      "operator_mape": 29.153508985738288,
       "rule": "spread"
     },
     {
       "k": 1,
-      "n_scored": 84,
-      "naive_mape": 33.5533949470859,
-      "operator_mape": 31.757147082680895,
+      "n_scored": 168,
+      "naive_mape": 35.341775102226094,
+      "operator_mape": 30.854045571454307,
       "rule": "random"
     },
     {
       "k": 2,
-      "n_scored": 80,
-      "naive_mape": 32.34291436104053,
-      "operator_mape": 30.66119644148349,
+      "n_scored": 160,
+      "naive_mape": 35.38875100016017,
+      "operator_mape": 28.113150827553397,
       "rule": "spread"
     },
     {
       "k": 2,
-      "n_scored": 80,
-      "naive_mape": 32.47093981754276,
-      "operator_mape": 27.551188842400222,
+      "n_scored": 160,
+      "naive_mape": 36.22968878655403,
+      "operator_mape": 32.19799817813103,
       "rule": "random"
     },
     {
       "k": 3,
-      "n_scored": 76,
-      "naive_mape": 33.19856400939397,
-      "operator_mape": 30.266678780075274,
+      "n_scored": 152,
+      "naive_mape": 35.95551819511254,
+      "operator_mape": 28.299816136975508,
       "rule": "spread"
     },
     {
       "k": 3,
-      "n_scored": 76,
-      "naive_mape": 32.96051897159346,
-      "operator_mape": 27.718355412356086,
+      "n_scored": 152,
+      "naive_mape": 36.32065641006652,
+      "operator_mape": 24.82040600542824,
       "rule": "random"
     },
     {
       "k": 5,
-      "n_scored": 68,
-      "naive_mape": 33.089539608854786,
-      "operator_mape": 22.466998661679053,
+      "n_scored": 136,
+      "naive_mape": 37.981363532934274,
+      "operator_mape": 28.790454036657238,
       "rule": "spread"
     },
     {
       "k": 5,
-      "n_scored": 68,
-      "naive_mape": 34.4018696744348,
-      "operator_mape": 22.917313850915434,
+      "n_scored": 136,
+      "naive_mape": 36.19724529516507,
+      "operator_mape": 23.660354330726555,
       "rule": "random"
     },
     {
       "k": 8,
-      "n_scored": 56,
-      "naive_mape": 36.82569463656255,
-      "operator_mape": 22.43184884217879,
+      "n_scored": 112,
+      "naive_mape": 34.41166231983566,
+      "operator_mape": 20.544932239318435,
       "rule": "spread"
     },
     {
       "k": 8,
-      "n_scored": 56,
-      "naive_mape": 34.62136280622247,
-      "operator_mape": 20.87588946716649,
+      "n_scored": 112,
+      "naive_mape": 35.2967934078663,
+      "operator_mape": 21.87627877766186,
       "rule": "random"
     }
   ],
-  "mean_explained_frac": 0.9907383409053516,
-  "mean_unmapped_frac": 0.009261659094648348,
-  "n_pairs": 88,
+  "mean_explained_frac": 0.9908079885101612,
+  "mean_unmapped_frac": 0.009192011489838857,
+  "n_pairs": 176,
   "n_queries": 22,
   "per_prod_machine": {
+    "c1m1g": {
+      "n": 22,
+      "naive_mape": 62.57627400694082,
+      "operator_mape": 23.467660795796057
+    },
     "c1m3g": {
       "n": 22,
       "naive_mape": 59.778357884230395,
-      "operator_mape": 35.184855449958
+      "operator_mape": 31.26403389758195
     },
     "c2m3g": {
       "n": 22,
       "naive_mape": 22.17230929534748,
-      "operator_mape": 28.738033349755636
+      "operator_mape": 22.15009564784068
+    },
+    "c4m1g": {
+      "n": 22,
+      "naive_mape": 32.4122216614429,
+      "operator_mape": 36.00328360429009
+    },
+    "c4m3g": {
+      "n": 22,
+      "naive_mape": 32.70345676328852,
+      "operator_mape": 36.395812470786396
     },
     "c8m1g": {
       "n": 22,
       "naive_mape": 30.838592238552625,
-      "operator_mape": 49.09442665297598
+      "operator_mape": 33.42253932585658
     },
     "c8m3g": {
       "n": 22,
       "naive_mape": 21.274346637849,
-      "operator_mape": 29.632420958198967
+      "operator_mape": 22.488767018247433
+    },
+    "gha-x86": {
+      "n": 22,
+      "naive_mape": 21.414355025685516,
+      "operator_mape": 72.84492280622618
     }
   },
   "predictors": {
     "naive": {
-      "mape": 33.515901513994876,
-      "mdape": 24.915764474207673,
-      "qerror_median": 1.2894582679547724,
-      "qerror_p95": 3.6036675959035334
+      "mape": 35.39623918916716,
+      "mdape": 26.33739324604279,
+      "qerror_median": 1.3046933358757484,
+      "qerror_p95": 3.697429513369924
     },
     "operator": {
-      "mape": 35.662434102722145,
-      "mdape": 21.775233540670396,
-      "qerror_median": 1.2376222268624362,
-      "qerror_p95": 1.9409063186395035
+      "mape": 34.754639445828175,
+      "mdape": 24.669214041448413,
+      "qerror_median": 1.2677652625892997,
+      "qerror_p95": 2.0325348204709757
     }
   },
   "prod_cells": [
+    "c1m1g",
     "c1m3g",
     "c2m3g",
+    "c4m1g",
+    "c4m3g",
     "c8m1g",
-    "c8m3g"
+    "c8m3g",
+    "gha-x86"
   ],
   "same_isa_caveat": "all prod cells are containers on the same arm64 host as dev; this measures capability transfer, not ISA transfer",
   "settings_mismatches": {},
   "signed_bias_per_machine": {
-    "c1m3g": 0.28793828742577904,
-    "c2m3g": 0.21721224816787962,
-    "c8m1g": 0.48984039121448314,
-    "c8m3g": 0.22037952559736534
+    "c1m1g": 0.07627210387908011,
+    "c1m3g": 0.23133211228030584,
+    "c2m3g": 0.06013902928335982,
+    "c4m1g": 0.3277875517741778,
+    "c4m3g": 0.34313190479000755,
+    "c8m1g": 0.3088043397996875,
+    "c8m3g": -0.02828537843680531,
+    "gha-x86": 0.7284492280622618
   }
 }

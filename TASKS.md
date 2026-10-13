@@ -460,9 +460,42 @@ than doing nothing. Design and status: **[OPERATOR_MODEL.md](OPERATOR_MODEL.md)*
 - [ ] **ADD AN I/O AXIS TO THE PROBE.** Highest-value change remaining: nothing in the
       signature measures read throughput past the buffer pool. Needs a probe table several
       times `shared_buffers`.
-- [ ] **Get a second ISA** (GitHub Actions x86_64, free for public repos; Oracle Cloud Always
-      Free arm64). This is the only way to test per-operator rate weighting on its merits,
-      and it is the transfer that broke the original signature at 324%.
+- [x] **Second ISA OBTAINED, and the result is NEGATIVE** -- the most important finding of
+      this round (`results/cross_isa_operator_rates.md`). An x86_64 AMD EPYC 9V74 runner was
+      probed through `.github/workflows/x86-operator-probe.yml` (reps=9, record passed the
+      repeatability gate). Crossing **arm64 -> x86_64 perturbs the operator mix by 1.365x**;
+      the worst pair **within** the arm64 container grid perturbs it by **1.371x**. The ISA
+      boundary is no harder on operator mix than a CPU quota change on one machine.
+      **This refutes the stated motivation for per-operator capability modelling**, and means
+      the 59.7% cross-ISA floor is NOT caused by operator-mix divergence. Combined with the
+      grid ablation (-0.08pp, CI [-0.73, +0.44]), two independent experiments now agree:
+      per-operator RATES are not the useful part; the parallelism term and its
+      plan-structure localisation are.
+- [x] **CROSS-ISA PREDICTION MEASURED, and it fails without calibration**
+      (`results/cross_isa_prediction.md`). 176 pairs over 8 production machines, one a real
+      x86_64 AMD EPYC 9V74 collected through GitHub Actions.
+      **Same ISA (7 arm64 cells, 154 pairs): operator 29.31% vs naive 37.39% -- the model
+      works. Cross ISA (1 x86 cell, 22 pairs): operator 72.84% vs naive 21.41% -- 3.4x WORSE
+      than doing nothing.**
+      Mechanism: the probe says x86 is 1.667x slower than the M1; it is actually 1.044x. Not
+      operator-mix divergence (refuted above) but the ABSOLUTE SCALE -- tuples/s on a
+      synthetic operator is not comparable across microarchitectures. The same defect as the
+      original FP-GFLOPS signature; five architecture-sensitive scalars instead of one did
+      not fix it.
+      **Calibration repairs it and is mandatory across an ISA:** k=5 takes the x86 cell to
+      23.38% (floor 16.75%) -- but only to PARITY with naive's 21.41%, not past it.
+- [ ] **Make calibration mandatory in the product when the two machines report different
+      `client_platform` architectures.** Uncalibrated cross-ISA is the one configuration
+      measured to be far worse than doing nothing, now three times (EC2 324%/160%, x86
+      72.84%). `cetp predict-prod` should refuse, or at minimum hard-warn, on an
+      uncalibrated cross-architecture pair.
+- [ ] **A second x86 machine** is the cheapest next measurement -- one machine establishes
+      the direction and size of the failure, not a distribution.
+- [ ] **Find what DOES explain the residual.** Ranked candidates: storage/buffer-pool
+      regime (EC2 was EBS, the laptop is local NVMe; over-prediction already correlates with
+      per-query I/O fraction at r=+0.302, and no probe axis measures storage); per-query
+      variance of 18-43x WITHIN a single EC2 machine, which no per-machine quantity can
+      express; engine build and config differences.
 - [ ] **Vary settings, not just quotas**, to create plan divergence and make move 3 testable.
 - [ ] **Validate the cardinality term** with a second scale factor.
 - [ ] **Concurrency remains the largest unmodelled term** (8.57x at 8 clients) and must be an
