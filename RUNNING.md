@@ -1,115 +1,250 @@
 # Running CETP
 
-This file lists the exact commands to run the system and explains what happens at each step. It assumes the repository is already set up as described in `README.md`.
-
-There are three ways to run this, from fastest to most convincing. Start with the first one.
+Step-by-step, from a fresh clone to reproducing every published number.
+If you only read one section, read **§2**.
 
 ---
 
-## 1. Gate demo on pre-built scenarios (no setup, 30 seconds)
+## 0. Prerequisites
+
+| | Needed for | Check |
+|---|---|---|
+| **Python 3.13** | everything | `python3 --version` |
+| **PostgreSQL 14+** client and server | measuring machines | `psql --version` |
+| **Docker** | the capability grid only | `docker --version` |
+| **Chrome/Chromium** | rebuilding the PDFs only | — |
+
+Python 3.13 specifically: `requirements.txt` pins `numpy==2.5.3`, which has no wheel for
+3.11. The shipped `cetp` package itself needs only the standard library, so **3.11+ is fine
+if you are just using the tool** — the pin matters for the research scripts.
+
+---
+
+## 1. Install
 
 ```bash
-cd gate/
-python cetp_gate.py --demo
+git clone https://github.com/harshithjn/CETP_v1.git
+cd CETP_v1
+pip install -e .
 ```
 
-**What happens:** the script loads the trained bottleneck classifier and quantile regression models from `models/`, then runs four pre-built query and machine-pair combinations through the full prediction pipeline. Each one prints the predicted p50, p95, and p99 scaling factors, the confidence check result, and the final verdict.
+That is enough to use the tool. **It has no runtime dependencies.**
 
-**What you should see:** four outcomes.
-
-- A `PASS` (query 19, `c5a` to `c7i`, SLA 200 ms) where the predicted p99 clears the threshold.
-- A `BLOCK` (query 1, `r5n` to `z1d`, SLA 3000 ms) where the predicted p50 already exceeds the threshold.
-- A `WARN` (query 18, `c7i` to `r5n`, SLA 8000 ms) where p50 is under the threshold but p99 is over it.
-- A `WARN` for low confidence (query 19 against a hypothetical production machine far outside the training set) where the hardware-distance check flags the machine as unfamiliar and recommends a real measurement instead of trusting the prediction.
-
-This step uses no external tools. No database, no cloud access, no network required.
-
----
-
-## 2. Gate against a real, freshly run query (a few minutes, needs local PostgreSQL)
-
-This is the step that proves the pipeline works end to end against a live database, not saved files.
-
-**One-time setup**, if not already done:
+For the research scripts (evaluations, the grid, retraining):
 
 ```bash
-psql -c "CREATE DATABASE tpch;"
-psql tpch -f scripts/collection/dss.ddl
-# load TPC-H scale factor 1 data, see scripts/collection/README for the loading steps
+pip install -r requirements.txt
 ```
 
-**Run one query through EXPLAIN and feed it to the gate:**
+---
+
+## 2. Verify it works
 
 ```bash
-psql tpch -c "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) $(cat scripts/collection/patched_queries/q1.sql)" > /tmp/q1_explain.json
-
-python gate/cetp_gate.py \
-  --explain-json /tmp/q1_explain.json \
-  --dev-machine c7i \
-  --prod-machine c5a \
-  --sla-ms 3000
+cetp selftest
 ```
 
-**What happens:** PostgreSQL actually executes query 1 against the local database and returns a real query plan, including actual row counts and buffer page statistics. The gate parses this plan, extracts the workload cost vector, looks up the static hardware signatures already measured for `c7i` and `c5a`, computes the bandwidth and multi-core compute ratios between them, and predicts the scaling factor. It then compares the predicted p50 and p99 against the 3000 ms threshold and prints a verdict.
+Expected:
 
-**What you should see:** a printed prediction (p50, p95, p99 in milliseconds), the confidence score, and PASS, BLOCK, or WARN. Nothing here is pre-computed; the plan came from a live database call made moments earlier.
+```
+redaction             OK
+prediction            OK  (3587 ms dev -> 2122 ms prod, scaling 0.592)
+regression (identity) OK  (same plan twice -> ratio 1.000, hardware term cancels)
+calibration           OK
+operator model        OK  (identical machines 1.000; prod without parallelism 2.50x slower)
 
----
+selftest PASSED
+```
 
-## 3. The self-calibrating loop (2 to 3 minutes, the strongest demonstration)
-
-This shows the system detecting an unfamiliar machine, declining to guess, learning from a measurement, and becoming accurate on that machine afterward.
+Then the full suite:
 
 ```bash
-python scripts/analysis/addition7_online_loop.py --demo
+make test        # 108 tests
 ```
 
-**What happens, in order:**
-
-1. The script loads a version of the trained model with machine `c5a` entirely excluded from training, so it is genuinely unknown to the system.
-2. It sends a prediction request for a query against `c5a`. The hardware-distance confidence check computes how far `c5a`'s signature is from every machine the model has seen, finds it is far outside the known range, and returns a confidence score of 0.000. The system declines to give a numeric prediction and instead recommends a real measurement.
-3. The script then simulates that measurement being taken and reported back (using held-out real data as a stand-in for a fresh production measurement), and calls the store-and-retrain step. This writes the new measurement to the persistent data store, adds `c5a`'s hardware signature to the known-machines list, and retrains the classifier and regression models on the enlarged dataset.
-4. The same query against `c5a` is predicted again. This time the confidence check finds `c5a` is now close to a known machine (itself, now in the training set) and returns confidence 1.000. The system produces a normal, non-deferred prediction.
-
-**What you should see:** a before-and-after printout. Before learning, confidence is 0.000 and the error the system would have made if forced to guess is roughly 78 percent. After twelve measurements and one retrain, confidence is 1.000 and the error on held-out queries against `c5a` drops to roughly 15 percent.
-
-This demonstrates the mechanism working correctly, using held-out data in place of a genuinely fresh production measurement. It has not been tested against a continuously running live production system, and that distinction should be stated plainly if asked.
+If both pass, the installation is good.
 
 ---
 
-## 4. Continuous integration gate (shows the deployment integration)
+## 3. Use it — predicting a query's production runtime
+
+### 3.1 Measure each machine once
 
 ```bash
-cd gate/
-git commit -am "example change"
-git push
+# on your development machine
+python3 scripts/collection/operator_probe.py --machine-id dev-laptop --db mydb
+
+# on production (or pointing at it)
+python3 scripts/collection/operator_probe.py --machine-id prod-db --db mydb \
+    --host prod.example.com --user readonly
 ```
 
-**What happens:** pushing triggers `.github/workflows/cetp-gate.yml`, which runs the gate automatically across a small matrix of example queries declared in `cetp.yml`, using the fixed development and production machine pair configured there. Each query in the matrix produces a verdict; the workflow fails the build if any query returns BLOCK.
+Takes a few minutes per machine. It creates two temporary tables, times six operations,
+and drops them.
 
-**What you should see:** on GitHub, under the Actions tab, a running workflow that completes with each query's verdict shown in the job summary, and a red or green build status depending on whether any query blocked.
+> **Run this on an idle machine.** Under load it measures contention rather than
+> capability — observed moving a machine's measured parallel speedup from 2.47× to 1.14×.
+> The probe detects this and flags the record unreliable, and the predictor then refuses
+> to use it.
 
----
+It works on **managed PostgreSQL** (RDS, Aurora, Cloud SQL) because it is only SQL. A
+read-only user is enough, plus permission to create two temporary tables.
 
-## Important distinction when demonstrating this
-
-The five cloud machines used to collect the training data (`c5a`, `m5a`, `r5n`, `z1d`, `c7i`) are terminated. Nothing in the demonstrations above runs on live EC2 instances. What is running live is a local PostgreSQL database and the trained models, which were built from data collected on those cloud machines during the project. If asked directly whether the cloud machines are live during a demo, the honest answer is no: cloud collection was a one-time data-gathering phase, now complete, and everything shown afterward runs locally against the resulting models.
-
----
-
-## Running the test suite
+Check what is registered. Note these are two different registries:
 
 ```bash
-cd tests/
-python -m pytest test_e2e.py -v
+# the OPERATOR signatures, which predict-prod uses
+python3 -c "import json;r=json.load(open('models/operator_signature.json'));\
+[print(f\"{m:20s} {v['client_platform']:16s} reliable={v['reliable']}\") for m,v in sorted(r.items())]"
+
+# the LEGACY two-scalar registry, which `cetp predict` and the VS Code extension use
+cetp signature list
 ```
 
-**What happens:** the full integration test suite runs, covering the complete chain from raw EXPLAIN input to verdict, a leakage check confirming no production-side data reaches the model as a feature, malformed-input handling, and a known-answer regression check against locked expected predictions.
+### 3.2 Predict
 
-**What you should see:** 28 tests, all passing.
+```bash
+python3 scripts/collection/predict_prod.py --query-file q.sql \
+    --dev dev-laptop --prod prod-db \
+    --prod-host prod.example.com --prod-db mydb --prod-user readonly \
+    --dev-db mydb --sla-ms 2000
+```
+
+What happens: production is `EXPLAIN`ed (**planned, never executed**), that plan is forced
+on your machine with `pg_hint_plan` and measured there, and the result is scaled by the two
+capability signatures.
+
+Read the `trust:` line and the warnings. They are the difference between a usable number
+and a misleading one.
+
+### 3.3 If the two machines have different CPU architectures
+
+The prediction is **refused**:
+
+```
+REFUSED: refusing an uncalibrated prediction from arm64 to x86_64: measured at
+72.84% MAPE against 21.41% for assuming production equals development...
+```
+
+This is deliberate. Uncalibrated cross-architecture prediction was measured as roughly
+3× worse than doing nothing, on every x86 machine tried. To lift it, measure three to five
+queries on production and feed the real numbers back:
+
+```bash
+python3 scripts/collection/predict_prod.py --query-file q1.sql \
+    --dev dev-laptop --prod prod-db ... --actual-ms 1840
+```
+
+Each `--actual-ms` records an observation. After three the correction stops being
+provisional; after five the refusal lifts and accuracy is near the best achievable for
+that pair.
 
 ---
 
-## Where results come from
+## 4. Use it — regression checking (the most reliable mode)
 
-Every number shown by the commands above, and every number in the paper and dashboard, is generated by scripts in `scripts/analysis/`, reading from `data/corrected/`. None of it is hand-entered. To regenerate any reported figure from scratch, the relevant script in `scripts/analysis/` can be run directly; each corresponds to one phase or addition described in the paper.
+Comparing the *same* query before and after a change is the mode to trust: the hardware
+term appears in both numerator and denominator and largely cancels.
+
+```bash
+psql -d mydb -tAc "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) $(cat before.sql)" > before.json
+psql -d mydb -tAc "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) $(cat after.sql)"  > after.json
+
+cetp regress --before before.json --after after.json \
+             --dev dev-laptop --prod prod-db --threshold 1.20 --fail-on-regression
+```
+
+`--fail-on-regression` exits non-zero, which is all CI needs.
+
+---
+
+## 5. Before any plan leaves your machine
+
+`EXPLAIN` output embeds your query's literal values. On a real database those are user
+data.
+
+```bash
+cetp redact plan.json -o plan.safe.json           # strip literals, keep structure
+cetp redact plan.json -o plan.pub.json --level full   # also hash identifiers
+cetp redact plan.safe.json --check                # verify; exits 1 if anything survived
+```
+
+---
+
+## 6. Reproduce the research results
+
+### 6.1 The legacy five-machine dataset
+
+```bash
+make results            # writes results/CANONICAL.md + canonical_metrics.json
+make verify-determinism # runs it twice, asserts byte-identical output
+```
+
+### 6.2 The capability grid (needs Docker, ~3 hours)
+
+```bash
+make grid-setup      # load TPC-H SF1 into a Docker volume. Once. ~10 min, ~2 GB
+make grid-collect    # sweep 4 CPU x 2 memory configurations. ~2-3 h
+make operator-results
+```
+
+`make grid-reprobe` re-measures capability without redoing the collection.
+
+### 6.3 The rest
+
+```bash
+python3 scripts/analysis/laptop_to_prod_evaluation.py   # the real scenario
+python3 scripts/analysis/laptop_to_ec2_evaluation.py    # cross-ISA on cloud hardware
+python3 scripts/analysis/concurrency_model.py           # elasticity
+python3 scripts/analysis/version_compat_check.py        # parser vs PG 14/15/17/18
+```
+
+Each writes a `.md` and a `.json` into `results/`.
+
+### 6.4 Collecting a free x86 machine
+
+Push to the `x86-probe` branch, or dispatch
+`.github/workflows/x86-operator-probe.yml`. It loads TPC-H on a GitHub Actions runner,
+probes it, collects 22 queries and uploads the results as an artifact. Download with
+`gh run download <id> -n x86-probe-results-ubuntu-latest`, copy the CSV into
+`data/container_grid/` and merge the signature into `models/operator_signature.json`.
+
+---
+
+## 7. Rebuild the documents and the site
+
+```bash
+make docs        # docs/LLD.pdf and docs/HANDBOOK.pdf, from the Markdown
+open site/index.html
+```
+
+`site/index.html` is one self-contained file with no external requests. Host it by
+uploading that single file.
+
+---
+
+## 8. Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| `signature is flagged unreliable` | The machine was busy when probed. Stop other work and re-probe. |
+| `refusing an uncalibrated prediction from X to Y` | Different CPU architectures. See §3.3. |
+| `probe scales differ, rates are not comparable` | The two machines were probed with different probe settings. Re-probe both with the current script. |
+| `carries operator_rates_v1` | A signature from before the parallelism axis existed. Re-probe. |
+| `ModuleNotFoundError: No module named '_loss'` | scikit-learn version mismatch against the pickled models. `pip install -r requirements.txt`. |
+| `Could not find a version that satisfies numpy==2.5.3` | You are on Python 3.11. Use 3.13 for the research scripts. |
+| Gate exits 1 in CI | That is a **BLOCK verdict**, not a failure. 0 = pass/warn, 1 = block, 2+ = the gate itself broke. |
+| `pg_hint_plan is not available` | Plan forcing needs it on the **development** machine only. Without it, pass `--no-force`; the result is reported with `plan_forced=False` and lower trust. |
+| Probe hangs on a managed instance | It needs permission to create two temporary tables. Check the role. |
+
+---
+
+## 9. What to read next
+
+| | |
+|---|---|
+| `docs/HANDBOOK.md` / `.pdf` | A-to-Z: concepts, findings, history, limits. **Start here.** |
+| `docs/LLD.md` / `.pdf` | The design document |
+| `results/*.md` | Every number, generated. Never hand-edited |
+| `site/index.html` | The public summary |
+| `TASKS.md` | Full history and open work |

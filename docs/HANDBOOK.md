@@ -243,6 +243,7 @@ tests/                    108 tests
 |---|---|
 | `results/*.md` + `*.json` | **Generated. Authoritative.** |
 | `docs/LLD.md` / `.pdf` | Current design. Supersedes the old LLD PDF entirely |
+| `RUNNING.md` | Step-by-step: install, verify, use, reproduce |
 | `docs/HANDBOOK.md` | This file |
 | `site/index.html` | Public summary, same numbers |
 | `OPERATOR_MODEL.md` | Design and status of the per-operator work |
