@@ -42,6 +42,14 @@ EXPRESSION_FIELDS = (
     "Subplans Removed", "Conflict Filter", "Repeatable Seed", "Params Evaluated",
     "Merge Key", "Order By",
 )
+# Fields that carry the SQL text itself. auto_explain emits "Query Text" with every literal
+# the statement contained, which is the single most sensitive field in the whole document --
+# and the redactor used to pass it through untouched, because hand-captured EXPLAIN output
+# does not include it and nothing exercised the path until cetp.ingest did. These get the
+# same expression redaction as a Filter, and at level="full" are dropped entirely, because
+# a normalised statement is still a strong fingerprint of what a customer stores.
+QUERY_TEXT_FIELDS = ("Query Text", "Query", "Statement")
+
 IDENTIFIER_FIELDS = (
     "Relation Name", "Alias", "Index Name", "CTE Name", "Schema", "Function Name",
     "Tuplestore Name", "Subplan Name", "Parent Relationship",
@@ -91,6 +99,13 @@ def redact_plan(obj, level="structural", salt="cetp"):
     for k, v in obj.items():
         if k in _NEVER_TOUCH:
             out[k] = v
+        elif k in QUERY_TEXT_FIELDS:
+            if level == "full":
+                out[k] = "[redacted]"
+            elif isinstance(v, str):
+                out[k] = _redact_expression(v)
+            else:
+                out[k] = v
         elif k in EXPRESSION_FIELDS:
             if isinstance(v, list):
                 out[k] = [_redact_expression(x) for x in v]
@@ -140,8 +155,10 @@ def assert_clean(plan, level="structural"):
         probe = _SAFE_TOKENS.sub("", s)
         if _STR_LITERAL.search(probe.replace("'?'", "")):
             problems.append(f"{path}: string literal survives -> {s[:90]}")
-        # Numbers are legitimate in numeric *metric* fields; only expressions are checked.
-        if field in EXPRESSION_FIELDS and _NUM_LITERAL.search(probe.replace("?", "")):
+        # Numbers are legitimate in numeric *metric* fields; only expressions and raw SQL
+        # text are checked.
+        if (field in EXPRESSION_FIELDS or field in QUERY_TEXT_FIELDS) \
+                and _NUM_LITERAL.search(probe.replace("?", "")):
             problems.append(f"{path}: numeric literal survives -> {s[:90]}")
     if problems:
         raise ValueError("redaction incomplete:\n  " + "\n  ".join(problems[:12]))

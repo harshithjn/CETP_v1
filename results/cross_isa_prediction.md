@@ -7,12 +7,33 @@ record passing the repeatability gate, and dev and all prod cells verified to ag
 `work_mem`, `shared_buffers`, `effective_cache_size`, `random_page_cost`,
 `max_parallel_workers_per_gather` and concurrency. 22 TPC-H queries at SF1, 176 pairs.
 
+## Replicated across four independent x86 machines
+
+| prod | CPU | naive | operator, zero-shot |
+|---|---|---:|---:|
+| gha-x86 | AMD EPYC 7763 | 21.41% | **72.84%** |
+| gha-ubuntu-latest | AMD EPYC 7763 | 21.00% | **69.44%** |
+| gha-ubuntu-24.04 | AMD EPYC 7763 | 21.79% | **66.15%** |
+| gha-ubuntu-22.04 | AMD EPYC 7763 | 22.75% | **67.26%** |
+| *mean* | | *21.7%* | ***68.9%*** |
+
+Four separate GitHub Actions jobs, each on a fresh physical host. The failure reproduces on
+**every one**: the model is consistently ~3.2× worse than assuming production equals
+development. The four signatures agree closely with each other (seqscan 7.13–7.46M tuples/s,
+parallel speedup 2.160–2.167), so this is not probe noise — it is a systematic property of
+predicting across the architecture boundary.
+
+A fifth measurement on a **different** x86 CPU (AMD EPYC 9V74, from the first workflow run)
+gives seqscan 8.75M and speedup 2.211 — 18% apart from the 7763 cluster on the serial axes,
+which is a reminder that "x86" is not one machine either.
+
 ## The result
 
 | population | naive (prod = dev) | operator model, zero-shot |
 |---|---:|---:|
 | **same ISA** (7 arm64 cells, 154 pairs) | 37.39% | **29.31%** |
-| **cross ISA** (1 x86_64 cell, 22 pairs) | **21.41%** | **72.84%** |
+| **cross ISA** (4 x86_64 machines, 88 pairs) | **21.7%** | **68.9%** |
+| all 11 production machines, 242 pairs | 31.70% | 43.72% |
 
 **Within an architecture the model works. Across one it is 3.4× worse than doing nothing.**
 
@@ -76,10 +97,10 @@ beat it. On this pair, the capability model contributes nothing that calibration
 
 ## Scope
 
-- **One x86 machine.** This refutes "the probe transfers across ISAs" and establishes the
-  direction and rough size of the failure; it does not characterise a distribution over x86
-  hardware. A second x86 machine (a different vendor, or a larger runner) is the cheapest next
-  measurement.
+- **Four x86 machines, but only two distinct CPU models**, both AMD EPYC, both on Azure-hosted
+  GitHub runners. The failure replicates 4/4 and the signatures are tight, so the finding is
+  not a fluke — but a non-AMD x86 machine (Intel) and a non-CI host would both strengthen it,
+  and neither has been measured.
 - A CI runner is shared hardware; the record passed the repeatability gate but neighbours are
   not controlled.
 - 22 queries, SF1, single client, identical data on both sides, one engine version.

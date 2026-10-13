@@ -1,0 +1,529 @@
+machine_id,workload,scale_factor,query_id,rep,is_warmup,client,concurrency,arch,identity_source,instance_type,pg_server_version,pg_max_parallel_workers_per_gather,pg_max_parallel_workers,pg_max_worker_processes,pg_shared_buffers,pg_effective_cache_size,pg_work_mem,pg_random_page_cost,pg_seq_page_cost,pg_jit,mpwpg_set,work_mem_set,ok,error,time_ms,planning_ms,wall_ms,cost,rows,shared_hit,shared_read,temp_written,rows_processed,node_count,plan_depth,workers_launched,dop,plan_signature,plan_json_file
+gha-ubuntu-24.04,tpch,SF1,q1,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,2781.14,0.565,2783.090829849243,228923.93,4,304,110080,0,5916631,5,5,2,3,1285b12207cebd1e,q1_r0_c0_1285b12207cebd1e.json.gz
+gha-ubuntu-24.04,tpch,SF1,q2,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,325.589,2.206,330.1079273223877,57226.88,100,156538,42759,10434,528833,22,9,2,3,8f50b74d94476d6c,q2_r0_c0_8f50b74d94476d6c.json.gz
+gha-ubuntu-24.04,tpch,SF1,q3,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,494.405,1.49,498.1069564819336,193999.15,10,503075,124738,0,1030630,12,10,2,3,dc3864e56087adcc,q3_r0_c0_dc3864e56087adcc.json.gz
+gha-ubuntu-24.04,tpch,SF1,q4,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,224.889,1.061,227.39863395690918,70872.2,5,174376,81770,0,219520,7,6,2,3,6a07f08c9b5cea5b,q4_r0_c0_6a07f08c9b5cea5b.json.gz
+gha-ubuntu-24.04,tpch,SF1,q5,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,475.271,3.394,481.05907440185547,82892.1,5,318375,265078,0,729307,19,13,2,3,5d342c3ac152043f,q5_r0_c0_5d342c3ac152043f.json.gz
+gha-ubuntu-24.04,tpch,SF1,q6,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,390.786,0.565,392.7593231201172,167869.41,1,2329,108039,0,114166,4,4,2,3,c7808e148bd17c3d,q6_r0_c0_c7808e148bd17c3d.json.gz
+gha-ubuntu-24.04,tpch,SF1,q7,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,2082.164,2.617,2087.4269008636475,69468.34,4,1125542,476624,10574,1760016,18,10,2,3,7fc1b294951a877a,q7_r0_c0_7fc1b294951a877a.json.gz
+gha-ubuntu-24.04,tpch,SF1,q8,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,217.996,3.561,223.94347190856934,75675.74,2,186084,101971,0,142135,22,11,2,3,2d1582d67154e01f,q8_r0_c0_2d1582d67154e01f.json.gz
+gha-ubuntu-24.04,tpch,SF1,q9,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1858.595,4.095,1864.8135662078857,83539.72,175,2956875,706939,7628,3399783,17,11,2,3,e7a9cca7c937acfa,q9_r0_c0_e7a9cca7c937acfa.json.gz
+gha-ubuntu-24.04,tpch,SF1,q10,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,504.934,2.051,509.27138328552246,164933.1,20,159849,102323,42056,989657,15,11,2,3,a6eafcc3406f5386,q10_r0_c0_a6eafcc3406f5386.json.gz
+gha-ubuntu-24.04,tpch,SF1,q11,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,156.499,1.437,160.02273559570312,10540.37,1217,44835,17954,262,125013,15,6,0,1,2399ea3bdd26f1c3,q11_r0_c0_2399ea3bdd26f1c3.json.gz
+gha-ubuntu-24.04,tpch,SF1,q12,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,643.016,1.024,645.8535194396973,208096.08,2,181,137008,0,1623962,8,7,2,3,90c614bd3bbf6037,q12_r0_c0_90c614bd3bbf6037.json.gz
+gha-ubuntu-24.04,tpch,SF1,q13,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1420.171,0.842,1422.2557544708252,154137.88,42,1342691,607278,0,3634386,8,7,2,3,08e0bbe5a721b794,q13_r0_c0_08e0bbe5a721b794.json.gz
+gha-ubuntu-24.04,tpch,SF1,q14,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,405.489,1.059,408.1244468688965,155198.14,1,189,114156,0,551977,7,6,2,3,25589795bce379e5,q14_r0_c0_25589795bce379e5.json.gz
+gha-ubuntu-24.04,tpch,SF1,q15,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,820.555,0.915,822.9472637176514,306920.46,1,384,220387,0,641694,13,7,2,3,edc1eb2f9ca28178,q15_r0_c0_edc1eb2f9ca28178.json.gz
+gha-ubuntu-24.04,tpch,SF1,q16,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,352.896,0.911,355.391263961792,41299.75,18314,4326,18858,3312,1250304,9,7,2,3,d561ef4958a62280,q16_r0_c0_d561ef4958a62280.json.gz
+gha-ubuntu-24.04,tpch,SF1,q17,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1277.048,0.843,1279.165267944336,193463.63,1,209050,110439,0,6385959,9,5,2,3,e49f901326ff0ed4,q17_r0_c0_e49f901326ff0ed4.json.gz
+gha-ubuntu-24.04,tpch,SF1,q18,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,3147.838,1.572,3151.3969898223877,496529.89,9,212275,239546,0,19803951,16,12,2,3,1d6cfde64e2d05e4,q18_r0_c0_1d6cfde64e2d05e4.json.gz
+gha-ubuntu-24.04,tpch,SF1,q19,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,62.621,1.301,65.90938568115234,32464.04,1,2835,16745,0,613,6,5,2,3,16b3f94301855e5e,q19_r0_c0_16b3f94301855e5e.json.gz
+gha-ubuntu-24.04,tpch,SF1,q20,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,687.347,1.652,691.1311149597168,173958.87,186,56887,74616,0,5407347,15,9,0,1,069155115e08e9c1,q20_r0_c0_069155115e08e9c1.json.gz
+gha-ubuntu-24.04,tpch,SF1,q21,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1435.864,2.763,1441.096544265747,72757.43,100,784048,319723,62708,2352261,17,12,2,3,db94ba21b923c78e,q21_r0_c0_db94ba21b923c78e.json.gz
+gha-ubuntu-24.04,tpch,SF1,q22,0,True,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,86.501,1.056,89.18976783752441,12865.83,7,59132,5175,0,88944,11,6,2,3,2a4041de0b431a8f,q22_r0_c0_2a4041de0b431a8f.json.gz
+gha-ubuntu-24.04,tpch,SF1,q1,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,2830.302,0.565,2832.282304763794,228923.93,4,5998,104386,0,5916631,5,5,2,3,1285b12207cebd1e,
+gha-ubuntu-24.04,tpch,SF1,q2,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,329.809,2.282,334.8357677459717,57226.88,100,156022,43275,10434,528833,22,9,2,3,8f50b74d94476d6c,
+gha-ubuntu-24.04,tpch,SF1,q3,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,489.535,1.462,493.2265281677246,193999.15,10,503100,124713,0,1030630,12,10,2,3,dc3864e56087adcc,
+gha-ubuntu-24.04,tpch,SF1,q4,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,226.331,1.004,228.86395454406738,70872.2,5,174385,81761,0,219520,7,6,2,3,6a07f08c9b5cea5b,
+gha-ubuntu-24.04,tpch,SF1,q5,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,481.625,3.307,487.4145984649658,82892.1,5,318144,265309,0,729307,19,13,2,3,5d342c3ac152043f,
+gha-ubuntu-24.04,tpch,SF1,q6,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,384.033,0.688,386.2478733062744,167869.41,1,2354,108014,0,114166,4,4,2,3,c7808e148bd17c3d,
+gha-ubuntu-24.04,tpch,SF1,q7,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,2133.598,2.526,2138.9598846435547,69468.34,4,1125551,476615,10569,1760016,18,10,2,3,7fc1b294951a877a,
+gha-ubuntu-24.04,tpch,SF1,q8,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,221.21,3.712,227.45060920715332,75675.74,2,186017,102038,0,142135,22,11,2,3,2d1582d67154e01f,
+gha-ubuntu-24.04,tpch,SF1,q9,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1885.086,4.299,1891.5886878967285,83539.72,175,2956404,707410,7628,3399783,17,11,2,3,e7a9cca7c937acfa,
+gha-ubuntu-24.04,tpch,SF1,q10,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,514.243,1.955,518.5449123382568,164933.1,20,158253,103919,42096,989549,15,11,2,3,a6eafcc3406f5386,
+gha-ubuntu-24.04,tpch,SF1,q11,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,165.721,1.441,169.52967643737793,10540.37,1217,45023,17766,262,125013,15,6,0,1,2399ea3bdd26f1c3,
+gha-ubuntu-24.04,tpch,SF1,q12,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,635.402,1.031,638.2544040679932,208096.08,2,184,137005,0,1623962,8,7,2,3,90c614bd3bbf6037,
+gha-ubuntu-24.04,tpch,SF1,q13,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1454.252,0.835,1456.3887119293213,154137.88,42,1342236,607733,0,3634386,8,7,2,3,08e0bbe5a721b794,
+gha-ubuntu-24.04,tpch,SF1,q14,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,400.163,1.231,403.02276611328125,155198.14,1,189,114156,0,551977,7,6,2,3,25589795bce379e5,
+gha-ubuntu-24.04,tpch,SF1,q15,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,816.999,0.964,819.6141719818115,306920.46,1,391,220380,0,641689,13,7,2,3,edc1eb2f9ca28178,
+gha-ubuntu-24.04,tpch,SF1,q16,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,359.714,0.903,362.20383644104004,41299.75,18314,4326,18858,3312,1250304,9,7,2,3,d561ef4958a62280,
+gha-ubuntu-24.04,tpch,SF1,q17,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1241.841,0.798,1243.9775466918945,193463.63,1,209010,110479,0,6385959,9,5,2,3,e49f901326ff0ed4,
+gha-ubuntu-24.04,tpch,SF1,q18,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,3246.155,1.643,3249.9303817749023,496529.89,9,145168,306653,0,19803951,16,12,2,3,1d6cfde64e2d05e4,
+gha-ubuntu-24.04,tpch,SF1,q19,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,63.368,1.446,66.7872428894043,32464.04,1,2787,16793,0,613,6,5,2,3,16b3f94301855e5e,
+gha-ubuntu-24.04,tpch,SF1,q20,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,688.011,1.694,691.9753551483154,173958.87,186,56845,74658,0,5407347,15,9,0,1,069155115e08e9c1,
+gha-ubuntu-24.04,tpch,SF1,q21,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1499.606,2.79,1505.249261856079,72757.96,100,783989,319782,62716,2352261,17,12,2,3,db94ba21b923c78e,
+gha-ubuntu-24.04,tpch,SF1,q22,1,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,84.325,1.064,87.01848983764648,12865.83,7,59132,5175,0,88944,11,6,2,3,2a4041de0b431a8f,
+gha-ubuntu-24.04,tpch,SF1,q1,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,2792.495,0.604,2794.559955596924,228928.12,4,5996,104388,0,5916631,5,5,2,3,1285b12207cebd1e,
+gha-ubuntu-24.04,tpch,SF1,q2,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,335.727,2.217,340.9273624420166,57226.71,100,156143,43154,10434,528833,22,9,2,3,8f50b74d94476d6c,
+gha-ubuntu-24.04,tpch,SF1,q3,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,497.307,1.52,501.0550022125244,194001.04,10,503075,124738,0,1030630,12,10,2,3,dc3864e56087adcc,
+gha-ubuntu-24.04,tpch,SF1,q4,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,225.831,1.105,228.54328155517578,70871.94,5,174376,81770,0,219520,7,6,2,3,6a07f08c9b5cea5b,
+gha-ubuntu-24.04,tpch,SF1,q5,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,487.325,3.447,493.36957931518555,82892.12,5,318351,265102,0,729307,19,13,2,3,5d342c3ac152043f,
+gha-ubuntu-24.04,tpch,SF1,q6,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,375.03,0.613,377.164363861084,167871.42,1,2328,108040,0,114166,4,4,2,3,c7808e148bd17c3d,
+gha-ubuntu-24.04,tpch,SF1,q7,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,2194.296,2.539,2199.631452560425,69468.4,4,1125622,476544,10569,1760016,18,10,2,3,7fc1b294951a877a,
+gha-ubuntu-24.04,tpch,SF1,q8,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,232.039,3.549,238.11650276184082,75675.73,2,186078,101977,0,142135,22,11,2,3,2d1582d67154e01f,
+gha-ubuntu-24.04,tpch,SF1,q9,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1907.181,4.165,1913.5322570800781,83537.57,175,2956907,706907,7628,3399783,17,11,2,3,e7a9cca7c937acfa,
+gha-ubuntu-24.04,tpch,SF1,q10,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,496.462,2.054,500.90646743774414,164933.53,20,161239,100933,41982,989281,15,11,2,3,a6eafcc3406f5386,
+gha-ubuntu-24.04,tpch,SF1,q11,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,168.684,1.41,172.34277725219727,10540.22,1217,44950,17839,262,125013,15,6,0,1,2399ea3bdd26f1c3,
+gha-ubuntu-24.04,tpch,SF1,q12,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,625.418,1.062,628.3318996429443,208098.2,2,149,137040,0,1623962,8,7,2,3,90c614bd3bbf6037,
+gha-ubuntu-24.04,tpch,SF1,q13,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1440.776,0.78,1442.8229331970215,154137.88,42,1344773,605196,0,3634386,8,7,2,3,08e0bbe5a721b794,
+gha-ubuntu-24.04,tpch,SF1,q14,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,407.731,1.447,411.0991954803467,155199.5,1,157,114188,0,551977,7,6,2,3,25589795bce379e5,
+gha-ubuntu-24.04,tpch,SF1,q15,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,823.96,0.983,826.634407043457,306923.18,1,320,220451,0,641716,13,7,2,3,edc1eb2f9ca28178,
+gha-ubuntu-24.04,tpch,SF1,q16,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,353.45,0.986,356.2016487121582,39016.89,18314,4332,3292,3312,1250304,9,7,2,3,f37745b1cdcf41ec,q16_r2_c0_f37745b1cdcf41ec.json.gz
+gha-ubuntu-24.04,tpch,SF1,q17,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1281.401,0.851,1283.674955368042,193466.31,1,209007,110482,0,6385959,9,5,2,3,e49f901326ff0ed4,
+gha-ubuntu-24.04,tpch,SF1,q18,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,3336.863,1.693,3340.5380249023438,496538.07,9,195813,256008,0,19803951,16,12,2,3,1d6cfde64e2d05e4,
+gha-ubuntu-24.04,tpch,SF1,q19,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,65.898,1.537,69.63539123535156,32464.04,1,2835,16745,0,613,6,5,2,3,16b3f94301855e5e,
+gha-ubuntu-24.04,tpch,SF1,q20,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,705.583,1.659,709.4120979309082,173958.87,186,56879,74624,0,5407347,15,9,0,1,069155115e08e9c1,
+gha-ubuntu-24.04,tpch,SF1,q21,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1514.867,2.92,1520.28489112854,72757.96,100,784019,319752,62708,2352261,17,12,2,3,db94ba21b923c78e,
+gha-ubuntu-24.04,tpch,SF1,q22,2,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,88.494,1.124,91.33338928222656,12865.83,7,59132,5175,0,88944,11,6,2,3,2a4041de0b431a8f,
+gha-ubuntu-24.04,tpch,SF1,q1,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,2784.519,0.597,2786.5796089172363,228928.12,4,5996,104388,0,5916631,5,5,2,3,1285b12207cebd1e,
+gha-ubuntu-24.04,tpch,SF1,q2,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,333.215,2.271,338.25206756591797,57226.71,100,156062,43235,10434,528833,22,9,2,3,8f50b74d94476d6c,
+gha-ubuntu-24.04,tpch,SF1,q3,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,483.276,1.412,486.91582679748535,194001.04,10,503075,124738,0,1030630,12,10,2,3,dc3864e56087adcc,
+gha-ubuntu-24.04,tpch,SF1,q4,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,223.723,1.062,226.24945640563965,70871.94,5,174376,81770,0,219520,7,6,2,3,6a07f08c9b5cea5b,
+gha-ubuntu-24.04,tpch,SF1,q5,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,464.485,3.333,470.2413082122803,82892.12,5,318375,265078,0,729307,19,13,2,3,5d342c3ac152043f,
+gha-ubuntu-24.04,tpch,SF1,q6,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,373.543,0.539,375.55766105651855,167871.42,1,2328,108040,0,114166,4,4,2,3,c7808e148bd17c3d,
+gha-ubuntu-24.04,tpch,SF1,q7,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,2092.078,2.486,2097.295045852661,69468.4,4,1125574,476592,10569,1760016,18,10,2,3,7fc1b294951a877a,
+gha-ubuntu-24.04,tpch,SF1,q8,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,224.036,3.545,230.09920120239258,75675.73,2,186081,101974,0,142135,22,11,2,3,2d1582d67154e01f,
+gha-ubuntu-24.04,tpch,SF1,q9,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1898.836,4.103,1905.2646160125732,83537.57,175,2956903,706911,7628,3399783,17,11,2,3,e7a9cca7c937acfa,
+gha-ubuntu-24.04,tpch,SF1,q10,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,516.082,2.075,520.646333694458,164933.53,20,161171,101001,42016,989610,15,11,2,3,a6eafcc3406f5386,
+gha-ubuntu-24.04,tpch,SF1,q11,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,168.495,1.45,172.12390899658203,10540.22,1217,44931,17858,262,125013,15,6,0,1,2399ea3bdd26f1c3,
+gha-ubuntu-24.04,tpch,SF1,q12,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,625.126,1.062,628.0755996704102,208098.2,2,146,137043,0,1623962,8,7,2,3,90c614bd3bbf6037,
+gha-ubuntu-24.04,tpch,SF1,q13,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1452.706,0.85,1454.784631729126,154137.88,42,1343847,606122,0,3634386,8,7,2,3,08e0bbe5a721b794,
+gha-ubuntu-24.04,tpch,SF1,q14,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,389.752,1.175,392.4987316131592,155199.5,1,157,114188,0,551977,7,6,2,3,25589795bce379e5,
+gha-ubuntu-24.04,tpch,SF1,q15,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,783.178,0.916,785.6032848358154,306923.18,1,320,220451,0,641668,13,7,2,3,edc1eb2f9ca28178,
+gha-ubuntu-24.04,tpch,SF1,q16,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,344.85,0.886,347.35894203186035,39016.89,18314,4333,3292,3308,1250304,9,7,2,3,f37745b1cdcf41ec,
+gha-ubuntu-24.04,tpch,SF1,q17,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1221.57,0.849,1223.7732410430908,193466.31,1,209007,110482,0,6385959,9,5,2,3,e49f901326ff0ed4,
+gha-ubuntu-24.04,tpch,SF1,q18,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,3302.093,1.604,3305.4754734039307,496538.07,9,196103,255718,0,19803951,16,12,2,3,1d6cfde64e2d05e4,
+gha-ubuntu-24.04,tpch,SF1,q19,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,63.288,1.449,66.7574405670166,32464.04,1,2837,16743,0,613,6,5,2,3,16b3f94301855e5e,
+gha-ubuntu-24.04,tpch,SF1,q20,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,688.424,1.611,692.2051906585693,173958.87,186,56875,74628,0,5407347,15,9,0,1,069155115e08e9c1,
+gha-ubuntu-24.04,tpch,SF1,q21,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,1490.896,2.893,1496.2360858917236,72757.96,100,784025,319746,62716,2352261,17,12,2,3,db94ba21b923c78e,
+gha-ubuntu-24.04,tpch,SF1,q22,3,False,0,1,x86_64,imdsv2,"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01//EN""""http://www.w3.org/TR/html4/strict.dtd"">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV=""Content-Type"" Content=""text/html; charset=us-ascii""></HEAD>
+<BODY><h2>Bad Request - Invalid Header</h2>
+<hr><p>HTTP Error 400. The request has an invalid header name.</p>
+</BODY></HTML>",15.19 (Debian 15.19-1.pgdg13+2),2,8,8,128MB,4GB,4MB,4,1,on,2,4MB,True,,84.286,1.058,87.00156211853027,12865.83,7,59132,5175,0,88944,11,6,2,3,2a4041de0b431a8f,

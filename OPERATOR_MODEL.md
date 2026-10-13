@@ -162,10 +162,14 @@ capability genuinely differs: on the 1-CPU cells, 62.58% → 25.18% and 59.78% �
 [results/cross_isa_prediction.md](results/cross_isa_prediction.md) — 176 pairs, 8 production
 machines, one of them a real x86_64 AMD EPYC:
 
-| population | naive | operator, zero-shot | operator, k=5 |
+| population | naive | operator, zero-shot | operator, few-shot |
 |---|---:|---:|---:|
-| same ISA (7 arm64 cells) | 37.39% | **29.31%** | ~25% |
-| cross ISA (1 x86_64 cell) | 21.41% | **72.84%** | **23.38%** |
+| same ISA (7 arm64 cells, 154 pairs) | 37.39% | **29.31%** | ~25% |
+| cross ISA (**4** x86_64 machines, 88 pairs) | 21.7% | **68.9%** | **~22%** |
+
+**Replicated 4 out of 4** on independent GitHub Actions hosts (66.15 / 67.26 / 69.44 /
+72.84%), with signatures agreeing to within 5% of each other — so this is a systematic
+property of the architecture boundary, not probe noise.
 
 **The probe transfers within an architecture and not across one.** It reports the M1 faster
 on every axis and predicts x86 is 1.667× slower; it is actually 1.044×. Not operator-mix

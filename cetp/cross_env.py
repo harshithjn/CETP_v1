@@ -49,6 +49,38 @@ from .operator_model import (fit_calibration, predict_runtime,
 from .plan_nodes import decompose
 
 
+def _arch(rec):
+    """The instruction set a signature was measured on, e.g. 'arm64' or 'x86_64'."""
+    plat = (rec or {}).get("client_platform") or ""
+    return plat.split()[-1] if plat else None
+
+
+def architectures_differ(dev_rec, prod_rec):
+    a, b = _arch(dev_rec), _arch(prod_rec)
+    return bool(a and b and a != b), a, b
+
+
+class CrossArchitectureUncalibrated(ValueError):
+    """
+    Raised when a cross-ISA prediction is attempted with no calibration.
+
+    This is a refusal rather than a warning because it is the one configuration measured
+    to be dramatically WORSE than doing nothing, three separate times:
+
+      laptop(arm64) -> 5x EC2 x86, FP-GFLOPS signature:  324% / 160% against 129% naive
+      laptop(arm64) -> x86 AMD EPYC, operator signature:  72.84%   against  21.41% naive
+      container grid with the parallelism axis removed:   71-76%   against  72.52% naive
+
+    The cause is known: the capability probe's ABSOLUTE scale does not transfer across
+    microarchitectures (it reported x86 1.667x slower where it was 1.044x), while the
+    relative operator mix does transfer (1.365x cross-ISA against 1.371x within one host).
+    A multiplicative correction removes a constant error exactly, which is why five
+    measured queries took that x86 case from 72.84% to 23.38%.
+
+    Pass `allow_uncalibrated_cross_arch=True` to override, or supply a calibration.
+    """
+
+
 def load_rates(registry_path, machine_id):
     """Operator rates for a machine, refusing to mix incompatible probe scales."""
     reg = json.loads(open(registry_path).read())
@@ -109,7 +141,9 @@ def row_ratio_from_plans(prod_plan, dev_plan):
 def predict(prod_plan, dev_plan_analyzed, dev_runtime_ms, dev_rates, prod_rates,
             plan_forced=None, use_row_ratio=False, calibration=1.0,
             dev_speedup=1.0, prod_speedup=1.0,
-            prod_clients=1, concurrency_elasticity=None):
+            prod_clients=1, concurrency_elasticity=None,
+            dev_rec=None, prod_rec=None,
+            allow_uncalibrated_cross_arch=False):
     """
     One cross-environment prediction.
 
@@ -119,12 +153,25 @@ def predict(prod_plan, dev_plan_analyzed, dev_runtime_ms, dev_rates, prod_rates,
     plan_forced         True if dev ran production's plan and it verified; False if not;
                         None if no production plan was supplied at all
     """
+    cross_arch, dev_arch, prod_arch = architectures_differ(dev_rec, prod_rec)
+    if cross_arch and calibration == 1.0 and not allow_uncalibrated_cross_arch:
+        raise CrossArchitectureUncalibrated(
+            f"refusing an uncalibrated prediction from {dev_arch} to {prod_arch}: "
+            f"measured at 72.84% MAPE against 21.41% for assuming production equals "
+            f"development, i.e. 3.4x worse than doing nothing. Measure 3-5 queries on "
+            f"production and pass the resulting calibration (see "
+            f"cetp.calibration_store), or pass allow_uncalibrated_cross_arch=True to "
+            f"override. Details: results/cross_isa_prediction.md")
+
     rr = row_ratio_from_plans(prod_plan, dev_plan_analyzed) if (use_row_ratio and prod_plan) else None
     out = predict_runtime(dev_plan_analyzed, dev_runtime_ms, dev_rates, prod_rates,
                           row_ratio=rr, calibration=calibration,
                           dev_speedup=dev_speedup, prod_speedup=prod_speedup,
                           prod_clients=prod_clients,
                           concurrency_elasticity=concurrency_elasticity)
+    out["cross_architecture"] = cross_arch
+    out["dev_arch"] = dev_arch
+    out["prod_arch"] = prod_arch
     out["plan_forced"] = plan_forced
     out["plan_source"] = ("production, forced on dev" if plan_forced
                           else "production, forcing FAILED" if plan_forced is False
@@ -135,6 +182,10 @@ def predict(prod_plan, dev_plan_analyzed, dev_runtime_ms, dev_rates, prod_rates,
 
 
 def _trust(out):
+    # Across an architecture boundary the capability signature does not transfer, so even a
+    # calibrated prediction only reached parity with naive (23.38% against 21.41%).
+    if out.get("cross_architecture"):
+        return "LOW" if out["calibration"] == 1.0 else "MEDIUM"
     if out["explained_frac"] < 0.5:
         return "LOW"
     if out["plan_forced"] is False:
@@ -153,6 +204,14 @@ def _trust(out):
 
 def _warnings(out):
     w = []
+    if out.get("cross_architecture"):
+        w.append(f"CROSS-ARCHITECTURE ({out['dev_arch']} -> {out['prod_arch']}). The "
+                 f"capability probe's absolute scale does not transfer across "
+                 f"microarchitectures: on the one measured pair it reported the target "
+                 f"1.667x slower where it was 1.044x. Calibrated, this configuration "
+                 f"reached 23.38% MAPE against 21.41% for assuming production equals "
+                 f"development -- parity, not an improvement. Treat the capability model "
+                 f"as contributing nothing here beyond the calibration.")
     if out["plan_forced"] is False:
         w.append("Production's plan could NOT be forced on dev, so plan divergence is "
                  "unaccounted for. The causal decomposition puts that term at 70.5% of "
@@ -201,4 +260,5 @@ def _warnings(out):
 
 
 __all__ = ["load_rates", "assert_comparable", "predict", "row_ratio_from_plans",
-           "fit_calibration", "select_calibration_queries"]
+           "fit_calibration", "select_calibration_queries",
+           "architectures_differ", "CrossArchitectureUncalibrated"]
