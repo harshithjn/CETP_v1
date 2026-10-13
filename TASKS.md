@@ -164,7 +164,7 @@ inert.
       blocked evaluating the project's own baseline laptop→cloud. **Resolution requires
       relaunching the five EC2 instances and re-probing the whole signature with
       `hw_probe_suite.c`.**
-- [ ] **Probe at the achievable DOP, not `nproc`** — a definition bug that is absorbed at
+- [x] **RESOLVED by `operator_probe.py`: probe at the achievable DOP, not `nproc`** — a definition bug that is absorbed at
       2–4 cores and catastrophic at 8.
 
 ## Tier 2 — Dataset scale. ✅ COMPLETE except the two AWS/disk items (2026-10-12)
@@ -498,5 +498,11 @@ than doing nothing. Design and status: **[OPERATOR_MODEL.md](OPERATOR_MODEL.md)*
       express; engine build and config differences.
 - [ ] **Vary settings, not just quotas**, to create plan divergence and make move 3 testable.
 - [ ] **Validate the cardinality term** with a second scale factor.
-- [ ] **Concurrency remains the largest unmodelled term** (8.57x at 8 clients) and must be an
-      explicit caller-supplied input.
+- [x] **Concurrency is now an explicit caller-supplied input.**
+      `predict_scaling(..., prod_clients=N, concurrency_elasticity=e)` applies `N^e`;
+      `DEFAULT_CONCURRENCY_ELASTICITY = 0.734` is the measured median and a default halves
+      the error at 8 clients (73.8% -> 41.8%), while the per-query oracle reaches 6.7%.
+      `prod_clients=1` emits a loud SINGLE-CLIENT warning, because a silent single-client
+      assumption is how this term went ignored for the whole project. Fitted and
+      cross-validated in `results/concurrency.md`; the honest negative is that elasticity is
+      NOT predictable from a plan (LOQO MAE 0.191 vs 0.167 for the median).

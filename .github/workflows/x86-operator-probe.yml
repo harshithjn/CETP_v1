@@ -52,13 +52,21 @@ permissions:
 
 jobs:
   probe:
-    runs-on: ubuntu-latest        # x86_64
+    # Several runner images. GitHub assigns a fresh physical host per job and the images sit
+    # on different CPU generations, so this collects DISTINCT x86 machines rather than
+    # re-measuring one. The machine id carries the image so records stay distinguishable,
+    # and each job records /proc/cpuinfo so the actual silicon is known rather than assumed.
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [ubuntu-latest, ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.image }}
     timeout-minutes: 90
     env:
       PGPASSWORD: cetp
       PGUSER: postgres
       PGPORT: "55432"
-      MACHINE_ID: ${{ github.event.inputs.machine_id || 'gha-x86' }}
+      MACHINE_ID: gha-${{ matrix.image }}
       REPS: ${{ github.event.inputs.reps || '4' }}
 
     steps:
@@ -211,7 +219,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: x86-probe-results
+          name: x86-probe-results-${{ matrix.image }}
           path: out/
           retention-days: 30
 
