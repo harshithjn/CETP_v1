@@ -87,7 +87,8 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -yqq postgresql-client
           python -m pip install --quiet --upgrade pip
-          python -m pip install --quiet psycopg2-binary duckdb
+          # pandas is required by collect.py; numpy by the probe's analysis paths.
+          python -m pip install --quiet psycopg2-binary duckdb pandas numpy
 
       - name: Generate TPC-H SF1 with DuckDB
         run: |

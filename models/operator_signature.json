@@ -924,95 +924,95 @@
     "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
     "detail": {
       "hashagg": {
-        "cv": 0.0007922748611918888,
-        "median_ms": 538.3645,
-        "median_se_rel": 0.00044487733777971467,
-        "min_ms": 537.713,
-        "n_warm": 4,
+        "cv": 0.007558087491665785,
+        "median_ms": 578.2135,
+        "median_se_rel": 0.0031632798247201227,
+        "min_ms": 574.471,
+        "n_warm": 8,
         "node_types": [
           "Aggregate",
           "Limit",
           "Seq Scan"
         ],
-        "tuples_per_s": 3714955.2022839542
+        "tuples_per_s": 3458929.9627213827
       },
       "hashjoin": {
-        "cv": 0.0028645479730343066,
-        "median_ms": 522.2415000000001,
-        "median_se_rel": 0.0017167451315915929,
-        "min_ms": 520.856,
-        "n_warm": 4,
+        "cv": 0.04090876958116388,
+        "median_ms": 573.105,
+        "median_se_rel": 0.013741979389391737,
+        "min_ms": 553.534,
+        "n_warm": 8,
         "node_types": [
           "Aggregate",
           "Hash",
           "Hash Join",
           "Seq Scan"
         ],
-        "tuples_per_s": 4595575.035687511
+        "tuples_per_s": 4187714.293192347
       },
       "io_seqscan": {
-        "cv": 0.00041120806264695385,
-        "median_ms": 471.166,
-        "median_se_rel": 0.00020720786109515083,
-        "min_ms": 471.029,
+        "cv": 0.029666488425451363,
+        "median_ms": 552.357,
+        "median_se_rel": 0.014948952054277922,
+        "min_ms": 540.77,
         "n_warm": 2,
         "node_types": [
           "Aggregate",
           "Seq Scan"
         ],
-        "tuples_per_s": 12734365.382901143
+        "tuples_per_s": 10862539.98772533
       },
       "nestloop": {
-        "cv": 0.003447329140911908,
-        "median_ms": 390.78049999999996,
-        "median_se_rel": 0.0019058583654921004,
-        "min_ms": 390.055,
-        "n_warm": 4,
+        "cv": 0.014385051717813306,
+        "median_ms": 474.512,
+        "median_se_rel": 0.008492878088774313,
+        "min_ms": 466.963,
+        "n_warm": 8,
         "node_types": [
           "Aggregate",
           "Index Only Scan",
           "Nested Loop",
           "Seq Scan"
         ],
-        "tuples_per_s": 1023592.5282863398
+        "tuples_per_s": 842971.3052567691
       },
       "parallel_seqscan": {
-        "cv": 0.008337752361024717,
-        "median_ms": 59.576499999999996,
-        "median_se_rel": 0.0024347243563485423,
-        "min_ms": 58.977,
+        "cv": 0.050779366214159787,
+        "median_ms": 66.3165,
+        "median_se_rel": 0.024097940049828143,
+        "min_ms": 62.382,
         "n_warm": 10,
         "node_types": [
           "Aggregate",
           "Gather",
           "Seq Scan"
         ],
-        "tuples_per_s": 33570283.584970586
+        "tuples_per_s": 30158407.032940518
       },
       "seqscan": {
-        "cv": 0.0007972464308235456,
-        "median_ms": 155.05349999999999,
-        "median_se_rel": 0.0004373662357192173,
-        "min_ms": 154.911,
-        "n_warm": 4,
+        "cv": 0.02077496079813884,
+        "median_ms": 174.097,
+        "median_se_rel": 0.003259563653093478,
+        "min_ms": 164.586,
+        "n_warm": 8,
         "node_types": [
           "Aggregate",
           "Seq Scan"
         ],
-        "tuples_per_s": 12898773.649095314
+        "tuples_per_s": 11487848.72800795
       },
       "sort": {
-        "cv": 0.012358051433649072,
-        "median_ms": 391.67150000000004,
-        "median_se_rel": 0.007339636253683124,
-        "min_ms": 388.905,
-        "n_warm": 4,
+        "cv": 0.037733816546756296,
+        "median_ms": 433.79650000000004,
+        "median_se_rel": 0.017990420672438088,
+        "min_ms": 397.355,
+        "n_warm": 8,
         "node_types": [
           "Limit",
           "Seq Scan",
           "Sort"
         ],
-        "tuples_per_s": 5106319.964562139
+        "tuples_per_s": 4610456.746423726
       }
     },
     "imprecise_probes": {},
@@ -1023,12 +1023,12 @@
     "max_median_se": 0.08,
     "noisy_probes": {},
     "parallel_dop": 3,
-    "parallel_speedup": 2.602594982921118,
-    "parallel_speedup_cv": 0.008375781533996344,
+    "parallel_speedup": 2.6252440946069227,
+    "parallel_speedup_cv": 0.05486477038388075,
     "probe_scale": {
       "jit": "disabled",
       "parallel_dop": 3,
-      "reps": 5,
+      "reps": 9,
       "reps_per_probe": {
         "io_seqscan": 3,
         "parallel_seqscan": 11
@@ -1038,13 +1038,13 @@
       "work_mem": "64MB"
     },
     "rates_tuples_per_s": {
-      "hashagg": 3714955.2022839542,
-      "hashjoin": 4595575.035687511,
-      "io_seqscan": 12734365.382901143,
-      "nestloop": 1023592.5282863398,
-      "parallel_seqscan": 33570283.584970586,
-      "seqscan": 12898773.649095314,
-      "sort": 5106319.964562139
+      "hashagg": 3458929.9627213827,
+      "hashjoin": 4187714.293192347,
+      "io_seqscan": 10862539.98772533,
+      "nestloop": 842971.3052567691,
+      "parallel_seqscan": 30158407.032940518,
+      "seqscan": 11487848.72800795,
+      "sort": 4610456.746423726
     },
     "reliable": true,
     "server_version": "15.17 (Homebrew)",
