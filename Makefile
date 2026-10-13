@@ -4,7 +4,7 @@ CANON := scripts/analysis/canonical_evaluation.py
 
 .PHONY: help install results verify-determinism test gate-demo clean-pyc \
         grid-setup grid-collect grid-reprobe operator-results probe-here \
-        docs version-compat
+        docs docs-all version-compat
 
 help:
 	@echo "make install            install pinned dependencies"
@@ -21,6 +21,7 @@ help:
 	@echo "  make operator-results evaluate the per-operator model on the grid"
 	@echo "  make version-compat   parse every stored plan on every PG version"
 	@echo "  make docs             rebuild docs/LLD.pdf and docs/HANDBOOK.pdf"
+	@echo "  make docs-all         render EVERY markdown file to PDF under docs/"
 
 install:
 	$(PY) -m pip install -r requirements.txt
@@ -127,6 +128,12 @@ operator-results:
 docs:
 	$(PY) scripts/docs/build_pdf.py docs/LLD.md
 	$(PY) scripts/docs/build_pdf.py docs/HANDBOOK.md
+
+# Every Markdown document in the repository, rendered to PDF under docs/ with the tree
+# mirrored. Incremental: only rebuilds what changed. Also regenerates docs/INDEX.md, so the
+# index lists what is actually there rather than what someone remembered to add.
+docs-all:
+	$(PY) scripts/docs/build_all_pdfs.py
 
 # Parse every stored plan from every PostgreSQL version collected, and report what differs.
 version-compat:
