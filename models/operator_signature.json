@@ -1,0 +1,1053 @@
+{
+  "c1m1g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.16729722825831458,
+        "median_ms": 712.5185,
+        "min_ms": 682.857,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2806944.661787729
+      },
+      "hashjoin": {
+        "cv": 0.017133526149671712,
+        "median_ms": 757.952,
+        "min_ms": 746.614,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3166427.425483408
+      },
+      "io_seqscan": {
+        "cv": 0.12202330469887893,
+        "median_ms": 787.242,
+        "min_ms": 719.316,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7621544.582225034
+      },
+      "nestloop": {
+        "cv": 0.019259988840229003,
+        "median_ms": 498.55150000000003,
+        "min_ms": 486.032,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 802324.333594423
+      },
+      "parallel_seqscan": {
+        "cv": 0.10011975756467521,
+        "median_ms": 259.28499999999997,
+        "min_ms": 181.903,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7713519.871955571
+      },
+      "seqscan": {
+        "cv": 0.018053483640232387,
+        "median_ms": 207.038,
+        "min_ms": 199.987,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9660062.40400313
+      },
+      "sort": {
+        "cv": 0.007248932063627832,
+        "median_ms": 502.8555,
+        "min_ms": 497.487,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3977285.721245964
+      }
+    },
+    "invalid_probes": [],
+    "machine_id": "c1m1g",
+    "max_cv": 0.15,
+    "noisy_probes": {
+      "hashagg": 0.16729722825831458
+    },
+    "parallel_dop": 3,
+    "parallel_speedup": 0.7984958636249687,
+    "parallel_speedup_cv": 0.10173442940498303,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 5,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2806944.661787729,
+      "hashjoin": 3166427.425483408,
+      "io_seqscan": 7621544.582225034,
+      "nestloop": 802324.333594423,
+      "parallel_seqscan": 7713519.871955571,
+      "seqscan": 9660062.40400313,
+      "sort": 3977285.721245964
+    },
+    "reliable": false,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c1m3g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.006347212927410198,
+        "median_ms": 660.9595,
+        "min_ms": 660.322,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3025904.0077342107
+      },
+      "hashjoin": {
+        "cv": 0.010625406568616472,
+        "median_ms": 612.169,
+        "min_ms": 606.141,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3920486.0095823216
+      },
+      "io_seqscan": {
+        "cv": 0.09241456107466889,
+        "median_ms": 846.3515,
+        "min_ms": 791.045,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7089253.105831324
+      },
+      "nestloop": {
+        "cv": 0.08856629090920223,
+        "median_ms": 447.49350000000004,
+        "min_ms": 442.861,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 893867.7321570034
+      },
+      "parallel_seqscan": {
+        "cv": 0.09834969087519052,
+        "median_ms": 254.2515,
+        "min_ms": 187.244,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7866226.944580464
+      },
+      "seqscan": {
+        "cv": 0.04103433875344366,
+        "median_ms": 197.303,
+        "min_ms": 195.799,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10136693.30927558
+      },
+      "sort": {
+        "cv": 0.0032033293591247833,
+        "median_ms": 496.16949999999997,
+        "min_ms": 495.161,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 4030880.576093452
+      }
+    },
+    "invalid_probes": [],
+    "machine_id": "c1m3g",
+    "max_cv": 0.15,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 0.7760150874232796,
+    "parallel_speedup_cv": 0.10656678024683819,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 5,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 3025904.0077342107,
+      "hashjoin": 3920486.0095823216,
+      "io_seqscan": 7089253.105831324,
+      "nestloop": 893867.7321570034,
+      "parallel_seqscan": 7866226.944580464,
+      "seqscan": 10136693.30927558,
+      "sort": 4030880.576093452
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c2m1g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.014117001960553254,
+        "median_ms": 679.0875000000001,
+        "min_ms": 671.758,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2945128.5732692764
+      },
+      "hashjoin": {
+        "cv": 0.0207984448615916,
+        "median_ms": 628.7855,
+        "min_ms": 621.21,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3816881.9096496343
+      },
+      "io_seqscan": {
+        "cv": 0.11089342176437159,
+        "median_ms": 672.7094999999999,
+        "min_ms": 619.96,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 8919154.55333989
+      },
+      "nestloop": {
+        "cv": 0.02097406174276898,
+        "median_ms": 443.60400000000004,
+        "min_ms": 438.033,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 901705.1243902218
+      },
+      "parallel_seqscan": {
+        "cv": 0.17143919739148192,
+        "median_ms": 77.1765,
+        "min_ms": 72.374,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 25914624.27034136
+      },
+      "seqscan": {
+        "cv": 0.003210220230435373,
+        "median_ms": 196.148,
+        "min_ms": 195.234,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10196382.323551605
+      },
+      "sort": {
+        "cv": 0.02732925590534881,
+        "median_ms": 526.4455,
+        "min_ms": 515.651,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3799063.720746022
+      }
+    },
+    "invalid_probes": [],
+    "machine_id": "c2m1g",
+    "max_cv": 0.15,
+    "noisy_probes": {
+      "parallel_seqscan": 0.17143919739148192
+    },
+    "parallel_dop": 3,
+    "parallel_speedup": 2.5415508606894583,
+    "parallel_speedup_cv": 0.17146925064326665,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 5,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2945128.5732692764,
+      "hashjoin": 3816881.9096496343,
+      "io_seqscan": 8919154.55333989,
+      "nestloop": 901705.1243902218,
+      "parallel_seqscan": 25914624.27034136,
+      "seqscan": 10196382.323551605,
+      "sort": 3799063.720746022
+    },
+    "reliable": false,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c2m3g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.0110678434484036,
+        "median_ms": 675.3595,
+        "min_ms": 671.326,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2961385.750848252
+      },
+      "hashjoin": {
+        "cv": 0.014959920217696654,
+        "median_ms": 650.5145,
+        "min_ms": 645.77,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3689387.4002808547
+      },
+      "io_seqscan": {
+        "cv": 0.002241248932911835,
+        "median_ms": 584.6155,
+        "min_ms": 583.689,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10263155.869113974
+      },
+      "nestloop": {
+        "cv": 0.020140201396204413,
+        "median_ms": 455.1275,
+        "min_ms": 447.606,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 878874.6010733256
+      },
+      "parallel_seqscan": {
+        "cv": 0.11170917827967437,
+        "median_ms": 74.03299999999999,
+        "min_ms": 73.512,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 27014979.8063026
+      },
+      "seqscan": {
+        "cv": 0.005631240910080342,
+        "median_ms": 194.4305,
+        "min_ms": 192.528,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10286451.97126994
+      },
+      "sort": {
+        "cv": 0.01677196450789986,
+        "median_ms": 506.939,
+        "min_ms": 504.638,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3945247.8503330774
+      }
+    },
+    "invalid_probes": [],
+    "machine_id": "c2m3g",
+    "max_cv": 0.15,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.626268015614659,
+    "parallel_speedup_cv": 0.11185102317863452,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 5,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2961385.750848252,
+      "hashjoin": 3689387.4002808547,
+      "io_seqscan": 10263155.869113974,
+      "nestloop": 878874.6010733256,
+      "parallel_seqscan": 27014979.8063026,
+      "seqscan": 10286451.97126994,
+      "sort": 3945247.8503330774
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c4m1g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.2359436408276059,
+        "median_ms": 806.0160000000001,
+        "min_ms": 766.765,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2481340.3207876766
+      },
+      "hashjoin": {
+        "cv": 0.09920331040654351,
+        "median_ms": 738.2455,
+        "min_ms": 644.382,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3250951.0725090774
+      },
+      "io_seqscan": {
+        "cv": 0.04107042646443765,
+        "median_ms": 634.5645,
+        "min_ms": 616.136,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9455303.597979402
+      },
+      "nestloop": {
+        "cv": 0.11437984593671793,
+        "median_ms": 534.6685,
+        "min_ms": 522.584,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 748127.1105367157
+      },
+      "parallel_seqscan": {
+        "cv": 0.024348850679445463,
+        "median_ms": 73.5115,
+        "min_ms": 72.158,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 27206627.5344674
+      },
+      "seqscan": {
+        "cv": 0.0016238600162040919,
+        "median_ms": 199.2435,
+        "min_ms": 199.157,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10037968.61629112
+      },
+      "sort": {
+        "cv": 0.00958242991988688,
+        "median_ms": 498.77049999999997,
+        "min_ms": 498.301,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 4009860.2463457645
+      }
+    },
+    "invalid_probes": [],
+    "machine_id": "c4m1g",
+    "max_cv": 0.15,
+    "noisy_probes": {
+      "hashagg": 0.2359436408276059
+    },
+    "parallel_dop": 3,
+    "parallel_speedup": 2.7103718465818276,
+    "parallel_speedup_cv": 0.024402939387749137,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 5,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2481340.3207876766,
+      "hashjoin": 3250951.0725090774,
+      "io_seqscan": 9455303.597979402,
+      "nestloop": 748127.1105367157,
+      "parallel_seqscan": 27206627.5344674,
+      "seqscan": 10037968.61629112,
+      "sort": 4009860.2463457645
+    },
+    "reliable": false,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c4m3g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.0163643408468656,
+        "median_ms": 716.4585,
+        "min_ms": 701.242,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2791508.5102626323
+      },
+      "hashjoin": {
+        "cv": 0.01355330875429745,
+        "median_ms": 785.6605,
+        "min_ms": 778.33,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3054754.5663807713
+      },
+      "io_seqscan": {
+        "cv": 0.0019022150810137682,
+        "median_ms": 619.299,
+        "min_ms": 618.466,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9688373.467420423
+      },
+      "nestloop": {
+        "cv": 0.1805981630505619,
+        "median_ms": 524.0955,
+        "min_ms": 510.191,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 763219.6803826783
+      },
+      "parallel_seqscan": {
+        "cv": 0.04551778675074416,
+        "median_ms": 80.03800000000001,
+        "min_ms": 75.136,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 24988130.63794697
+      },
+      "seqscan": {
+        "cv": 0.016491266905009738,
+        "median_ms": 213.4765,
+        "min_ms": 211.11,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9368712.715451116
+      },
+      "sort": {
+        "cv": 0.03340444395751124,
+        "median_ms": 521.7185,
+        "min_ms": 519.357,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3833484.9157160423
+      }
+    },
+    "invalid_probes": [],
+    "machine_id": "c4m3g",
+    "max_cv": 0.15,
+    "noisy_probes": {
+      "nestloop": 0.1805981630505619
+    },
+    "parallel_dop": 3,
+    "parallel_speedup": 2.667189335065843,
+    "parallel_speedup_cv": 0.04841312626569875,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 5,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2791508.5102626323,
+      "hashjoin": 3054754.5663807713,
+      "io_seqscan": 9688373.467420423,
+      "nestloop": 763219.6803826783,
+      "parallel_seqscan": 24988130.63794697,
+      "seqscan": 9368712.715451116,
+      "sort": 3833484.9157160423
+    },
+    "reliable": false,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c8m1g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.030523432740935434,
+        "median_ms": 665.915,
+        "min_ms": 663.038,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3003386.3180736285
+      },
+      "hashjoin": {
+        "cv": 0.07600547916176956,
+        "median_ms": 695.3425,
+        "min_ms": 655.158,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3451536.473033074
+      },
+      "io_seqscan": {
+        "cv": 0.013463345177921552,
+        "median_ms": 591.0174999999999,
+        "min_ms": 585.391,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10151983.655306315
+      },
+      "nestloop": {
+        "cv": 0.0009627368394328903,
+        "median_ms": 441.967,
+        "min_ms": 441.535,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 905044.9467946702
+      },
+      "parallel_seqscan": {
+        "cv": 0.01450145457805822,
+        "median_ms": 73.40899999999999,
+        "min_ms": 72.619,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 27244615.782805927
+      },
+      "seqscan": {
+        "cv": 0.007456427964168604,
+        "median_ms": 200.738,
+        "min_ms": 197.881,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9963235.660413075
+      },
+      "sort": {
+        "cv": 0.10518408378203371,
+        "median_ms": 502.87350000000004,
+        "min_ms": 496.645,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3977143.3571265927
+      }
+    },
+    "invalid_probes": [],
+    "machine_id": "c8m1g",
+    "max_cv": 0.15,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.7345148415044482,
+    "parallel_speedup_cv": 0.016306149234700425,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 5,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 3003386.3180736285,
+      "hashjoin": 3451536.473033074,
+      "io_seqscan": 10151983.655306315,
+      "nestloop": 905044.9467946702,
+      "parallel_seqscan": 27244615.782805927,
+      "seqscan": 9963235.660413075,
+      "sort": 3977143.3571265927
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c8m3g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.006673571792986897,
+        "median_ms": 743.328,
+        "min_ms": 734.935,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2690602.264410866
+      },
+      "hashjoin": {
+        "cv": 0.0708438216688009,
+        "median_ms": 717.4014999999999,
+        "min_ms": 702.946,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3345407.0001247562
+      },
+      "io_seqscan": {
+        "cv": 0.001880713363273633,
+        "median_ms": 605.7004999999999,
+        "min_ms": 604.895,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9905885.82971287
+      },
+      "nestloop": {
+        "cv": 0.0539861708953726,
+        "median_ms": 504.615,
+        "min_ms": 482.096,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 792683.5310087889
+      },
+      "parallel_seqscan": {
+        "cv": 0.07111848962417126,
+        "median_ms": 75.643,
+        "min_ms": 71.458,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 26439987.837605596
+      },
+      "seqscan": {
+        "cv": 0.0073205260206587065,
+        "median_ms": 196.5075,
+        "min_ms": 194.601,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10177728.585422948
+      },
+      "sort": {
+        "cv": 0.0035011969180192863,
+        "median_ms": 516.572,
+        "min_ms": 514.924,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3871677.133100516
+      }
+    },
+    "invalid_probes": [],
+    "machine_id": "c8m3g",
+    "max_cv": 0.15,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.5978279549991408,
+    "parallel_speedup_cv": 0.0714942631799398,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 5,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2690602.264410866,
+      "hashjoin": 3345407.0001247562,
+      "io_seqscan": 9905885.82971287,
+      "nestloop": 792683.5310087889,
+      "parallel_seqscan": 26439987.837605596,
+      "seqscan": 10177728.585422948,
+      "sort": 3871677.133100516
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "m1-host": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.0007922748611918888,
+        "median_ms": 538.3645,
+        "median_se_rel": 0.00044487733777971467,
+        "min_ms": 537.713,
+        "n_warm": 4,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3714955.2022839542
+      },
+      "hashjoin": {
+        "cv": 0.0028645479730343066,
+        "median_ms": 522.2415000000001,
+        "median_se_rel": 0.0017167451315915929,
+        "min_ms": 520.856,
+        "n_warm": 4,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 4595575.035687511
+      },
+      "io_seqscan": {
+        "cv": 0.00041120806264695385,
+        "median_ms": 471.166,
+        "median_se_rel": 0.00020720786109515083,
+        "min_ms": 471.029,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 12734365.382901143
+      },
+      "nestloop": {
+        "cv": 0.003447329140911908,
+        "median_ms": 390.78049999999996,
+        "median_se_rel": 0.0019058583654921004,
+        "min_ms": 390.055,
+        "n_warm": 4,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 1023592.5282863398
+      },
+      "parallel_seqscan": {
+        "cv": 0.008337752361024717,
+        "median_ms": 59.576499999999996,
+        "median_se_rel": 0.0024347243563485423,
+        "min_ms": 58.977,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 33570283.584970586
+      },
+      "seqscan": {
+        "cv": 0.0007972464308235456,
+        "median_ms": 155.05349999999999,
+        "median_se_rel": 0.0004373662357192173,
+        "min_ms": 154.911,
+        "n_warm": 4,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 12898773.649095314
+      },
+      "sort": {
+        "cv": 0.012358051433649072,
+        "median_ms": 391.67150000000004,
+        "median_se_rel": 0.007339636253683124,
+        "min_ms": 388.905,
+        "n_warm": 4,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 5106319.964562139
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "m1-host",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.602594982921118,
+    "parallel_speedup_cv": 0.008375781533996344,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 5,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 3714955.2022839542,
+      "hashjoin": 4595575.035687511,
+      "io_seqscan": 12734365.382901143,
+      "nestloop": 1023592.5282863398,
+      "parallel_seqscan": 33570283.584970586,
+      "seqscan": 12898773.649095314,
+      "sort": 5106319.964562139
+    },
+    "reliable": true,
+    "server_version": "15.17 (Homebrew)",
+    "signature_kind": "operator_rates_v2"
+  }
+}

@@ -1,12 +1,17 @@
+# compute_score is MULTI-CORE aggregate GFLOPS, matching models/hardware_signature.pkl.
+# The single-core scores this file used to carry (c7i 0.807, c5a 0.593) correlate with
+# scaling at the physically wrong sign and make the analytical formula lose to the
+# bandwidth-ratio baseline. Obtain a score for a new machine with:
+#   python3 scripts/collection/hw_signature.py --machine-id <id> --db <db>
 dev_hardware:
   machine_id: c7i
   bandwidth_gbs: 8.44
-  compute_score: 0.807
+  compute_score: 25.8909
 
 prod_hardware:
   machine_id: c5a
   bandwidth_gbs: 14.9
-  compute_score: 0.593
+  compute_score: 40.8071
 
 sla:
   default_ms: 500

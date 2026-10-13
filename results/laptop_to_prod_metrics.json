@@ -1,0 +1,137 @@
+{
+  "dev": "m1-host",
+  "dev_parallel_speedup": 2.6512716806659222,
+  "few_shot": [
+    {
+      "k": 0,
+      "n_scored": 88,
+      "naive_mape": 33.515901513994876,
+      "operator_mape": 35.662434102722145,
+      "rule": "spread"
+    },
+    {
+      "k": 1,
+      "n_scored": 84,
+      "naive_mape": 33.42089171579702,
+      "operator_mape": 43.26901381843407,
+      "rule": "spread"
+    },
+    {
+      "k": 1,
+      "n_scored": 84,
+      "naive_mape": 33.5533949470859,
+      "operator_mape": 31.757147082680895,
+      "rule": "random"
+    },
+    {
+      "k": 2,
+      "n_scored": 80,
+      "naive_mape": 32.34291436104053,
+      "operator_mape": 30.66119644148349,
+      "rule": "spread"
+    },
+    {
+      "k": 2,
+      "n_scored": 80,
+      "naive_mape": 32.47093981754276,
+      "operator_mape": 27.551188842400222,
+      "rule": "random"
+    },
+    {
+      "k": 3,
+      "n_scored": 76,
+      "naive_mape": 33.19856400939397,
+      "operator_mape": 30.266678780075274,
+      "rule": "spread"
+    },
+    {
+      "k": 3,
+      "n_scored": 76,
+      "naive_mape": 32.96051897159346,
+      "operator_mape": 27.718355412356086,
+      "rule": "random"
+    },
+    {
+      "k": 5,
+      "n_scored": 68,
+      "naive_mape": 33.089539608854786,
+      "operator_mape": 22.466998661679053,
+      "rule": "spread"
+    },
+    {
+      "k": 5,
+      "n_scored": 68,
+      "naive_mape": 34.4018696744348,
+      "operator_mape": 22.917313850915434,
+      "rule": "random"
+    },
+    {
+      "k": 8,
+      "n_scored": 56,
+      "naive_mape": 36.82569463656255,
+      "operator_mape": 22.43184884217879,
+      "rule": "spread"
+    },
+    {
+      "k": 8,
+      "n_scored": 56,
+      "naive_mape": 34.62136280622247,
+      "operator_mape": 20.87588946716649,
+      "rule": "random"
+    }
+  ],
+  "mean_explained_frac": 0.9907383409053516,
+  "mean_unmapped_frac": 0.009261659094648348,
+  "n_pairs": 88,
+  "n_queries": 22,
+  "per_prod_machine": {
+    "c1m3g": {
+      "n": 22,
+      "naive_mape": 59.778357884230395,
+      "operator_mape": 35.184855449958
+    },
+    "c2m3g": {
+      "n": 22,
+      "naive_mape": 22.17230929534748,
+      "operator_mape": 28.738033349755636
+    },
+    "c8m1g": {
+      "n": 22,
+      "naive_mape": 30.838592238552625,
+      "operator_mape": 49.09442665297598
+    },
+    "c8m3g": {
+      "n": 22,
+      "naive_mape": 21.274346637849,
+      "operator_mape": 29.632420958198967
+    }
+  },
+  "predictors": {
+    "naive": {
+      "mape": 33.515901513994876,
+      "mdape": 24.915764474207673,
+      "qerror_median": 1.2894582679547724,
+      "qerror_p95": 3.6036675959035334
+    },
+    "operator": {
+      "mape": 35.662434102722145,
+      "mdape": 21.775233540670396,
+      "qerror_median": 1.2376222268624362,
+      "qerror_p95": 1.9409063186395035
+    }
+  },
+  "prod_cells": [
+    "c1m3g",
+    "c2m3g",
+    "c8m1g",
+    "c8m3g"
+  ],
+  "same_isa_caveat": "all prod cells are containers on the same arm64 host as dev; this measures capability transfer, not ISA transfer",
+  "settings_mismatches": {},
+  "signed_bias_per_machine": {
+    "c1m3g": 0.28793828742577904,
+    "c2m3g": 0.21721224816787962,
+    "c8m1g": 0.48984039121448314,
+    "c8m3g": 0.22037952559736534
+  }
+}

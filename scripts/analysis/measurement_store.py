@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestClassifier
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent.parent
-CORRECTED_CSV = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected.csv"
+CORRECTED_CSV = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected_v2.csv"
 DEFAULT_DB_PATH = PROJECT_DIR / "cetp_measurements.db"
 ONLINE_MODELS_DIR = PROJECT_DIR / "models_online"
 

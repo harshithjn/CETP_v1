@@ -1,0 +1,19 @@
+# The build context must stay small. Without this, data/external alone is several GB.
+data/external
+data/raw_buggy_do_not_use
+data/plans*
+data/container_grid
+models_backup
+models_candidate
+dist
+tmp
+.git
+.github
+vscode-extension/node_modules
+vscode-extension/out
+scripts/collection/tpch_data
+**/__pycache__
+**/*.pyc
+*.db
+.DS_Store
+**/.DS_Store

@@ -1,0 +1,65 @@
+{
+  "image": "postgres:15",
+  "vm_cpus": 8,
+  "cpu_levels": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "memory_levels": [
+    "1g",
+    "3g"
+  ],
+  "note": "CPU quota is not the same as fewer physical cores; caches and the memory controller remain shared. Varies capability, not microarchitecture.",
+  "configs": [
+    {
+      "machine_id": "c1m1g",
+      "cpus": 1,
+      "memory": "1g",
+      "out": "data/container_grid/tpch_c1m1g.csv"
+    },
+    {
+      "machine_id": "c1m3g",
+      "cpus": 1,
+      "memory": "3g",
+      "out": "data/container_grid/tpch_c1m3g.csv"
+    },
+    {
+      "machine_id": "c2m1g",
+      "cpus": 2,
+      "memory": "1g",
+      "out": "data/container_grid/tpch_c2m1g.csv"
+    },
+    {
+      "machine_id": "c2m3g",
+      "cpus": 2,
+      "memory": "3g",
+      "out": "data/container_grid/tpch_c2m3g.csv"
+    },
+    {
+      "machine_id": "c4m1g",
+      "cpus": 4,
+      "memory": "1g",
+      "out": "data/container_grid/tpch_c4m1g.csv"
+    },
+    {
+      "machine_id": "c4m3g",
+      "cpus": 4,
+      "memory": "3g",
+      "out": "data/container_grid/tpch_c4m3g.csv"
+    },
+    {
+      "machine_id": "c8m1g",
+      "cpus": 8,
+      "memory": "1g",
+      "out": "data/container_grid/tpch_c8m1g.csv"
+    },
+    {
+      "machine_id": "c8m3g",
+      "cpus": 8,
+      "memory": "3g",
+      "out": "data/container_grid/tpch_c8m3g.csv"
+    }
+  ]
+}

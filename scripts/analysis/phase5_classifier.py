@@ -1,5 +1,6 @@
 import re
 import json
+import os
 import numpy as np
 import pandas as pd
 import joblib
@@ -9,8 +10,17 @@ from sklearn.model_selection import LeaveOneGroupOut
 from sklearn.metrics import precision_recall_fscore_support, confusion_matrix, f1_score
 
 PROJECT_DIR = Path("/Users/harshithj/Main/Resources/CETP")
-CSV_PATH = PROJECT_DIR / "data" / "raw" / "tpch_dataset.csv"
-MODELS_DIR = PROJECT_DIR / "models"
+CSV_PATH = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected_v2.csv"
+# Experiments must not silently replace what ships. These scripts used to write
+# straight into models/, so merely RUNNING the analysis replaced the artifacts the gate
+# serves -- and during the Tier 0 audit that is exactly what happened, changing 5 of the 28
+# locked-value regression tests without anyone asking for it.
+#
+# They now write to models_candidate/ by default. Promotion to models/ is a separate,
+# deliberate act: `make promote-models`, which refuses unless the tests still pass.
+MODELS_DIR = PROJECT_DIR / ("models" if os.environ.get("CETP_PROMOTE_MODELS") == "1"
+                            else "models_candidate")
+MODELS_DIR.mkdir(exist_ok=True)
 MODELS_DIR.mkdir(exist_ok=True)
 
 RANDOM_STATE = 42

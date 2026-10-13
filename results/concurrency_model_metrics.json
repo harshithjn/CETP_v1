@@ -1,0 +1,75 @@
+{
+  "caveat": "one machine (8 cores). Elasticity is a property of the machine's core count and the query mix as much as of the query, so these values do not transfer to a machine with a different core count without re-measurement.",
+  "clients": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "elasticity": {
+    "max": 0.9837477771803328,
+    "median": 0.7337970244552885,
+    "median_r2": 0.9438972563418517,
+    "min": 0.2856218060923515,
+    "per_query": {
+      "q1": 0.843,
+      "q10": 0.763,
+      "q11": 0.9837,
+      "q12": 0.8064,
+      "q13": 0.742,
+      "q14": 0.7256,
+      "q15": 0.8944,
+      "q16": 0.7092,
+      "q17": 0.4348,
+      "q18": 0.5812,
+      "q19": 0.4765,
+      "q2": 0.6946,
+      "q20": 0.2856,
+      "q21": 0.6282,
+      "q22": 0.572,
+      "q3": 0.8531,
+      "q4": 0.8947,
+      "q5": 0.7496,
+      "q6": 0.8631,
+      "q7": 0.2947,
+      "q8": 0.3266,
+      "q9": 0.8358
+    }
+  },
+  "elasticity_prediction_loqo": {
+    "global": {
+      "mae": 0.1672484661216276,
+      "rmse": 0.21430565320694872
+    },
+    "plan": {
+      "mae": 0.19104515852065315,
+      "rmse": 0.23511391490363792
+    }
+  },
+  "machine": "m1-host (Apple M1, 8 cores)",
+  "n_queries": 22,
+  "runtime_error_under_load_pct": {
+    "global": {
+      "2": 24.344533112746657,
+      "4": 35.73132548782923,
+      "8": 41.8144218021958
+    },
+    "ignore_concurrency": {
+      "2": 33.9030420954373,
+      "4": 56.08638251563238,
+      "8": 73.78727037985529
+    },
+    "oracle": {
+      "2": 26.29146725995987,
+      "4": 25.38130879585766,
+      "8": 6.717598115959189
+    },
+    "plan": {
+      "2": 20.440794358986732,
+      "4": 30.289699530360494,
+      "8": 42.643608889932345
+    }
+  },
+  "verdict": "plan features do NOT beat a global constant -- concurrency is not predictable from a single-client plan, and the load factor must be supplied by the caller",
+  "warmup_reps_discarded": 1
+}

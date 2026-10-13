@@ -1,0 +1,265 @@
+workload,query_id,env,rep,ok,error,set_max_parallel_workers_per_gather,set_effective_cache_size,set_work_mem,set_random_page_cost,time_ms,planning_ms,cost,rows,signature,node_count,plan_depth,dop,temp_written,joins,seqscans,idxscans,join_types
+tpch,q1,small,0,True,,0,256MB,1MB,4.0,3689.689,0.101,392565.25,4,130dc6e501891999,3,3,1,0,0,1,0,
+tpch,q1,small,1,True,,0,256MB,1MB,4.0,3631.099,0.07,392565.25,4,130dc6e501891999,3,3,1,0,0,1,0,
+tpch,q2,small,0,True,,0,256MB,1MB,4.0,221.707,0.532,55916.16,100,a0ed9055cf90c9a6,21,9,1,13074,7,5,4,"Hash Join,Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop"
+tpch,q2,small,1,True,,0,256MB,1MB,4.0,240.682,0.507,55916.16,100,a0ed9055cf90c9a6,21,9,1,13074,7,5,4,"Hash Join,Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop"
+tpch,q3,small,0,True,,0,256MB,1MB,4.0,1597.256,0.211,339806.68,10,0479632902fcef3c,10,8,1,62265,2,3,0,"Hash Join,Hash Join"
+tpch,q3,small,1,True,,0,256MB,1MB,4.0,1566.563,0.209,339806.68,10,0479632902fcef3c,10,8,1,62265,2,3,0,"Hash Join,Hash Join"
+tpch,q4,small,0,True,,0,256MB,1MB,4.0,293.72,1.958,162015.16,5,e7d2e56509baac06,5,4,1,264,1,1,1,Nested Loop
+tpch,q4,small,1,True,,0,256MB,1MB,4.0,292.48,0.151,162015.16,5,e7d2e56509baac06,5,4,1,264,1,1,1,Nested Loop
+tpch,q5,small,0,True,,0,256MB,1MB,4.0,1383.703,0.592,294799.7,5,9ae8850f2bd766cb,19,12,1,51532,5,6,0,"Hash Join,Hash Join,Hash Join,Hash Join,Hash Join"
+tpch,q5,small,1,True,,0,256MB,1MB,4.0,1473.165,0.591,294799.7,5,9ae8850f2bd766cb,19,12,1,51532,5,6,0,"Hash Join,Hash Join,Hash Join,Hash Join,Hash Join"
+tpch,q6,small,0,True,,0,256MB,1MB,4.0,636.539,0.049,245983.6,1,72f69f7b69ed6bff,2,2,1,0,0,1,0,
+tpch,q6,small,1,True,,0,256MB,1MB,4.0,638.73,0.051,245983.6,1,72f69f7b69ed6bff,2,2,1,0,0,1,0,
+tpch,q7,small,0,True,,0,256MB,1MB,4.0,1085.307,0.468,269452.29,4,d234cca02e7173d0,18,9,1,3888,5,6,0,"Hash Join,Hash Join,Hash Join,Hash Join,Hash Join"
+tpch,q7,small,1,True,,0,256MB,1MB,4.0,1074.963,0.488,269452.29,4,d234cca02e7173d0,18,9,1,3888,5,6,0,"Hash Join,Hash Join,Hash Join,Hash Join,Hash Join"
+tpch,q8,small,0,True,,0,256MB,1MB,4.0,366.611,6.43,244854.86,2,fe511a500f779236,23,13,1,2853,7,7,1,"Hash Join,Hash Join,Hash Join,Nested Loop,Hash Join,Hash Join,Hash Join"
+tpch,q8,small,1,True,,0,256MB,1MB,4.0,407.953,0.72,244854.86,2,fe511a500f779236,23,13,1,2853,7,7,1,"Hash Join,Hash Join,Hash Join,Nested Loop,Hash Join,Hash Join,Hash Join"
+tpch,q9,small,0,True,,0,256MB,1MB,4.0,2592.499,8.873,249368.55,175,cf9cc3bfa2035f77,17,9,1,54160,5,5,1,"Hash Join,Nested Loop,Hash Join,Hash Join,Hash Join"
+tpch,q9,small,1,True,,0,256MB,1MB,4.0,2579.115,0.956,249368.55,175,cf9cc3bfa2035f77,17,9,1,54160,5,5,1,"Hash Join,Nested Loop,Hash Join,Hash Join,Hash Join"
+tpch,q10,small,0,True,,0,256MB,1MB,4.0,1118.552,0.284,278857.95,20,cac9b80e14707123,15,11,1,44066,3,2,2,"Nested Loop,Merge Join,Hash Join"
+tpch,q10,small,1,True,,0,256MB,1MB,4.0,1095.349,0.302,278857.95,20,cac9b80e14707123,15,11,1,44066,3,2,2,"Nested Loop,Merge Join,Hash Join"
+tpch,q11,small,0,True,,0,256MB,1MB,4.0,40.865,0.22,13042.41,1217,3144f130d943eca3,15,6,1,600,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q11,small,1,True,,0,256MB,1MB,4.0,41.318,0.201,13042.41,1217,3144f130d943eca3,15,6,1,600,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q12,small,0,True,,0,256MB,1MB,4.0,1111.937,0.633,321169.67,2,59e41091a2bfc53e,7,6,1,697,1,1,1,Merge Join
+tpch,q12,small,1,True,,0,256MB,1MB,4.0,1506.892,0.153,321169.67,2,59e41091a2bfc53e,7,6,1,697,1,1,1,Merge Join
+tpch,q13,small,0,True,,0,256MB,1MB,4.0,2648.57,0.149,173151.4,42,e3a60ec45a05101b,6,5,1,0,1,0,2,Merge Join
+tpch,q13,small,1,True,,0,256MB,1MB,4.0,2572.371,0.673,173151.4,42,e3a60ec45a05101b,6,5,1,0,1,0,2,Merge Join
+tpch,q14,small,0,True,,0,256MB,1MB,4.0,707.806,0.12,213650.61,1,facbb6a3997dc842,5,4,1,4086,1,2,0,Hash Join
+tpch,q14,small,1,True,,0,256MB,1MB,4.0,862.837,0.107,213650.61,1,facbb6a3997dc842,5,4,1,4086,1,2,0,Hash Join
+tpch,q15,small,0,True,,0,256MB,1MB,4.0,1451.673,0.132,442163.37,1,996abac456491991,8,4,1,11832,1,2,1,Nested Loop
+tpch,q15,small,1,True,,0,256MB,1MB,4.0,1435.837,0.136,442163.37,1,996abac456491991,8,4,1,11832,1,2,1,Nested Loop
+tpch,q16,small,0,True,,0,256MB,1MB,4.0,495.526,0.175,49137.59,18314,992a552b328e0ba9,7,6,1,5115,1,1,2,Merge Join
+tpch,q16,small,1,True,,0,256MB,1MB,4.0,467.659,0.167,49137.59,18314,992a552b328e0ba9,7,6,1,5115,1,1,2,Merge Join
+tpch,q17,small,0,True,,0,256MB,1MB,4.0,783.59,0.121,194275.36,1,ec088df44526f28a,8,5,1,0,1,2,1,Hash Join
+tpch,q17,small,1,True,,0,256MB,1MB,4.0,779.435,0.136,194275.36,1,ec088df44526f28a,8,5,1,0,1,2,1,Hash Join
+tpch,q18,small,0,True,,0,256MB,1MB,4.0,2448.285,1.333,754921.57,9,7768d314d123f603,14,11,1,0,3,0,4,"Merge Join,Merge Join,Merge Join"
+tpch,q18,small,1,True,,0,256MB,1MB,4.0,2306.969,3.232,754921.57,9,7768d314d123f603,14,11,1,0,3,0,4,"Merge Join,Merge Join,Merge Join"
+tpch,q19,small,0,True,,0,256MB,1MB,4.0,495.254,0.245,74499.03,1,55800f794dce726f,4,3,1,0,1,1,1,Nested Loop
+tpch,q19,small,1,True,,0,256MB,1MB,4.0,270.979,0.264,74499.03,1,55800f794dce726f,4,3,1,0,1,1,1,Nested Loop
+tpch,q20,small,0,True,,0,256MB,1MB,4.0,4854.19,3.931,174559.85,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q20,small,1,True,,0,256MB,1MB,4.0,5606.302,3.448,174559.85,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q21,small,0,True,,0,256MB,1MB,4.0,6305.573,4.913,367440.09,100,fed410967db846fd,18,13,1,25282,5,3,3,"Nested Loop,Nested Loop,Hash Join,Hash Join,Nested Loop"
+tpch,q21,small,1,True,,0,256MB,1MB,4.0,3576.878,17.515,367440.09,100,fed410967db846fd,18,13,1,25282,5,3,3,"Nested Loop,Nested Loop,Hash Join,Hash Join,Nested Loop"
+tpch,q22,small,0,True,,0,256MB,1MB,4.0,72.965,0.129,15683.73,7,f21a8b73794ef273,7,4,1,0,1,2,1,Nested Loop
+tpch,q22,small,1,True,,0,256MB,1MB,4.0,73.078,0.115,15683.73,7,f21a8b73794ef273,7,4,1,0,1,2,1,Nested Loop
+tpch,q1,mid,0,True,,2,4GB,4MB,4.0,1296.448,0.078,228952.27,4,bdd4299e342b646f,5,5,3,0,0,1,0,
+tpch,q1,mid,1,True,,2,4GB,4MB,4.0,1506.999,0.084,228952.27,4,bdd4299e342b646f,5,5,3,0,0,1,0,
+tpch,q2,mid,0,True,,2,4GB,4MB,4.0,216.268,0.578,55242.76,100,c98f32815cd20c15,22,9,3,10434,7,5,4,"Hash Join,Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop"
+tpch,q2,mid,1,True,,2,4GB,4MB,4.0,212.278,0.559,55242.76,100,c98f32815cd20c15,22,9,3,10434,7,5,4,"Hash Join,Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop"
+tpch,q3,mid,0,True,,2,4GB,4MB,4.0,1439.836,4.218,196936.14,10,b15ebcdd044a2caa,12,10,3,0,2,2,1,"Nested Loop,Hash Join"
+tpch,q3,mid,1,True,,2,4GB,4MB,4.0,1442.475,4.369,196936.14,10,b15ebcdd044a2caa,12,10,3,0,2,2,1,"Nested Loop,Hash Join"
+tpch,q4,mid,0,True,,2,4GB,4MB,4.0,1343.981,2.062,70173.98,5,0dfeaaa18c8b2792,7,6,3,0,1,1,1,Nested Loop
+tpch,q4,mid,1,True,,2,4GB,4MB,4.0,1638.68,1.972,70173.98,5,0dfeaaa18c8b2792,7,6,3,0,1,1,1,Nested Loop
+tpch,q5,mid,0,True,,2,4GB,4MB,4.0,463.241,0.97,82854.07,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q5,mid,1,True,,2,4GB,4MB,4.0,397.648,4.713,82854.07,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q6,mid,0,True,,2,4GB,4MB,4.0,292.079,0.069,167874.73,1,026a0331b05d8c68,4,4,3,0,0,1,0,
+tpch,q6,mid,1,True,,2,4GB,4MB,4.0,241.356,0.054,167874.73,1,026a0331b05d8c68,4,4,3,0,0,1,0,
+tpch,q7,mid,0,True,,2,4GB,4MB,4.0,1708.782,3.328,69721.3,4,4161facb1f76ab89,18,10,3,10574,5,2,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q7,mid,1,True,,2,4GB,4MB,4.0,1835.297,0.81,69721.3,4,4161facb1f76ab89,18,10,3,10569,5,2,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q8,mid,0,True,,2,4GB,4MB,4.0,175.687,1.516,90200.38,2,305bc77f706ead59,22,11,3,0,7,4,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q8,mid,1,True,,2,4GB,4MB,4.0,167.647,0.941,90200.38,2,305bc77f706ead59,22,11,3,0,7,4,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q9,mid,0,True,,2,4GB,4MB,4.0,1367.631,3.209,56103.23,175,7c044ce3ee674859,17,11,3,7624,5,3,3,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q9,mid,1,True,,2,4GB,4MB,4.0,1484.379,1.251,56103.23,175,7c044ce3ee674859,17,11,3,7624,5,3,3,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q10,mid,0,True,,2,4GB,4MB,4.0,265.084,0.66,167216.94,20,85fd307919d235a0,15,11,3,15300,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q10,mid,1,True,,2,4GB,4MB,4.0,235.445,0.443,167216.94,20,85fd307919d235a0,15,11,3,15300,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q11,mid,0,True,,2,4GB,4MB,4.0,40.403,0.235,10534.8,1217,3144f130d943eca3,15,6,1,262,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q11,mid,1,True,,2,4GB,4MB,4.0,38.893,0.217,10534.8,1217,3144f130d943eca3,15,6,1,262,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q12,mid,0,True,,2,4GB,4MB,4.0,396.603,0.127,208070.5,2,be4d61c561931dd6,8,7,3,0,1,2,0,Hash Join
+tpch,q12,mid,1,True,,2,4GB,4MB,4.0,385.722,0.124,208070.5,2,be4d61c561931dd6,8,7,3,0,1,2,0,Hash Join
+tpch,q13,mid,0,True,,2,4GB,4MB,4.0,1092.653,0.146,154120.07,42,a1c99e0d1c497b28,8,7,3,0,1,0,2,Nested Loop
+tpch,q13,mid,1,True,,2,4GB,4MB,4.0,1186.403,0.142,154120.07,42,a1c99e0d1c497b28,8,7,3,0,1,0,2,Nested Loop
+tpch,q14,mid,0,True,,2,4GB,4MB,4.0,297.923,0.133,155151.26,1,25ee9d40b5dbeff7,7,6,3,0,1,2,0,Hash Join
+tpch,q14,mid,1,True,,2,4GB,4MB,4.0,273.044,0.127,155151.26,1,25ee9d40b5dbeff7,7,6,3,0,1,2,0,Hash Join
+tpch,q15,mid,0,True,,2,4GB,4MB,4.0,543.18,0.134,306862.09,1,675251c17ee5ee61,13,7,3,0,1,2,1,Nested Loop
+tpch,q15,mid,1,True,,2,4GB,4MB,4.0,508.84,0.141,306862.09,1,675251c17ee5ee61,13,7,3,0,1,2,1,Nested Loop
+tpch,q16,mid,0,True,,2,4GB,4MB,4.0,228.574,0.159,38608.38,18314,d107d1d403b3dd71,9,7,3,3320,1,2,1,Hash Join
+tpch,q16,mid,1,True,,2,4GB,4MB,4.0,259.932,0.158,38608.38,18314,d107d1d403b3dd71,9,7,3,3312,1,2,1,Hash Join
+tpch,q17,mid,0,True,,2,4GB,4MB,4.0,2848.459,0.365,193545.26,1,926ea45ac3dbfe9a,9,5,3,0,1,2,1,Hash Join
+tpch,q17,mid,1,True,,2,4GB,4MB,4.0,746.34,0.118,193545.26,1,926ea45ac3dbfe9a,9,5,3,0,1,2,1,Hash Join
+tpch,q18,mid,0,True,,2,4GB,4MB,4.0,2151.884,5.01,498960.61,9,1188bf16695bb11e,16,12,3,0,3,2,2,"Nested Loop,Hash Join,Hash Join"
+tpch,q18,mid,1,True,,2,4GB,4MB,4.0,2684.747,5.033,498960.61,9,1188bf16695bb11e,16,12,3,0,3,2,2,"Nested Loop,Hash Join,Hash Join"
+tpch,q19,mid,0,True,,2,4GB,4MB,4.0,45.148,0.868,34269.24,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q19,mid,1,True,,2,4GB,4MB,4.0,44.373,0.227,34269.24,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q20,mid,0,True,,2,4GB,4MB,4.0,3552.319,3.213,174559.85,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q20,mid,1,True,,2,4GB,4MB,4.0,3978.194,3.159,174559.85,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q21,mid,0,True,,2,4GB,4MB,4.0,3798.34,3.663,72968.97,100,d8aa4809b33e9f9c,17,12,3,62708,5,3,3,"Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q21,mid,1,True,,2,4GB,4MB,4.0,2562.603,3.628,72968.97,100,d8aa4809b33e9f9c,17,12,3,62716,5,3,3,"Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q22,mid,0,True,,2,4GB,4MB,4.0,33.105,0.13,12866.15,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop
+tpch,q22,mid,1,True,,2,4GB,4MB,4.0,33.009,0.124,12866.15,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop
+tpch,q1,big,0,True,,8,16GB,64MB,1.1,971.722,0.078,167812.46,4,05af92cb56920b28,5,5,6,0,0,1,0,
+tpch,q1,big,1,True,,8,16GB,64MB,1.1,1205.409,0.079,167812.46,4,05af92cb56920b28,5,5,6,0,0,1,0,
+tpch,q2,big,0,True,,8,16GB,64MB,1.1,178.592,0.63,24241.24,100,6ef8089e6650e005,21,8,3,0,7,4,5,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q2,big,1,True,,8,16GB,64MB,1.1,176.784,0.575,24241.24,100,6ef8089e6650e005,21,8,3,0,7,4,5,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q3,big,0,True,,8,16GB,64MB,1.1,732.514,0.307,136326.26,10,79ad538ee78f70e3,10,8,3,0,2,1,2,"Nested Loop,Nested Loop"
+tpch,q3,big,1,True,,8,16GB,64MB,1.1,633.064,0.288,136326.26,10,79ad538ee78f70e3,10,8,3,0,2,1,2,"Nested Loop,Nested Loop"
+tpch,q4,big,0,True,,8,16GB,64MB,1.1,106.983,0.146,48751.09,5,c55e582dad259db3,7,6,4,0,1,1,1,Nested Loop
+tpch,q4,big,1,True,,8,16GB,64MB,1.1,100.262,0.137,48751.09,5,c55e582dad259db3,7,6,4,0,1,1,1,Nested Loop
+tpch,q5,big,0,True,,8,16GB,64MB,1.1,361.686,0.92,47064.31,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q5,big,1,True,,8,16GB,64MB,1.1,355.891,0.897,47064.31,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q6,big,0,True,,8,16GB,64MB,1.1,203.419,0.05,138491.67,1,bc7bbc96329f24e1,4,4,6,0,0,1,0,
+tpch,q6,big,1,True,,8,16GB,64MB,1.1,207.906,0.056,138491.67,1,bc7bbc96329f24e1,4,4,6,0,0,1,0,
+tpch,q7,big,0,True,,8,16GB,64MB,1.1,1646.912,1.423,37210.93,4,de890f7d6080cc6e,18,10,3,0,5,3,3,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q7,big,1,True,,8,16GB,64MB,1.1,2601.687,0.654,37210.93,4,de890f7d6080cc6e,18,10,3,0,5,3,3,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q8,big,0,True,,8,16GB,64MB,1.1,1049.199,6.426,37973.21,2,794f30a82be0e5bc,22,12,3,0,7,3,5,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q8,big,1,True,,8,16GB,64MB,1.1,178.838,0.938,37973.21,2,794f30a82be0e5bc,22,12,3,0,7,3,5,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q9,big,0,True,,8,16GB,64MB,1.1,3036.31,7.547,35755.76,175,219a32454299f138,16,10,3,0,5,2,4,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q9,big,1,True,,8,16GB,64MB,1.1,6934.15,7.198,35755.76,175,219a32454299f138,16,10,3,0,5,2,4,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q10,big,0,True,,8,16GB,64MB,1.1,1218.831,4.102,83315.32,20,105d114d70ed56a6,13,8,4,0,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q10,big,1,True,,8,16GB,64MB,1.1,1239.091,3.961,83315.32,20,105d114d70ed56a6,13,8,4,0,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q11,big,0,True,,8,16GB,64MB,1.1,39.693,0.245,6022.92,1217,3144f130d943eca3,15,6,1,0,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q11,big,1,True,,8,16GB,64MB,1.1,38.029,0.218,6022.92,1217,3144f130d943eca3,15,6,1,0,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q12,big,0,True,,8,16GB,64MB,1.1,838.512,1.07,146475.49,2,1803d63fa51951fe,7,6,6,0,1,1,1,Nested Loop
+tpch,q12,big,1,True,,8,16GB,64MB,1.1,759.881,1.003,146475.49,2,1803d63fa51951fe,7,6,6,0,1,1,1,Nested Loop
+tpch,q13,big,0,True,,8,16GB,64MB,1.1,895.343,0.135,65088.68,42,8cb2c2706a84d929,7,6,1,0,1,1,1,Hash Join
+tpch,q13,big,1,True,,8,16GB,64MB,1.1,879.472,0.136,65088.68,42,8cb2c2706a84d929,7,6,1,0,1,1,1,Hash Join
+tpch,q14,big,0,True,,8,16GB,64MB,1.1,464.289,0.123,135594.26,1,4aae06324f09b04d,7,6,3,0,1,2,0,Hash Join
+tpch,q14,big,1,True,,8,16GB,64MB,1.1,250.507,0.12,135594.26,1,4aae06324f09b04d,7,6,3,0,1,2,0,Hash Join
+tpch,q15,big,0,True,,8,16GB,64MB,1.1,514.295,0.142,271400.75,1,5d38c06d38028020,13,7,6,0,1,2,1,Merge Join
+tpch,q15,big,1,True,,8,16GB,64MB,1.1,493.863,0.17,271400.75,1,5d38c06d38028020,13,7,6,0,1,2,1,Merge Join
+tpch,q16,big,0,True,,8,16GB,64MB,1.1,257.676,0.217,27270.0,18314,ef33b7606cff3c45,9,7,5,0,1,2,1,Hash Join
+tpch,q16,big,1,True,,8,16GB,64MB,1.1,259.727,0.191,27270.0,18314,ef33b7606cff3c45,9,7,5,0,1,2,1,Hash Join
+tpch,q17,big,0,True,,8,16GB,64MB,1.1,4926.005,0.299,192603.7,1,0acf9200cd71b1a9,8,5,3,0,1,2,1,Hash Join
+tpch,q17,big,1,True,,8,16GB,64MB,1.1,5953.051,0.166,192603.7,1,0acf9200cd71b1a9,8,5,3,0,1,2,1,Hash Join
+tpch,q18,big,0,True,,8,16GB,64MB,1.1,9917.013,2.635,398355.03,9,550bdd50da806c52,15,11,4,1811920,3,3,1,"Nested Loop,Hash Join,Hash Join"
+tpch,q18,big,1,True,,8,16GB,64MB,1.1,9442.257,2.888,398355.03,9,550bdd50da806c52,15,11,4,1811920,3,3,1,"Nested Loop,Hash Join,Hash Join"
+tpch,q19,big,0,True,,8,16GB,64MB,1.1,79.192,2.346,15944.1,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q19,big,1,True,,8,16GB,64MB,1.1,53.746,0.992,15944.1,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q20,big,0,True,,8,16GB,64MB,1.1,8497.368,4.126,88281.6,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q20,big,1,True,,8,16GB,64MB,1.1,7352.895,3.981,88281.6,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q21,big,0,True,,8,16GB,64MB,1.1,39195.652,37.136,54209.13,100,5953f9e07c3c9673,18,13,4,0,5,2,4,"Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q21,big,1,True,,8,16GB,64MB,1.1,31338.46,6.289,54209.13,100,5953f9e07c3c9673,18,13,4,0,5,2,4,"Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q22,big,0,True,,8,16GB,64MB,1.1,33.155,0.161,12745.37,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop
+tpch,q22,big,1,True,,8,16GB,64MB,1.1,33.211,0.136,12745.37,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop
+tpch,q1,cores_only,0,True,,8,4GB,4MB,4.0,2039.507,0.094,167812.46,4,05af92cb56920b28,5,5,6,0,0,1,0,
+tpch,q1,cores_only,1,True,,8,4GB,4MB,4.0,2289.755,0.101,167812.46,4,05af92cb56920b28,5,5,6,0,0,1,0,
+tpch,q2,cores_only,0,True,,8,4GB,4MB,4.0,258.866,2.763,55242.76,100,c98f32815cd20c15,22,9,3,10434,7,5,4,"Hash Join,Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop"
+tpch,q2,cores_only,1,True,,8,4GB,4MB,4.0,251.439,0.772,55242.76,100,c98f32815cd20c15,22,9,3,10434,7,5,4,"Hash Join,Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop"
+tpch,q3,cores_only,0,True,,8,4GB,4MB,4.0,2365.513,3.584,175349.53,10,d2bf91519d5b5578,11,9,4,0,2,2,1,"Nested Loop,Hash Join"
+tpch,q3,cores_only,1,True,,8,4GB,4MB,4.0,2283.75,3.594,175349.53,10,d2bf91519d5b5578,11,9,4,0,2,2,1,"Nested Loop,Hash Join"
+tpch,q4,cores_only,0,True,,8,4GB,4MB,4.0,1672.34,2.005,60570.63,5,c55e582dad259db3,7,6,4,0,1,1,1,Nested Loop
+tpch,q4,cores_only,1,True,,8,4GB,4MB,4.0,1663.421,1.931,60570.63,5,c55e582dad259db3,7,6,4,0,1,1,1,Nested Loop
+tpch,q5,cores_only,0,True,,8,4GB,4MB,4.0,1463.446,5.433,82854.07,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q5,cores_only,1,True,,8,4GB,4MB,4.0,1321.766,5.417,82854.07,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q6,cores_only,0,True,,8,4GB,4MB,4.0,986.949,0.053,138491.67,1,bc7bbc96329f24e1,4,4,6,0,0,1,0,
+tpch,q6,cores_only,1,True,,8,4GB,4MB,4.0,841.315,0.054,138491.67,1,bc7bbc96329f24e1,4,4,6,0,0,1,0,
+tpch,q7,cores_only,0,True,,8,4GB,4MB,4.0,39270.351,6.929,69721.3,4,4161facb1f76ab89,18,10,3,10569,5,2,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q7,cores_only,1,True,,8,4GB,4MB,4.0,7664.014,6.615,69721.3,4,4161facb1f76ab89,18,10,3,10569,5,2,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q8,cores_only,0,True,,8,4GB,4MB,4.0,179.417,0.951,90200.38,2,305bc77f706ead59,22,11,3,0,7,4,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q8,cores_only,1,True,,8,4GB,4MB,4.0,153.374,0.935,90200.38,2,305bc77f706ead59,22,11,3,0,7,4,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q9,cores_only,0,True,,8,4GB,4MB,4.0,1646.16,6.163,48985.38,175,26f5675a3a3bf6fe,17,11,4,7636,5,3,3,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q9,cores_only,1,True,,8,4GB,4MB,4.0,1778.435,6.667,48985.38,175,26f5675a3a3bf6fe,17,11,4,7632,5,3,3,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q10,cores_only,0,True,,8,4GB,4MB,4.0,291.567,0.903,137966.33,20,afcf89899cac65c4,14,9,4,12740,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q10,cores_only,1,True,,8,4GB,4MB,4.0,276.154,2.378,137966.33,20,afcf89899cac65c4,14,9,4,12740,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q11,cores_only,0,True,,8,4GB,4MB,4.0,44.611,0.276,10534.8,1217,3144f130d943eca3,15,6,1,262,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q11,cores_only,1,True,,8,4GB,4MB,4.0,44.849,0.253,10534.8,1217,3144f130d943eca3,15,6,1,262,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q12,cores_only,0,True,,8,4GB,4MB,4.0,306.943,0.528,159758.32,2,1803d63fa51951fe,7,6,6,0,1,1,1,Nested Loop
+tpch,q12,cores_only,1,True,,8,4GB,4MB,4.0,288.383,0.177,159758.32,2,1803d63fa51951fe,7,6,6,0,1,1,1,Nested Loop
+tpch,q13,cores_only,0,True,,8,4GB,4MB,4.0,1457.462,0.182,154120.07,42,a1c99e0d1c497b28,8,7,3,0,1,0,2,Nested Loop
+tpch,q13,cores_only,1,True,,8,4GB,4MB,4.0,1391.19,0.147,154120.07,42,a1c99e0d1c497b28,8,7,3,0,1,0,2,Nested Loop
+tpch,q14,cores_only,0,True,,8,4GB,4MB,4.0,1848.845,0.132,135594.26,1,4aae06324f09b04d,7,6,3,0,1,2,0,Hash Join
+tpch,q14,cores_only,1,True,,8,4GB,4MB,4.0,1653.079,0.132,135594.26,1,4aae06324f09b04d,7,6,3,0,1,2,0,Hash Join
+tpch,q15,cores_only,0,True,,8,4GB,4MB,4.0,2582.707,0.156,271490.66,1,5d38c06d38028020,13,7,6,0,1,2,1,Merge Join
+tpch,q15,cores_only,1,True,,8,4GB,4MB,4.0,1495.205,0.156,271490.66,1,5d38c06d38028020,13,7,6,0,1,2,1,Merge Join
+tpch,q16,cores_only,0,True,,8,4GB,4MB,4.0,221.827,0.185,36207.8,18314,ef33b7606cff3c45,9,7,5,0,1,2,1,Hash Join
+tpch,q16,cores_only,1,True,,8,4GB,4MB,4.0,219.041,0.174,36207.8,18314,ef33b7606cff3c45,9,7,5,0,1,2,1,Hash Join
+tpch,q17,cores_only,0,True,,8,4GB,4MB,4.0,923.634,0.171,193545.26,1,926ea45ac3dbfe9a,9,5,3,0,1,2,1,Hash Join
+tpch,q17,cores_only,1,True,,8,4GB,4MB,4.0,755.693,0.123,193545.26,1,926ea45ac3dbfe9a,9,5,3,0,1,2,1,Hash Join
+tpch,q18,cores_only,0,True,,8,4GB,4MB,4.0,2957.069,4.819,482324.24,9,e06f36af87aeb570,15,11,4,0,3,2,2,"Nested Loop,Hash Join,Hash Join"
+tpch,q18,cores_only,1,True,,8,4GB,4MB,4.0,3504.626,4.602,482324.24,9,e06f36af87aeb570,15,11,4,0,3,2,2,"Nested Loop,Hash Join,Hash Join"
+tpch,q19,cores_only,0,True,,8,4GB,4MB,4.0,49.46,0.25,34269.24,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q19,cores_only,1,True,,8,4GB,4MB,4.0,48.278,0.335,34269.24,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q20,cores_only,0,True,,8,4GB,4MB,4.0,627.893,0.398,174559.85,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q20,cores_only,1,True,,8,4GB,4MB,4.0,618.87,0.355,174559.85,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q21,cores_only,0,True,,8,4GB,4MB,4.0,2627.727,3.525,68554.72,100,43884a34f270c026,17,12,4,67872,5,3,3,"Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q21,cores_only,1,True,,8,4GB,4MB,4.0,2652.807,3.705,68554.72,100,43884a34f270c026,17,12,4,67872,5,3,3,"Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q22,cores_only,0,True,,8,4GB,4MB,4.0,36.817,0.143,12866.15,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop
+tpch,q22,cores_only,1,True,,8,4GB,4MB,4.0,37.044,0.148,12866.15,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop
+tpch,q1,nvme_only,0,True,,2,4GB,4MB,1.1,2476.787,0.099,228952.27,4,bdd4299e342b646f,5,5,3,0,0,1,0,
+tpch,q1,nvme_only,1,True,,2,4GB,4MB,1.1,2740.676,0.129,228952.27,4,bdd4299e342b646f,5,5,3,0,0,1,0,
+tpch,q2,nvme_only,0,True,,2,4GB,4MB,1.1,245.897,0.792,31107.24,100,6ef8089e6650e005,21,8,3,10434,7,4,5,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q2,nvme_only,1,True,,2,4GB,4MB,1.1,243.989,0.778,31107.24,100,6ef8089e6650e005,21,8,3,10434,7,4,5,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q3,nvme_only,0,True,,2,4GB,4MB,1.1,1302.357,3.354,154201.46,10,2c5425ca06c7e24c,11,9,3,0,2,1,2,"Nested Loop,Nested Loop"
+tpch,q3,nvme_only,1,True,,2,4GB,4MB,1.1,1231.93,3.708,154201.46,10,2c5425ca06c7e24c,11,9,3,0,2,1,2,"Nested Loop,Nested Loop"
+tpch,q4,nvme_only,0,True,,2,4GB,4MB,1.1,170.797,0.165,54907.52,5,0dfeaaa18c8b2792,7,6,3,0,1,1,1,Nested Loop
+tpch,q4,nvme_only,1,True,,2,4GB,4MB,1.1,135.085,0.153,54907.52,5,0dfeaaa18c8b2792,7,6,3,0,1,1,1,Nested Loop
+tpch,q5,nvme_only,0,True,,2,4GB,4MB,1.1,424.017,1.095,47064.31,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q5,nvme_only,1,True,,2,4GB,4MB,1.1,511.652,0.935,47064.31,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q6,nvme_only,0,True,,2,4GB,4MB,1.1,1690.592,0.058,167874.73,1,026a0331b05d8c68,4,4,3,0,0,1,0,
+tpch,q6,nvme_only,1,True,,2,4GB,4MB,1.1,1564.298,0.061,167874.73,1,026a0331b05d8c68,4,4,3,0,0,1,0,
+tpch,q7,nvme_only,0,True,,2,4GB,4MB,1.1,3123.585,5.969,39714.93,4,de890f7d6080cc6e,18,10,3,10574,5,3,3,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q7,nvme_only,1,True,,2,4GB,4MB,1.1,1810.285,0.68,39714.93,4,de890f7d6080cc6e,18,10,3,10569,5,3,3,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q8,nvme_only,0,True,,2,4GB,4MB,1.1,166.195,0.946,37973.21,2,794f30a82be0e5bc,22,12,3,0,7,3,5,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q8,nvme_only,1,True,,2,4GB,4MB,1.1,161.264,1.274,37973.21,2,794f30a82be0e5bc,22,12,3,0,7,3,5,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q9,nvme_only,0,True,,2,4GB,4MB,1.1,2994.928,8.139,35755.76,175,219a32454299f138,16,10,3,7624,5,2,4,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q9,nvme_only,1,True,,2,4GB,4MB,1.1,2386.892,7.788,35755.76,175,219a32454299f138,16,10,3,7624,5,2,4,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q10,nvme_only,0,True,,2,4GB,4MB,1.1,323.609,2.354,98887.58,20,85fd307919d235a0,15,11,3,15294,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q10,nvme_only,1,True,,2,4GB,4MB,1.1,317.9,0.419,98887.58,20,85fd307919d235a0,15,11,3,15300,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q11,nvme_only,0,True,,2,4GB,4MB,1.1,47.333,0.27,6022.92,1217,3144f130d943eca3,15,6,1,262,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q11,nvme_only,1,True,,2,4GB,4MB,1.1,42.861,0.266,6022.92,1217,3144f130d943eca3,15,6,1,262,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q12,nvme_only,0,True,,2,4GB,4MB,1.1,403.904,0.352,184565.74,2,280553bf64cf3055,7,6,3,0,1,1,1,Nested Loop
+tpch,q12,nvme_only,1,True,,2,4GB,4MB,1.1,766.319,0.153,184565.74,2,280553bf64cf3055,7,6,3,0,1,1,1,Nested Loop
+tpch,q13,nvme_only,0,True,,2,4GB,4MB,1.1,2314.611,0.171,90116.08,42,e3a60ec45a05101b,6,5,1,0,1,0,2,Merge Join
+tpch,q13,nvme_only,1,True,,2,4GB,4MB,1.1,2396.935,0.167,90116.08,42,e3a60ec45a05101b,6,5,1,0,1,0,2,Merge Join
+tpch,q14,nvme_only,0,True,,2,4GB,4MB,1.1,1852.609,0.138,155151.26,1,25ee9d40b5dbeff7,7,6,3,0,1,2,0,Hash Join
+tpch,q14,nvme_only,1,True,,2,4GB,4MB,1.1,1418.851,0.134,155151.26,1,25ee9d40b5dbeff7,7,6,3,0,1,2,0,Hash Join
+tpch,q15,nvme_only,0,True,,2,4GB,4MB,1.1,566.442,0.156,306650.39,1,675251c17ee5ee61,13,7,3,0,1,2,1,Nested Loop
+tpch,q15,nvme_only,1,True,,2,4GB,4MB,1.1,651.216,0.152,306650.39,1,675251c17ee5ee61,13,7,3,0,1,2,1,Nested Loop
+tpch,q16,nvme_only,0,True,,2,4GB,4MB,1.1,297.584,0.227,29670.58,18314,d107d1d403b3dd71,9,7,3,3316,1,2,1,Hash Join
+tpch,q16,nvme_only,1,True,,2,4GB,4MB,1.1,286.81,0.208,29670.58,18314,d107d1d403b3dd71,9,7,3,3316,1,2,1,Hash Join
+tpch,q17,nvme_only,0,True,,2,4GB,4MB,1.1,2149.696,0.246,192603.7,1,0acf9200cd71b1a9,8,5,3,0,1,2,1,Hash Join
+tpch,q17,nvme_only,1,True,,2,4GB,4MB,1.1,893.368,0.125,192603.7,1,0acf9200cd71b1a9,8,5,3,0,1,2,1,Hash Join
+tpch,q18,nvme_only,0,True,,2,4GB,4MB,1.1,3179.839,6.653,455283.08,9,1188bf16695bb11e,16,12,3,0,3,2,2,"Nested Loop,Hash Join,Hash Join"
+tpch,q18,nvme_only,1,True,,2,4GB,4MB,1.1,3917.666,4.901,455283.08,9,1188bf16695bb11e,16,12,3,0,3,2,2,"Nested Loop,Hash Join,Hash Join"
+tpch,q19,nvme_only,0,True,,2,4GB,4MB,1.1,181.076,2.516,15944.1,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q19,nvme_only,1,True,,2,4GB,4MB,1.1,54.766,0.219,15944.1,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q20,nvme_only,0,True,,2,4GB,4MB,1.1,8968.075,3.347,88281.6,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q20,nvme_only,1,True,,2,4GB,4MB,1.1,7175.397,3.799,88281.6,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q21,nvme_only,0,True,,2,4GB,4MB,1.1,23225.607,3.833,58095.27,100,80b18c915dbb5944,15,10,1,0,5,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q21,nvme_only,1,True,,2,4GB,4MB,1.1,14312.907,3.198,58095.27,100,80b18c915dbb5944,15,10,1,0,5,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q22,nvme_only,0,True,,2,4GB,4MB,1.1,33.006,0.129,12745.37,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop
+tpch,q22,nvme_only,1,True,,2,4GB,4MB,1.1,32.894,0.128,12745.37,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop
+tpch,q1,memory_only,0,True,,2,4GB,64MB,4.0,4675.604,0.099,228952.27,4,bdd4299e342b646f,5,5,3,0,0,1,0,
+tpch,q1,memory_only,1,True,,2,4GB,64MB,4.0,3243.857,0.104,228952.27,4,bdd4299e342b646f,5,5,3,0,0,1,0,
+tpch,q2,memory_only,0,True,,2,4GB,64MB,4.0,185.228,2.901,48376.76,100,c98f32815cd20c15,22,9,3,0,7,5,4,"Hash Join,Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop"
+tpch,q2,memory_only,1,True,,2,4GB,64MB,4.0,172.26,0.549,48376.76,100,c98f32815cd20c15,22,9,3,0,7,5,4,"Hash Join,Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop"
+tpch,q3,memory_only,0,True,,2,4GB,64MB,4.0,2843.944,4.991,177724.04,10,609514bb9407384d,11,9,3,0,2,2,1,"Nested Loop,Hash Join"
+tpch,q3,memory_only,1,True,,2,4GB,64MB,4.0,2603.587,5.679,177724.04,10,609514bb9407384d,11,9,3,0,2,2,1,"Nested Loop,Hash Join"
+tpch,q4,memory_only,0,True,,2,4GB,64MB,4.0,2006.71,2.042,70173.98,5,0dfeaaa18c8b2792,7,6,3,0,1,1,1,Nested Loop
+tpch,q4,memory_only,1,True,,2,4GB,64MB,4.0,1975.962,2.013,70173.98,5,0dfeaaa18c8b2792,7,6,3,0,1,1,1,Nested Loop
+tpch,q5,memory_only,0,True,,2,4GB,64MB,4.0,1045.302,5.508,82854.07,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q5,memory_only,1,True,,2,4GB,64MB,4.0,1096.923,5.712,82854.07,5,4ede4a66f9df27eb,19,13,3,0,5,4,2,"Hash Join,Nested Loop,Nested Loop,Hash Join,Hash Join"
+tpch,q6,memory_only,0,True,,2,4GB,64MB,4.0,2293.963,0.067,167874.73,1,026a0331b05d8c68,4,4,3,0,0,1,0,
+tpch,q6,memory_only,1,True,,2,4GB,64MB,4.0,2428.741,0.141,167874.73,1,026a0331b05d8c68,4,4,3,0,0,1,0,
+tpch,q7,memory_only,0,True,,2,4GB,64MB,4.0,28691.991,5.858,67217.3,4,4161facb1f76ab89,18,10,3,0,5,2,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q7,memory_only,1,True,,2,4GB,64MB,4.0,21156.088,6.119,67217.3,4,4161facb1f76ab89,18,10,3,0,5,2,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q8,memory_only,0,True,,2,4GB,64MB,4.0,964.79,5.82,90200.38,2,305bc77f706ead59,22,11,3,0,7,4,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q8,memory_only,1,True,,2,4GB,64MB,4.0,1812.204,7.204,90200.38,2,305bc77f706ead59,22,11,3,0,7,4,4,"Hash Join,Nested Loop,Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q9,memory_only,0,True,,2,4GB,64MB,4.0,11300.892,7.986,56103.23,175,7c044ce3ee674859,17,11,3,0,5,3,3,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q9,memory_only,1,True,,2,4GB,64MB,4.0,22370.045,11.326,56103.23,175,7c044ce3ee674859,17,11,3,0,5,3,3,"Hash Join,Nested Loop,Nested Loop,Nested Loop,Hash Join"
+tpch,q10,memory_only,0,True,,2,4GB,64MB,4.0,3064.291,4.293,162415.39,20,323e46ba0d145915,14,9,3,0,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q10,memory_only,1,True,,2,4GB,64MB,4.0,2952.837,4.33,162415.39,20,323e46ba0d145915,14,9,3,0,3,3,1,"Hash Join,Hash Join,Nested Loop"
+tpch,q11,memory_only,0,True,,2,4GB,64MB,4.0,42.034,0.288,10534.8,1217,3144f130d943eca3,15,6,1,0,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q11,memory_only,1,True,,2,4GB,64MB,4.0,42.758,0.251,10534.8,1217,3144f130d943eca3,15,6,1,0,4,2,4,"Nested Loop,Nested Loop,Nested Loop,Nested Loop"
+tpch,q12,memory_only,0,True,,2,4GB,64MB,4.0,3263.201,0.37,208070.5,2,be4d61c561931dd6,8,7,3,0,1,2,0,Hash Join
+tpch,q12,memory_only,1,True,,2,4GB,64MB,4.0,2887.49,0.17,208070.5,2,be4d61c561931dd6,8,7,3,0,1,2,0,Hash Join
+tpch,q13,memory_only,0,True,,2,4GB,64MB,4.0,1003.439,0.153,66289.28,42,8cb2c2706a84d929,7,6,1,0,1,1,1,Hash Join
+tpch,q13,memory_only,1,True,,2,4GB,64MB,4.0,1146.127,0.136,66289.28,42,8cb2c2706a84d929,7,6,1,0,1,1,1,Hash Join
+tpch,q14,memory_only,0,True,,2,4GB,64MB,4.0,2018.784,1.574,155151.26,1,25ee9d40b5dbeff7,7,6,3,0,1,2,0,Hash Join
+tpch,q14,memory_only,1,True,,2,4GB,64MB,4.0,1831.388,0.134,155151.26,1,25ee9d40b5dbeff7,7,6,3,0,1,2,0,Hash Join
+tpch,q15,memory_only,0,True,,2,4GB,64MB,4.0,3438.497,0.154,306862.09,1,675251c17ee5ee61,13,7,3,0,1,2,1,Nested Loop
+tpch,q15,memory_only,1,True,,2,4GB,64MB,4.0,3646.588,0.157,306862.09,1,675251c17ee5ee61,13,7,3,0,1,2,1,Nested Loop
+tpch,q16,memory_only,0,True,,2,4GB,64MB,4.0,232.472,0.192,38608.38,18314,d107d1d403b3dd71,9,7,3,0,1,2,1,Hash Join
+tpch,q16,memory_only,1,True,,2,4GB,64MB,4.0,241.378,0.175,38608.38,18314,d107d1d403b3dd71,9,7,3,0,1,2,1,Hash Join
+tpch,q17,memory_only,0,True,,2,4GB,64MB,4.0,2062.411,3.04,193545.26,1,926ea45ac3dbfe9a,9,5,3,0,1,2,1,Hash Join
+tpch,q17,memory_only,1,True,,2,4GB,64MB,4.0,1174.13,0.119,193545.26,1,926ea45ac3dbfe9a,9,5,3,0,1,2,1,Hash Join
+tpch,q18,memory_only,0,True,,2,4GB,64MB,4.0,7271.041,2.2,423282.1,9,3b317b6508c018a4,16,12,3,1494834,3,3,1,"Nested Loop,Hash Join,Hash Join"
+tpch,q18,memory_only,1,True,,2,4GB,64MB,4.0,10134.752,0.573,423282.1,9,3b317b6508c018a4,16,12,3,1494834,3,3,1,"Nested Loop,Hash Join,Hash Join"
+tpch,q19,memory_only,0,True,,2,4GB,64MB,4.0,190.274,2.764,34269.24,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q19,memory_only,1,True,,2,4GB,64MB,4.0,31.762,0.263,34269.24,1,379a779eeb37de44,6,5,3,0,1,1,1,Nested Loop
+tpch,q20,memory_only,0,True,,2,4GB,64MB,4.0,725.758,0.781,174559.85,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q20,memory_only,1,True,,2,4GB,64MB,4.0,665.854,3.635,174559.85,186,36f5efc07dff6555,15,9,1,0,3,2,3,"Hash Join,Nested Loop,Nested Loop"
+tpch,q21,memory_only,0,True,,2,4GB,64MB,4.0,4246.304,4.902,72968.97,100,d8aa4809b33e9f9c,17,12,3,0,5,3,3,"Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q21,memory_only,1,True,,2,4GB,64MB,4.0,3499.506,4.986,72968.97,100,d8aa4809b33e9f9c,17,12,3,0,5,3,3,"Nested Loop,Nested Loop,Hash Join,Nested Loop,Nested Loop"
+tpch,q22,memory_only,0,True,,2,4GB,64MB,4.0,33.4,0.129,12866.15,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop
+tpch,q22,memory_only,1,True,,2,4GB,64MB,4.0,33.447,0.122,12866.15,7,5682d6a832588e1a,11,6,3,0,1,2,1,Nested Loop

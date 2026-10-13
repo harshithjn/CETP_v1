@@ -8,7 +8,7 @@ from pathlib import Path
 from sklearn.ensemble import GradientBoostingRegressor
 
 PROJECT_DIR = Path("/Users/harshithj/Main/Resources/CETP")
-CSV_PATH = PROJECT_DIR / "data" / "raw" / "tpch_dataset.csv"
+CSV_PATH = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected_v2.csv"
 MODELS_DIR = PROJECT_DIR / "models"
 
 RANDOM_STATE = 42
@@ -230,8 +230,18 @@ print("\n" + "=" * 78)
 print("CHECK 3: REPRODUCIBILITY")
 print("=" * 78)
 
-run1 = subprocess.run([sys.executable, str(PROJECT_DIR / "phase6_scaling_regressor.py")], cwd=PROJECT_DIR, capture_output=True, text=True)
-run2 = subprocess.run([sys.executable, str(PROJECT_DIR / "phase6_scaling_regressor.py")], cwd=PROJECT_DIR, capture_output=True, text=True)
+# NOTE: this previously pointed at PROJECT_DIR / "phase6_scaling_regressor.py", but that
+# script lives in scripts/analysis/. The subprocess therefore always failed with "No such
+# file", stdout came back empty, and the parse below raised StopIteration -- so CHECK 3 never
+# actually ran, despite being reported as PASS. Fixed 2026-10-12.
+PHASE6 = Path(__file__).resolve().parent / "phase6_scaling_regressor.py"
+run1 = subprocess.run([sys.executable, str(PHASE6)], cwd=PROJECT_DIR, capture_output=True, text=True)
+run2 = subprocess.run([sys.executable, str(PHASE6)], cwd=PROJECT_DIR, capture_output=True, text=True)
+for label, r in (("run1", run1), ("run2", run2)):
+    if r.returncode != 0:
+        print(f"CHECK 3 RESULT: FAIL -- {label} of phase6_scaling_regressor.py exited "
+              f"{r.returncode}:\n{r.stderr.strip()[:2000]}")
+        sys.exit(1)
 
 
 def extract_mape_block(stdout_text):

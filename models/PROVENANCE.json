@@ -1,0 +1,40 @@
+{
+  "artifacts": {
+    "bottleneck_classifier.pkl": {
+      "built_with_scikit_learn": "1.8.0",
+      "estimator": "RandomForestClassifier(n_estimators=300, class_weight='balanced', random_state=42)",
+      "note": "Leave-one-query-out macro-F1 is 0.375 with io-class recall 0.000 against a 0.161 trivial baseline. Tier 1 showed this classifier contributes nothing measurable: a flat uniform weighting scores 21.55% MAPE against 21.61% for this one. The installable cetp package does not use it.",
+      "trained_on": "data/corrected/tpch_dataset_corrected_v2.csv",
+      "trained_on_status": "OK - buffer-corrected canonical dataset"
+    },
+    "calibration.json": {
+      "built_by": "scripts/analysis/build_calibration.py",
+      "content": "conformal quantiles of log(actual/predicted), leave-one-machine-out",
+      "used_by": "cetp.predict - this is what the installable package ships instead of a pickle"
+    },
+    "hardware_signature.pkl": {
+      "compute_signal": "multi-core aggregate GFLOPS",
+      "compute_signal_status": "OK - this is the signal the headline result requires (correlates -0.691, correct sign). The single-core scores this file carried until 2026-10-13 correlate at +0.213, the wrong sign.",
+      "content": "dict of 5 machines -> {bandwidth, compute}",
+      "remaining_caveat": "Probed at `nproc`, not at the achievable DOP (1 + max_parallel_workers_per_gather = 3). For c5a and m5a (4 vCPU) that overstates usable capacity; r5n/z1d/c7i (2 vCPU) are already DOP-matched. New machines should use scripts/collection/hw_signature.py."
+    },
+    "scaling_quantile_models.pkl": {
+      "built_with_scikit_learn": "1.8.0",
+      "estimator": "GradientBoostingRegressor(loss='quantile', alpha in {0.5,0.95,0.99}, n_estimators=200, max_depth=3, learning_rate=0.05, random_state=42)",
+      "note": "p95/p99 targets in the training data are warmup-contaminated: at 20 repetitions the cold first run lands exactly where those percentiles sit. Use models/calibration.json for intervals instead.",
+      "trained_on": "data/corrected/tpch_dataset_corrected_v2.csv",
+      "trained_on_status": "OK"
+    }
+  },
+  "environment": {
+    "python": "3.13.2",
+    "scikit_learn": "1.8.0"
+  },
+  "pinned_in_requirements": "scikit-learn==1.8.0",
+  "previous_artifacts": "models_backup/ (single-core compute, buffer-bug dataset, sklearn 1.6.1)",
+  "recorded": "2026-10-13",
+  "regenerated_by": "scripts/analysis/phase5_classifier.py + phase6_scaling_regressor.py into models_candidate/, then `make promote-models`",
+  "status": "CURRENT - regenerated on the corrected dataset with the multi-core compute signal",
+  "tests": "28/28 pass. 5 locked prediction values and the 4 demo scenarios were re-derived deliberately; see the note above KNOWN_ANSWER_TRIPLES in tests/test_e2e.py.",
+  "version_mismatch": false
+}

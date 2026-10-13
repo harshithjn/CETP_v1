@@ -16,7 +16,38 @@ DEFAULT_CONFIDENCE_THRESHOLD = 0.6
 RAW_BOTTLENECK_COLS = ["cost", "shared_hit", "shared_read", "total_buffers", "io_ratio", "rows"]
 
 
+def _warn_stale_artifacts():
+    """Surface any remaining caveat on the shipped artifacts.
+
+    The three-way staleness this used to warn about (buffer-bug training data, a
+    scikit-learn version mismatch, and the single-core compute signal) was resolved on
+    2026-10-13. What remains is the DOP caveat: the compute axis is probed at `nproc`, but a
+    query can only use 1 + max_parallel_workers_per_gather processes. Full detail in
+    models/MODEL_CARD.md.
+    """
+    provenance = MODELS_DIR / "PROVENANCE.json"
+    if not provenance.exists():
+        return
+    try:
+        meta = json.loads(provenance.read_text())
+    except (ValueError, OSError):
+        return
+    if str(meta.get("status", "")).startswith("STALE"):
+        print(f"WARNING: {MODELS_DIR.name}/ artifacts are stale. "
+              f"See models/MODEL_CARD.md. Current results: results/CANONICAL.md",
+              file=sys.stderr)
+        return
+    caveat = (meta.get("artifacts", {}).get("hardware_signature.pkl", {})
+              .get("remaining_caveat"))
+    if caveat:
+        print(f"NOTE: compute scores are probed at nproc, not at the achievable DOP "
+              f"(c5a/m5a overstate usable capacity). Probe new machines with "
+              f"scripts/collection/hw_signature.py. See models/MODEL_CARD.md.",
+              file=sys.stderr)
+
+
 def load_models():
+    _warn_stale_artifacts()
     bottleneck_model = joblib.load(MODELS_DIR / "bottleneck_classifier.pkl")
     quantile_models = joblib.load(MODELS_DIR / "scaling_quantile_models.pkl")
     hardware_signature = joblib.load(MODELS_DIR / "hardware_signature.pkl")

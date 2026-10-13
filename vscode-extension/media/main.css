@@ -1,0 +1,237 @@
+body {
+  font-family: var(--vscode-font-family);
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editor-background);
+  padding: 12px;
+  font-size: var(--vscode-font-size);
+}
+
+.hidden {
+  display: none;
+}
+
+.field {
+  margin-bottom: 10px;
+}
+
+.field-inline {
+  margin-bottom: 8px;
+}
+
+.field-checkbox {
+  margin-bottom: 8px;
+}
+
+label {
+  display: block;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.field-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: none;
+  font-size: 12px;
+  color: var(--vscode-foreground);
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border, var(--vscode-editorWidget-border, transparent));
+  border-radius: 2px;
+  padding: 4px 6px;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+input[type="text"]:focus,
+select:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+.file-row {
+  display: flex;
+  gap: 6px;
+}
+
+.file-row input[type="text"] {
+  flex: 1;
+}
+
+.manual-fields {
+  border-left: 2px solid var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.3));
+  padding-left: 8px;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  border-radius: 2px;
+  padding: 5px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+#browse-button {
+  background-color: var(--vscode-button-secondaryBackground, transparent);
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+}
+
+#browse-button:hover {
+  background-color: var(--vscode-button-secondaryHoverBackground, var(--vscode-toolbar-hoverBackground));
+}
+
+#run-button {
+  width: 100%;
+}
+
+.status-row {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.form-error {
+  color: var(--vscode-errorForeground);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.3));
+  margin: 14px 0;
+}
+
+.state {
+  margin-bottom: 8px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  gap: 8px;
+}
+
+.query-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--vscode-editor-background);
+  white-space: nowrap;
+}
+
+.badge.pass {
+  background-color: var(--vscode-testing-iconPassed, #73c991);
+}
+
+.badge.block {
+  background-color: var(--vscode-testing-iconFailed, #f14c4c);
+}
+
+.badge.warn {
+  background-color: var(--vscode-testing-iconQueued, #cca700);
+}
+
+.timestamp {
+  color: var(--vscode-descriptionForeground);
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+
+.metrics {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.metric {
+  flex: 1;
+  border: 1px solid var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.3));
+  border-radius: 4px;
+  padding: 6px;
+  text-align: center;
+}
+
+.metric-label {
+  display: block;
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground);
+  text-transform: uppercase;
+}
+
+.metric-value {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.confidence-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.confidence-bar {
+  flex: 1;
+  height: 6px;
+  background-color: var(--vscode-progressBar-background, rgba(128, 128, 128, 0.3));
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  width: 0%;
+  background-color: var(--vscode-charts-blue, #3794ff);
+}
+
+.reason {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+  line-height: 1.4;
+}
+
+.error-title {
+  color: var(--vscode-errorForeground);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.error-message {
+  font-size: 12px;
+  white-space: pre-wrap;
+  margin-top: 4px;
+}

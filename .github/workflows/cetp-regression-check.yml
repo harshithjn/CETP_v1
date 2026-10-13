@@ -1,0 +1,94 @@
+# CETP performance regression check (Tier 4).
+#
+# The recommended mode. It does NOT gate on absolute predicted latency -- that carries
+# ~21.6% MAPE on an unseen machine, and 54.5% of absolute BLOCK verdicts in the research
+# evaluation were false alarms. Instead it compares the SAME query before and after a
+# change, which divides the hardware term out (see cetp/regress.py), so the result is
+# essentially the directly measured dev-side ratio.
+#
+# Plans are REDACTED before anything is uploaded, because EXPLAIN output embeds query
+# literals and those are user data.
+name: CETP regression check
+
+on:
+  pull_request:
+    paths:
+      - "**/*.sql"
+      - ".github/workflows/cetp-regression-check.yml"
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 10
+        ports: ["5432:5432"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install cetp
+        run: pip install -e .
+
+      - name: Verify the installation
+        run: cetp selftest
+
+      # Replace this with however your project materialises a representative dataset.
+      # A regression check needs the SAME data before and after; it says nothing otherwise.
+      - name: Load schema and fixture data
+        env:
+          PGPASSWORD: postgres
+        run: |
+          if [ -f ci/schema.sql ]; then
+            psql -h localhost -U postgres -d postgres -f ci/schema.sql
+          else
+            echo "::notice::no ci/schema.sql found; skipping the data-dependent steps"
+          fi
+
+      - name: Capture plans before and after, then compare
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          [ -f ci/schema.sql ] || { echo "no fixture data; nothing to compare"; exit 0; }
+          mkdir -p /tmp/plans
+          status=0
+          for q in $(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.sql'); do
+            [ -f "$q" ] || continue
+            name=$(basename "$q" .sql)
+            git show origin/${{ github.base_ref }}:"$q" > /tmp/before.sql 2>/dev/null || continue
+            psql -h localhost -U postgres -d postgres -tAc \
+              "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) $(cat /tmp/before.sql)" \
+              > /tmp/plans/${name}_before.json
+            psql -h localhost -U postgres -d postgres -tAc \
+              "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) $(cat "$q")" \
+              > /tmp/plans/${name}_after.json
+            # Strip literals before these artifacts leave the runner.
+            cetp redact /tmp/plans/${name}_before.json -o /tmp/plans/${name}_before.json
+            cetp redact /tmp/plans/${name}_after.json  -o /tmp/plans/${name}_after.json
+            cetp regress \
+              --before /tmp/plans/${name}_before.json \
+              --after  /tmp/plans/${name}_after.json \
+              --dev c7i --prod c5a --query-id "$name" \
+              --threshold 1.20 --fail-on-regression | tee -a /tmp/report.txt || status=1
+          done
+          { echo '### CETP regression check'; echo '```'; cat /tmp/report.txt 2>/dev/null \
+            || echo 'no SQL changes to check'; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cetp-redacted-plans
+          path: /tmp/plans
+          if-no-files-found: ignore

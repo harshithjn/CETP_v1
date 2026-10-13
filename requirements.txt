@@ -1,0 +1,26 @@
+# CETP pinned dependencies.
+#
+# scikit-learn is pinned EXACTLY, not with a range: every file in models/ and
+# models_online/ is a pickled estimator, and pickled sklearn estimators carry no
+# cross-version compatibility guarantee.
+#
+# KNOWN MISMATCH: the shipped models/*.pkl were pickled with scikit-learn 1.6.1,
+# not the 1.8.0 pinned here, so loading them raises InconsistentVersionWarning.
+# The 28 tests in tests/test_e2e.py still pass. This is deliberately NOT resolved
+# by pinning 1.6.1, because those artifacts are stale for two further and more
+# serious reasons (trained on the buffer-bug dataset; single-core compute signal).
+# They need regenerating, not accommodating -- see models/MODEL_CARD.md.
+#
+# results/CANONICAL.md does not load these pickles; it refits everything from the
+# corrected dataset inside each fold, so its numbers are unaffected.
+scikit-learn==1.8.0
+
+numpy==2.5.3
+pandas==2.2.3
+scipy==1.18.1
+joblib==1.5.3
+PyYAML==6.0.2
+matplotlib==3.10.1
+
+# Test / dev
+pytest==9.0.3
