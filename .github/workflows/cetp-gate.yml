@@ -1,12 +1,19 @@
 name: CETP SLA Gate
 
 on:
+  # A change to the workflow itself, or to the pinned dependency set it installs, must
+  # re-run the gate -- otherwise a broken CI fix goes unnoticed, which is exactly what
+  # happened twice here (an unpinned scikit-learn, then a numpy with no wheel for the
+  # pinned Python).
   push:
     paths:
       - "gate/examples/gate_queries/**"
       - "gate/cetp.yml"
       - "gate/cetp_gate.py"
       - "models/**"
+      - "requirements.txt"
+      - ".github/workflows/cetp-gate.yml"
+  workflow_dispatch:
 
 jobs:
   gate:
