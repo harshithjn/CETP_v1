@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Step-by-step guide to running CETP's hardware signature probe on a production PostgreSQL machine and reading off the bandwidth and compute values it needs.">
+<title>Measuring a production machine</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+<style>
+/* layout: a single linear runbook — numbered steps down a narrow measured column,
+   terminal blocks as the primary visual weight, two result numbers called out big
+   at the end since that's the entire point of the page */
+:root{
+  --bg:#f6f5f2; --surface:#ffffff; --surface-2:#edece7; --line:#dcdad3;
+  --fg:#17191a; --fg-dim:#5b5e5f; --fg-faint:#8c8f8e;
+  --accent:#0f6e63; --accent-fg:#eafaf6; --accent-bg:#e2f3ef;
+  --warn:#8a5a12; --warn-bg:#faf1e0; --warn-line:#e6c988;
+  --code-bg:#15191a; --code-fg:#dce4e2; --code-dim:#7c8b88; --code-accent:#5fd9c4;
+  --font-display:'Fraunces',Georgia,serif;
+  --font-body:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111314; --surface:#181b1c; --surface-2:#1f2324; --line:#2b3031;
+    --fg:#edeeec; --fg-dim:#a8adac; --fg-faint:#767b7a;
+    --accent:#5fd9c4; --accent-fg:#06211c; --accent-bg:#17302b;
+    --warn:#e3b45c; --warn-bg:#2b2416; --warn-line:#4a3c1e;
+    --code-bg:#0b0d0d; --code-fg:#dce4e2; --code-dim:#5f6a68; --code-accent:#5fd9c4;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111314; --surface:#181b1c; --surface-2:#1f2324; --line:#2b3031;
+  --fg:#edeeec; --fg-dim:#a8adac; --fg-faint:#767b7a;
+  --accent:#5fd9c4; --accent-fg:#06211c; --accent-bg:#17302b;
+  --warn:#e3b45c; --warn-bg:#2b2416; --warn-line:#4a3c1e;
+  --code-bg:#0b0d0d; --code-fg:#dce4e2; --code-dim:#5f6a68; --code-accent:#5fd9c4;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body);
+  font-size:16px; line-height:1.65; padding-inline:20px;
+}
+.wrap{max-width:680px; margin:0 auto; padding-block:48px 80px}
+.theme-toggle{
+  position:sticky; top:env(safe-area-inset-top,0px); float:right; margin-top:4px;
+  background:var(--surface); border:1px solid var(--line); color:var(--fg-dim);
+  font:500 12px var(--font-mono); padding:6px 12px; border-radius:7px; cursor:pointer;
+}
+.theme-toggle:hover{color:var(--fg); border-color:var(--fg-faint)}
+.eyebrow{
+  font:600 12px var(--font-mono); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--accent); margin:0 0 14px;
+}
+h1{
+  font-family:var(--font-display); font-weight:600; font-size:clamp(28px,5vw,38px);
+  line-height:1.12; letter-spacing:-.01em; margin:0 0 16px; text-wrap:balance;
+  color:var(--fg); max-width:16ch;
+}
+.lede{font-size:17px; color:var(--fg-dim); max-width:56ch; margin:0 0 36px}
+.lede code{color:var(--fg)}
+h2{
+  font-family:var(--font-display); font-weight:600; font-size:21px;
+  letter-spacing:-.005em; margin:0 0 6px; color:var(--fg); text-wrap:balance;
+}
+.step{display:flex; gap:16px; margin-top:44px}
+.step-num{
+  flex:0 0 auto; width:30px; height:30px; border-radius:50%;
+  background:var(--surface-2); border:1px solid var(--line); color:var(--fg-dim);
+  font:600 13px var(--font-mono); display:flex; align-items:center; justify-content:center;
+  margin-top:2px;
+}
+.step-body{flex:1 1 auto; min-width:0}
+.step p{margin:0 0 12px; color:var(--fg-dim)}
+.step p code, p code, li code{
+  font-family:var(--font-mono); font-size:.87em; color:var(--fg);
+  background:var(--surface-2); padding:.1em .4em; border-radius:4px;
+  border:1px solid var(--line);
+}
+pre{
+  background:var(--code-bg); color:var(--code-fg); border-radius:10px;
+  padding:16px 18px; overflow-x:auto; margin:14px 0; border:1px solid var(--line);
+}
+pre code{
+  font-family:var(--font-mono); font-size:13.5px; line-height:1.65;
+  background:none; border:0; padding:0; color:inherit; white-space:pre;
+}
+.c{color:var(--code-dim)} /* comment lines inside terminal blocks */
+.hl{color:var(--code-accent)}
+.copy-btn{
+  display:inline-flex; align-items:center; gap:6px; margin-top:-4px; margin-bottom:14px;
+  background:var(--surface); border:1px solid var(--line); color:var(--fg-dim);
+  font:500 12px var(--font-mono); padding:5px 11px; border-radius:7px; cursor:pointer;
+}
+.copy-btn:hover{color:var(--fg); border-color:var(--fg-faint)}
+.copy-btn[data-copied]::after{content:'copied'; color:var(--accent); margin-left:2px}
+.note{
+  border:1px solid var(--line); background:var(--surface); border-radius:10px;
+  padding:14px 16px; margin:14px 0; font-size:14.5px; color:var(--fg-dim);
+}
+.note b{color:var(--fg); font-weight:600}
+.warn{
+  border:1px solid var(--warn-line); background:var(--warn-bg); border-radius:10px;
+  padding:14px 16px; margin:14px 0; font-size:14.5px; color:var(--warn);
+}
+.warn b{font-weight:600}
+.warn-label{
+  font:700 11px var(--font-mono); letter-spacing:.06em; text-transform:uppercase;
+  display:block; margin-bottom:5px;
+}
+table{width:100%; border-collapse:collapse; margin:14px 0; font-size:14.5px}
+th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line)}
+th{
+  font:600 11px var(--font-mono); letter-spacing:.05em; text-transform:uppercase;
+  color:var(--fg-faint);
+}
+td:first-child, th:first-child{padding-left:0}
+td code{font-family:var(--font-mono); font-size:13px; color:var(--accent)}
+.divider{border:0; border-top:1px solid var(--line); margin:48px 0}
+.result-box{
+  background:var(--accent-bg); border:1px solid var(--accent); border-radius:14px;
+  padding:24px; margin-top:16px;
+}
+.result-box .eyebrow{margin-bottom:10px}
+.result-row{
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:10px 0; border-bottom:1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  gap:12px; flex-wrap:wrap;
+}
+.result-row:last-child{border-bottom:0}
+.result-row .k{font-size:14.5px; color:var(--fg-dim)}
+.result-row .v{
+  font:600 15px var(--font-mono); color:var(--fg);
+  background:var(--surface); border:1px solid var(--line); padding:3px 10px; border-radius:6px;
+}
+footer{margin-top:56px; color:var(--fg-faint); font-size:13px; line-height:1.7}
+footer code{font-family:var(--font-mono); color:var(--fg-dim)}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <button class="theme-toggle" id="themeToggle" type="button">theme</button>
+  <div class="eyebrow">CETP &middot; hardware signature</div>
+  <h1>Measuring a production machine</h1>
+  <p class="lede">
+    CETP predicts query runtime on a machine it hasn't seen by comparing two numbers
+    between your dev box and the target: a <b style="color:var(--fg)">bandwidth</b> score
+    and a <b style="color:var(--fg)">compute</b> score. Run this on the production machine
+    once to get both, then paste them into the extension.
+  </p>
+
+  <div class="note">
+    <b>Before you start</b> &mdash; run this while the machine is otherwise idle. It's a
+    short benchmark: anything else competing for CPU or memory during the ~30&ndash;40
+    seconds it runs will skew the result.
+  </div>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h2>Check prerequisites</h2>
+      <p>Three things need to be true on the production machine:</p>
+      <table>
+        <tr><th>Needed</th><th>Check with</th></tr>
+        <tr><td>Python 3</td><td><code>python3 --version</code></td></tr>
+        <tr><td>A C compiler</td><td><code>cc --version</code></td></tr>
+        <tr><td>Reachable PostgreSQL</td><td><code>psql -d &lt;yourdb&gt; -c "select 1"</code></td></tr>
+      </table>
+      <p>
+        No C compiler on the box? Install one &mdash; <code>apt install build-essential</code>
+        on Debian/Ubuntu, <code>yum groupinstall "Development Tools"</code> on RHEL/Amazon
+        Linux. The script compiles a small benchmark on first run; nothing stays installed
+        afterward beyond that one compiler.
+      </p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h2>Get the probe onto the machine</h2>
+      <p>
+        It's two files from the CETP repository that have to sit in the same folder
+        &mdash; <code>hw_signature.py</code> and the benchmark it compiles,
+        <code>hw_probe_suite.c</code>. Cloning the repo is the simplest way to get both
+        together correctly:
+      </p>
+      <button class="copy-btn" data-copy="git clone https://github.com/harshithjn/CETP_v1.git
+cd CETP_v1/scripts/collection">copy</button>
+      <pre><code><span class="c"># on the production machine</span>
+git clone https://github.com/harshithjn/CETP_v1.git
+cd CETP_v1/scripts/collection</code></pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h2>Run it</h2>
+      <p>
+        Give the machine a name you'll recognize later, and point it at any reachable
+        database &mdash; it only uses the connection to read one PostgreSQL setting
+        (<code>max_parallel_workers_per_gather</code>), nothing in your schema or data is
+        touched.
+      </p>
+      <button class="copy-btn" data-copy="python3 hw_signature.py --machine-id prod-db-1 --db yourdb">copy</button>
+      <pre><code>python3 hw_signature.py --machine-id prod-db-1 --db yourdb</code></pre>
+      <p>It runs seven short benchmarks, one after another, about 3 seconds each:</p>
+      <pre><code>probing prod-db-1: arch=arm64 nproc=8 achievable_dop=3 (3.0s per axis)
+  int_scalar_gops            3.82
+  fp_scalar_gflops           1.454
+  fp_vector_gflops           9.52
+  <span class="hl">fp_vector_gflops_dop       35.058</span>
+  fp_vector_gflops_nproc     56.629
+  branch_cost_ns             0.1597
+  cache_l1_ns                1.287
+  cache_l2_ns                4.828
+  cache_l3_ns                16.001
+  mem_latency_ns             112.372
+  <span class="hl">mem_bandwidth_gbs_mt       32.633</span>
+  mem_bandwidth_gbs_1t       19.685
+
+validation passed (plausible ranges + monotonic latency hierarchy)
+registered in models/hardware_signatures.json</code></pre>
+      <div class="warn">
+        <span class="warn-label">if validation fails</span>
+        <b>Don't use the numbers.</b> A failed check usually means something else was
+        using the CPU while it probed. Re-run it on a quieter window.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h2>Read off your two numbers</h2>
+      <p>
+        Everything the probe measured is written to
+        <code>models/hardware_signatures.json</code>, under your machine id. Two fields
+        are the ones the extension's <b style="color:var(--fg)">Bandwidth</b> and
+        <b style="color:var(--fg)">Compute score</b> fields want:
+      </p>
+      <table>
+        <tr><th>Extension field</th><th>JSON key</th><th>Why this one</th></tr>
+        <tr>
+          <td>Bandwidth (GB/s)</td>
+          <td><code>probe.mem_bandwidth_gbs_mt</code></td>
+          <td>Multi-threaded memory bandwidth</td>
+        </tr>
+        <tr>
+          <td>Compute score</td>
+          <td><code>probe.fp_vector_gflops_dop</code></td>
+          <td>Measured at the degree of parallelism a query can actually reach &mdash;
+            not <code>_nproc</code>, which measures every core and overstates what a
+            single query can use</td>
+        </tr>
+      </table>
+      <p>From the sample run above, that's <b style="color:var(--fg)">32.633</b> and
+      <b style="color:var(--fg)">35.058</b>.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <h2>Enter them in the extension</h2>
+      <p>
+        Back in VS Code: CETP sidebar &rarr; production machine dropdown &rarr;
+        <code>Enter manually</code>. Paste the bandwidth and compute values into their
+        fields. Check <code>Save as profile</code> and name it &mdash; next time this
+        machine shows up in the dropdown directly, no re-measuring needed.
+      </p>
+    </div>
+  </div>
+
+  <div class="result-box">
+    <div class="eyebrow">what you're pasting in</div>
+    <div class="result-row">
+      <span class="k">Bandwidth (GB/s)</span>
+      <span class="v">mem_bandwidth_gbs_mt</span>
+    </div>
+    <div class="result-row">
+      <span class="k">Compute score</span>
+      <span class="v">fp_vector_gflops_dop</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <footer>
+    This measures capability, not your query. It does not need to know anything about
+    your schema, your tables, or the queries you plan to run &mdash; only how fast the
+    machine itself moves memory and does floating-point work, at the thread count a
+    PostgreSQL query is actually able to reach.<br><br>
+    Script source: <code>scripts/collection/hw_signature.py</code> in the CETP repository.
+  </footer>
+</div>
+
+<script>
+document.querySelectorAll('.copy-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var text = btn.getAttribute('data-copy') || '';
+    function done(){
+      btn.setAttribute('data-copied','');
+      setTimeout(function(){ btn.removeAttribute('data-copied'); }, 1400);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function(){
+        try {
+          var r = document.createRange();
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          var pre = btn.nextElementSibling;
+          if (pre) { r.selectNodeContents(pre); sel.addRange(r); }
+        } catch(e) {}
+      });
+    }
+  });
+});
+(function(){
+  var root = document.documentElement;
+  var btn = document.getElementById('themeToggle');
+  var saved = null;
+  try { saved = localStorage.getItem('cetp-guide-theme'); } catch(e) {}
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  btn.addEventListener('click', function(){
+    var current = root.getAttribute('data-theme');
+    var isDark = current ? current === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = isDark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('cetp-guide-theme', next); } catch(e) {}
+  });
+})();
+</script>
+
+</body>
+</html>
