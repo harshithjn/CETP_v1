@@ -22,9 +22,18 @@ export async function validateQueryFile(filePath: string): Promise<string | unde
   return undefined;
 }
 
-export function resolveBackendScript(setting: string): string {
+/**
+ * Find the backend script. This used to resolve ONLY against the currently open
+ * workspace folder, so opening any folder other than the CETP checkout itself --
+ * Desktop, a scratch folder, any other project -- broke prediction with "backend script
+ * not found", even though cetp.repoRoot was already set correctly and used successfully
+ * by the hardware probe (measure.ts). Now repoRoot is the primary root, exactly like the
+ * probe, so prediction works from any open folder once repoRoot points at the checkout.
+ */
+export function resolveBackendScript(setting: string, repoRoot: string): string {
   const folders = vscode.workspace.workspaceFolders;
-  const root = folders && folders.length > 0 ? folders[0].uri.fsPath : '';
+  const fallback = folders && folders.length > 0 ? folders[0].uri.fsPath : '';
+  const root = repoRoot || fallback;
   if (!setting) {
     return path.join(root, 'gate', 'cetp_predict_cli.py');
   }

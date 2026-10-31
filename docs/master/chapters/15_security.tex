@@ -1,0 +1,54 @@
+\chapter{Security, reliability and performance}\label{ch:security}
+
+\section{Security and privacy}
+\subsection{Threat model (as implemented)}
+The only sensitive material CETP handles is the content of query plans, which embed literals (\texttt{Filter: (email = 'x@y.com')}), schema names and, in \texttt{auto\_explain} logs, entire statement text. The design response is
+\emph{redact before the data leaves the machine}, with verification (\texttt{assert\_clean}) and an architecture that has no network component. No authentication, authorisation or encryption layer exists because there is no server.
+
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{3.4cm}L{4.4cm}Y@{}}
+\toprule \thead{Concern} & \thead{Control} & \thead{Residual risk (evidence)}\\ \midrule
+Literals in plans & \texttt{redact\_plan} + \texttt{assert\_clean}; ingest redacts unconditionally & Escape-string literals leak a suffix; dollar-quoted strings pass; verifier does not catch either \evRUN\\
+Identifiers & \texttt{full} level hashes with BLAKE2s-40-bit and salt & default salt \texttt{"cetp"} public; common names dictionary-recoverable; \texttt{structural} keeps names\\
+Telemetry content & forbidden keys in \texttt{extra} & \texttt{query\_id} is free text\\
+SQL injection & probe SQL is constant; \texttt{predict\_prod.py} interpolates the user's own query file into \texttt{EXPLAIN} & the query file is trusted input by design\\
+Privilege & probe needs \texttt{CREATE}; prediction needs none & probe tables persist if the process is killed before \texttt{finally}\\
+Credentials & passed as CLI arguments in the live harness (\texttt{--prod-password}) & visible in process listings; use environment/\texttt{.pgpass} (not supported by the script)\\
+Supply chain & exact pins, hash-checked inputs for results & no lock file with hashes; pins include versions I could not verify\\
+Pickle loading & Gen-1 gate unpickles files in \texttt{models/} & only trusted local files; pickle execution risk if \texttt{models/} is replaced\\
+CI regression workflow & runs the pull request's SQL under \texttt{EXPLAIN (ANALYZE)} on the workflow's service database & statements (including DML) are executed and interpolated into a shell command; acceptable only for trusted authors and a throwaway database \evCODE\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\begin{honest}
+The privacy design is thoughtful (redact first, verify, forbid keys) but its verifier is the weak link: a control that returns True on a leaking plan is worse than none because it creates confidence. This should be fixed before any claim of ``PII-safe'' is made.
+\end{honest}
+
+\section{Reliability}
+\begin{itemize}
+\item \textbf{Crash safety.} Calibration store and telemetry rewrite via temp file + \texttt{os.replace}. Appends to the JSONL log are not atomic but each line is independent and a corrupt line is skipped.
+\item \textbf{Graceful degradation.} Corrupt store $\to$ zero-shot; missing calibration $\to$ factor 1.0; unparseable log entry $\to$ dropped.
+\item \textbf{Concurrency.} No locks anywhere (risk R3). Two processes calling \texttt{save()} can drop each other's observation.
+\item \textbf{Determinism.} Seeds are fixed (42) and the canonical outputs were byte-identical across two runs \evPACK.
+\item \textbf{Failure transparency.} Predictions carry \texttt{warnings} and \texttt{trust}; refusals have actionable messages.
+\end{itemize}
+
+\section{Performance}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.2cm}L{3.2cm}Y@{}}
+\toprule \thead{Operation} & \thead{Cost} & \thead{Basis}\\ \midrule
+Predict from plans & milliseconds & pure Python over a few nodes; selftest completes instantly (\evRUN, test suite 0.10\,s for 80 tests)\\
+Probe one machine & minutes & 3 tables of 2.0 M, 0.4 M, 6.0 M rows; 7 probes $\times$ 3--11 runs (\evCODE)\\
+Collect the 8-cell grid & 2--3\,h & Makefile comment (\texttt{grid-collect})\\
+Full canonical evaluation & seconds to minutes & 2000-resample bootstrap $\times$ several comparisons (not timed by me)\\
+Calibration (k queries) & $k\times$ production runtime & executes on production\\
+\bottomrule
+\end{tabularx}
+\end{center}
+The cost that matters in practice is not computation but \emph{measurement discipline}: probes taken on a busy host changed the parallel speed-up by 48\%, which changes every parallel-node prediction.
+
+\section{Scalability}
+Prediction is linear in plan size and independent of data size. The model assumes one query at a time; concurrency is a coarse power law. There is no multi-tenant story beyond ``one calibration file per project''. Nothing was measured on large schemas or SF10 (blocked by disk, per the probe comments).
+
+\section{Compliance and licensing}
+No licence file was inspected in this audit (\evUNK). The repository vendors or references third-party data (IMDB, JOB queries, TPC-DS kit, \texttt{pg\_hint\_plan}) under \texttt{data/external}; their licences were not reviewed. Using TPC-H/TPC-DS data for published results has TPC fair-use rules that the project should check before publication.

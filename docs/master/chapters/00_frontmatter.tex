@@ -1,0 +1,181 @@
+% ---------------------------------------------------------------- title page
+\pagenumbering{roman}
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+{\color{cetpgrey}\large PES University \,$\cdot$\, Capstone Project (UE23CS441A)\par}
+\vspace{2.2cm}
+{\fontsize{54}{60}\selectfont\bfseries\color{cetpblue} CETP\par}
+\vspace{0.4cm}
+{\Large\bfseries Cross-Environment Runtime Prediction\\ for PostgreSQL Queries\par}
+\vspace{0.8cm}
+{\color{cetpteal}\rule{0.55\textwidth}{1.2pt}\par}
+\vspace{0.8cm}
+{\LARGE Master Technical Reference\par}
+\vspace{0.3cm}
+{\large Architecture, implementation, evidence, limitations and defense preparation\par}
+\vspace{2.4cm}
+\begin{tabular}{@{}r@{\hspace{1.2em}}l@{}}
+\rowcolors{1}{white}{white}
+\textbf{Document version} & 1.0 (first complete edition)\\
+\textbf{Prepared} & 27 October 2026\\
+\textbf{Repository state} & branch \texttt{x86-probe}, HEAD \texttt{38c4bf2}, working tree modified\\
+\textbf{Software version} & \texttt{cetp} 0.4.0 (classifier ``Alpha'')\\
+\textbf{Project team} & Harshith J, Ishanvee Amit Sinha, Sarthak Wadhwa, Kartik Bhat Sumbly\\
+\textbf{Guide} & Prof.\ Nivedita Kasturi\\
+\textbf{Status} & Research prototype; evidence-based, not a marketing document\\
+\end{tabular}
+\end{center}
+\vfill
+{\small\color{cetpgrey}Every quantitative claim in this document carries a source path and an evidence tag
+(see the Evidence methodology section above). Where the repository contradicts itself, the contradiction is reported
+rather than resolved silently.}
+\end{titlepage}
+
+% ---------------------------------------------------------------- status and scope
+\chapter*{Project status and document scope}
+\addcontentsline{toc}{chapter}{Project status and document scope}
+\markboth{Project status and document scope}{}
+
+\textbf{Project status.} CETP is an academic capstone prototype. It predicts how long a PostgreSQL
+query will take on a \emph{production} machine from an \texttt{EXPLAIN (ANALYZE)} captured on a
+\emph{development} machine plus a description of each machine's capability. The repository contains
+two generations of the method (\cref{sec:two-gens}); the installable package is version 0.4.0 and is
+classified ``Alpha'' in \src{pyproject.toml}. The repository's own README states: ``The research is
+sound; treat the product as alpha.'' This document agrees with the first half of that sentence only
+in a restricted sense, spelled out in \cref{ch:exec,ch:limits}.
+
+\textbf{What this document covers.} The state of the repository on 27 October 2026 (HEAD
+\texttt{38c4bf2}, branch \texttt{x86-probe}, 17 commits, working tree modified), including the
+uncommitted fix of evidence-integrity finding C10 described in \cref{sec:c10}.
+
+\textbf{What it does not cover.} (i) Any measurement taken after that date. (ii) Content of the ca.\ 50
+PDF reports under \src{docs/} (reorganised into \texttt{docs/\{design,guides,reference,results\}} in the uncommitted working tree). They were not read; in the audit pass I extracted text from seven of them (CANONICAL, operator\_model, laptop\_to\_prod, cross\_isa\_prediction, HANDBOOK, LLD, DATASHEET) only to look up specific numbers, and equivalence with their deleted Markdown sources is unverified. (iii) The C
+sources of the Generation-1 hardware probe (only the header comment of \src{hw\_probe\_suite.c} was read) and the bodies of about 25 analysis scripts, which were not
+read in full. (iv) The original EC2 raw logs, which no longer exist in the repository. Each gap is
+tracked in \cref{app:issues}.
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+% ---------------------------------------------------------------- abbreviations
+\chapter*{List of abbreviations and terminology}
+\addcontentsline{toc}{chapter}{List of abbreviations and terminology}
+\markboth{Abbreviations}{}
+\small
+\begin{longtable}{@{}L{2.6cm}L{12.3cm}@{}}
+\toprule \thead{Term} & \thead{Meaning in this document}\\ \midrule \endhead
+AURC & Area under the risk--coverage curve; average error when the most confident predictions are kept first.\\
+CI & Confidence interval; here always a 95\% percentile cluster-bootstrap interval unless stated.\\
+Cluster bootstrap & Resampling whole cross-validation folds (machines) with replacement, so the 420 pairs are not treated as independent.\\
+CPU quota (CFS) & Linux Completely Fair Scheduler limit on CPU time (\texttt{docker --cpus}); slows parallel work but not a single thread.\\
+CV (timing) & Coefficient of variation of repeated timings, standard deviation divided by mean. Not cross-validation; that is always spelled out.\\
+DOP & Degree of parallelism available to a query: $1+\texttt{max\_parallel\_workers\_per\_gather}$ (3 at PostgreSQL defaults).\\
+EBS & Amazon Elastic Block Store; network-attached storage used by all five EC2 machines.\\
+EXPLAIN ANALYZE & PostgreSQL command that executes a query and returns its plan with actual per-node timings, row counts and buffer counts.\\
+Gather & PostgreSQL plan node that launches parallel workers; every node below it runs once per participant.\\
+GBR & Gradient-boosted regression trees (scikit-learn \texttt{GradientBoostingRegressor}).\\
+GHA & GitHub Actions; its x86\_64 runners supplied the cross-ISA target machines.\\
+Gen 1 / Gen 2 & The roofline-style two-scalar method and the per-operator method, respectively (\cref{sec:two-gens}).\\
+ISA & Instruction-set architecture; here arm64 (Apple M1) versus x86\_64.\\
+LOMO, LOQO, LOMQO & Leave-one-machine-out, leave-one-query-out and leave-one-machine-and-query-out cross-validation.\\
+MAPE, MdAPE & Mean and median absolute percentage error (\cref{sec:metrics}).\\
+Naive & The do-nothing baseline: predict that production runtime equals development runtime (scaling factor $=1$).\\
+Naive-linear & Baseline scaling by $1/\text{bandwidth ratio}$.\\
+PMU & Hardware performance-monitoring unit; blocked on AWS Nitro instances, which motivated the DB-only scope.\\
+pp & Percentage points.\\
+$q$-error & $\max(\hat y/y,\,y/\hat y)$; symmetric multiplicative error used in the database literature.\\
+Roofline & Performance model bounding throughput by compute or memory bandwidth; the project's ``roofline'' is a weighted blend, not a true minimum of bounds.\\
+Scaling factor & $s = T_{\text{prod}}/T_{\text{dev}}$; the quantity every predictor in this project estimates.\\
+SF1 & TPC-H scale factor 1 (about 1\,GB of base data).\\
+SLA & Service-level agreement; here a per-query latency budget in milliseconds.\\
+STREAM & Memory-bandwidth microbenchmark (triad kernel) \citep{mccalpin:stream}.\\
+TPC-H & Decision-support benchmark of 22 analytical queries \citep{tpch:spec}.\\
+Warm-up repetition & The first of 20 repetitions of a measurement cell; discarded because it is a cold-cache run.\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+% ---------------------------------------------------------------- purpose and audience
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\chapter*{Document purpose and intended audience}
+\addcontentsline{toc}{chapter}{Document purpose and intended audience}
+\markboth{Purpose and audience}{}
+
+This is a technical master reference, written so that one person can read it and then:
+explain the project to a beginner, a professor, an interviewer or a teammate; trace an input through the
+code to the printed prediction; defend each design decision with evidence; reproduce the headline
+numbers; and answer detailed follow-up questions, including the uncomfortable ones. It is deliberately
+not a brochure. The repository is unusually candid about its own negative results, and this document
+keeps that candour.
+
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{3.1cm}Y@{}}
+\toprule \thead{Reader} & \thead{Start here}\\ \midrule
+Beginner or examiner new to the topic & \cref{ch:exec,ch:problem,ch:background}, then \cref{ch:conclusion}\\
+Technical reviewer / professor & \cref{ch:arch,ch:impl,ch:algo,ch:results,ch:limits}\\
+Teammate taking over the code & \cref{ch:repo,ch:impl,ch:setup,ch:testing}, \cref{app:reference}\\
+Interviewer or viva panel & \cref{ch:exec,ch:results,ch:limits}, and the question bank in \cref{app:defense}\\
+Anyone quoting a number & \cref{app:evidence} first, then \src{results/CANONICAL.md}\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% ---------------------------------------------------------------- evidence methodology
+\chapter*{Evidence and verification methodology}
+\addcontentsline{toc}{chapter}{Evidence and verification methodology}
+\markboth{Evidence methodology}{}
+\label{sec:evidence}
+
+\textbf{Authority order.} Current code and verified execution output are authoritative for how the
+system behaves \emph{today}. Result files (\src{results/*.json}, \src{results/*.csv}) are authoritative
+for what was measured. Prose in comments, README, PDFs or earlier chats is used only to explain intent
+and is never allowed to override the first two. Where prose and measurement disagree, the
+disagreement is reported (\cref{app:issues}).
+
+\textbf{Evidence tags.} Each claim in a table or numbered list carries one of these tags.
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{1.6cm}Y@{}}
+\toprule \thead{Tag} & \thead{Meaning}\\ \midrule
+\evRUN & I executed it or recomputed it myself in this session (output seen).\\
+\evPACK & Executed by the author of the audited evidence pack (\src{docs/research/}) and recorded there; not re-run by me.\\
+\evFILE & Read from a committed result, data or configuration file; the computation behind it was not re-run.\\
+\evCODE & Established by reading the source (path and line numbers given).\\
+\evCLAIM & Stated in a comment, README or report but not traced to code or data.\\
+\evUNK & Unknown or unavailable; the missing step is named.\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{What was actually done for this edition.}
+\begin{enumerate}
+\item Read in full: all twelve modules of \src{cetp/} (about 2,100 lines), \src{gate/cetp_gate.py},
+  \src{scripts/collection/operator_probe.py}, the parts of \src{scripts/analysis/canonical_evaluation.py}
+  and \src{operator_model_evaluation.py} that define data loading, predictors, metrics, cross-validation and
+  bootstrap, \src{scripts/analysis/build_calibration.py}, the Makefile, \src{pyproject.toml},
+  \src{requirements.txt}, \src{Dockerfile}, the README and the three CI workflows (headers).
+\item Read the ten evidence-pack files \src{docs/research/00--09*.md} and the committed result files cited in
+  \cref{app:evidence}.
+\item \evRUN\ \texttt{python3 -m cetp.cli selftest} printed \texttt{selftest PASSED} (5 checks) in a
+  Python 3.10.12 Linux environment with no third-party packages.
+\item \evRUN\ \texttt{pytest tests/test\_operator\_model.py tests/test\_product\_loop.py}: \textbf{80 passed}
+  in 0.10\,s (same environment). The other two suites need scikit-learn, numpy and pandas and were not run by me.
+\item \evRUN\ Decomposed and priced the three real EXPLAIN fixtures (\texttt{q1}, \texttt{q18}, \texttt{q19}) with the
+  shipped code and the committed operator registry (\cref{sec:worked}).
+\item \evRUN\ Recomputed pooled conformal coverage from \src{results/tier1_conformal.csv} (\cref{sec:conformal}).
+\item Searched the web to confirm that six of the cited database papers exist with the stated venues.
+\end{enumerate}
+
+\textbf{What was not done.} No PostgreSQL server, Docker daemon or EC2 instance was used; no probe or
+collection script was run; \texttt{make results} and \texttt{make verify-determinism} were not run by me
+(the evidence-pack author ran \texttt{canonical\_evaluation.py} and found its outputs byte-identical to the
+committed ones, \evPACK). The full 119-test suite result is \evPACK. The Generation-1 C probe source and the
+Chrome-based PDF build were not exercised. The bibliography was written from knowledge of the literature;
+only the six papers named above were looked up.
+
+\begin{honest}
+Every limitation above is an \emph{unverified} item, not a failed one. Nothing in this document claims that
+an unrun command succeeds. Commands in \cref{ch:setup} are labelled \evRUN, \evPACK\ or ``inferred''.
+\end{honest}

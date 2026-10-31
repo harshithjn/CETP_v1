@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CETP — Cross-Environment Runtime Prediction for PostgreSQL</title>
+<meta name="description" content="A measurement study: encoding hardware capability as a number works within a CPU architecture and fails across one. PES University capstone project.">
+<style>
+:root{
+  --paper:#fbfaf7; --ink:#15181c; --soft:#565c62; --faint:#898f94; --rule:#dfdcd3;
+  --panel:#f2f0ea; --grid:#e7e4db;
+  --accent:#1d3a63; --accent-soft:#e8edf4; --accent-ink:#13294a;
+  --pos:#166a40; --neg:#a4262c; --warn:#8a5a12;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --serif:'Fraunces',Georgia,serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16.5px;line-height:1.63;-webkit-font-smoothing:antialiased}
+.w{max-width:740px;margin:0 auto;padding:0 20px}
+
+/* ---- masthead ---- */
+.top{border-bottom:2px solid var(--ink);margin-bottom:36px;background:var(--paper)}
+.kicker{padding:18px 0 0;font:600 10.5px/1 var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--soft)}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,5.4vw,38px);
+  line-height:1.14;letter-spacing:-.015em;margin:18px 0 14px;max-width:21ch;color:var(--ink)}
+.standfirst{font-size:18.5px;line-height:1.52;color:var(--ink);margin:0 0 20px;max-width:50ch}
+.byline{display:flex;flex-wrap:wrap;gap:3px 18px;font:500 12px/2 var(--mono);
+  color:var(--soft);padding-bottom:18px}
+.byline b{color:var(--ink);font-weight:700}
+
+h2{font-size:12px;font-family:var(--mono);font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);margin:48px 0 14px;
+  padding-bottom:7px;border-bottom:1px solid var(--rule)}
+h3{font-family:var(--serif);font-size:19px;letter-spacing:-.008em;margin:28px 0 8px;
+  font-weight:600;color:var(--ink)}
+p{margin:0 0 15px}
+a{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid var(--accent);
+  padding-bottom:1px}
+a:hover{color:var(--accent)}
+strong{font-weight:660}
+code{font-family:var(--mono);font-size:.86em;background:var(--panel);
+  padding:1px 4px;border-radius:3px}
+
+/* ---- abstract block ---- */
+.abstract{background:var(--panel);border-radius:6px;padding:20px 22px;margin:4px 0 8px}
+.abstract .t{font:700 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);display:block;margin-bottom:9px}
+.abstract p{margin:0;font-size:15.5px;line-height:1.68;color:var(--ink)}
+.abstract p+p{margin-top:12px}
+
+/* ---- video ---- */
+.video-frame{background:var(--ink);border-radius:8px;overflow:hidden;margin:18px 0 8px;
+  box-shadow:0 1px 0 var(--rule)}
+video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#000}
+.video-cap{font-size:13.5px;color:var(--soft);margin-top:9px;padding-left:11px;
+  border-left:2px solid var(--rule)}
+
+/* ---- the chart ---- */
+figure{margin:22px 0 10px}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart .lbl{font:500 11.5px var(--sans);fill:var(--soft)}
+.chart .val{font:600 12px var(--mono);fill:var(--ink)}
+.chart .ax{font:500 10px var(--mono);fill:var(--soft)}
+.b-base{fill:var(--soft);opacity:.35}
+.b-bad{fill:var(--neg);opacity:.55}
+.b-mid{fill:var(--accent);opacity:.6}
+.b-good{fill:var(--pos);opacity:.92}
+figcaption{font-size:13.5px;line-height:1.5;color:var(--soft);margin-top:8px;
+  padding-left:11px;border-left:2px solid var(--rule)}
+
+/* ---- tables ---- */
+.scroll{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--soft);text-align:left;padding:0 10px 7px 0;border-bottom:1px solid var(--ink)}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+th.n,td.n{text-align:right;padding-right:0;padding-left:16px;white-space:nowrap;
+  font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pos{color:var(--pos);font-weight:660}
+.neg{color:var(--neg);font-weight:660}
+
+.note{margin:20px 0;padding:14px 16px;background:var(--accent-soft);border-radius:5px;
+  font-size:14.5px;line-height:1.56}
+.note .t{font:700 10px var(--mono);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--accent-ink);display:block;margin-bottom:6px}
+.note p:last-child{margin-bottom:0}
+
+.lead{font-size:18px;line-height:1.56}
+ul{padding-left:0;list-style:none;margin:0 0 15px}
+ul li{position:relative;padding-left:20px;margin:9px 0}
+ul li::before{content:"";position:absolute;left:4px;top:.68em;width:5px;height:5px;
+  background:var(--accent);border-radius:50%}
+ol{padding-left:20px}ol li{margin:9px 0}
+
+/* ---- contributors ---- */
+.team-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+.team-card{background:var(--panel);border-radius:6px;padding:14px 16px}
+.team-card .name{font-weight:650;font-size:15px;color:var(--ink)}
+.team-card .srn{font-family:var(--mono);font-size:12.5px;color:var(--soft);margin-top:3px}
+.mentor-card{background:var(--accent-soft);border-radius:6px;padding:16px 18px;margin:16px 0}
+.mentor-card .role{font:700 10px var(--mono);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--accent-ink);display:block;margin-bottom:5px}
+.mentor-card .name{font-family:var(--serif);font-weight:600;font-size:17px;color:var(--ink)}
+.mentor-card .dept{font-size:13.5px;color:var(--soft);margin-top:3px}
+.inst-line{font-size:14.5px;color:var(--soft);margin-top:14px;line-height:1.6}
+.inst-line b{color:var(--ink)}
+
+footer{border-top:2px solid var(--ink);margin-top:56px;padding:20px 0 50px}
+footer .fline{font:500 12px/1.9 var(--mono);color:var(--soft)}
+footer .fline b{color:var(--ink)}
+
+@media (max-width:620px){
+  body{font-size:16px}
+  h2{margin-top:40px}
+  .team-grid{grid-template-columns:1fr}
+}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap">
+</head>
+<body>
+
+<header class="top"><div class="w">
+  <div class="kicker">UE23CS441A &middot; Capstone Project &middot; PES University</div>
+  <h1>Cross-Environment Runtime Prediction for PostgreSQL Queries</h1>
+  <p class="standfirst">Predicting production query runtime from a developer's machine
+  works within a CPU architecture, and fails across one — and this project shows exactly
+  why, and what fixes it.</p>
+  <div class="byline">
+    <span><b>13</b> environments</span>
+    <span><b>2</b> instruction sets</span>
+    <span><b>242</b> measured pairs</span>
+    <span><b>PostgreSQL</b> 14&middot;15&middot;17&middot;18</span>
+  </div>
+</div></header>
+
+<main class="w">
+
+<div class="abstract">
+  <span class="t">Abstract</span>
+  <p>A query that runs in 400&nbsp;ms on a developer's laptop may behave very differently
+  on a production server with different memory bandwidth, core count, and instruction set.
+  CETP predicts a PostgreSQL query's production runtime from a plan captured entirely on
+  the developer's own machine — without ever executing the query in production — by
+  measuring each machine's capability directly in SQL and scaling the development-side
+  timing accordingly.</p>
+  <p>The more significant contribution is a measurement study of where that idea succeeds
+  and where it breaks. Within a single CPU architecture the method is reliably more
+  accurate than assuming production behaves like the developer's machine. Across an
+  architecture boundary — Apple Silicon predicting an x86 server, for instance — it is
+  measurably worse than doing nothing at all, and this project identifies the mechanism,
+  reproduces the failure on four independent machines, and shows that a small number of
+  calibration measurements on the target restores it to parity.</p>
+</div>
+
+<h2>Demonstration</h2>
+
+<div class="video-frame">
+  <video controls preload="metadata" playsinline>
+    <source src="https://res.cloudinary.com/dtzqrfg6q/video/upload/v1791906058/Screen_Recording_2026-10-13_at_21.07.32_dcadzh.mp4" type="video/mp4">
+    <source src="https://res.cloudinary.com/dtzqrfg6q/video/upload/v1791906058/Screen_Recording_2026-10-13_at_21.07.32_dcadzh.mov" type="video/quicktime">
+    Your browser does not support embedded video playback.
+  </video>
+</div>
+<p class="video-cap">An end-to-end walkthrough of the system: measuring a machine's
+capability, capturing a development-side query plan, and producing a scaled production
+runtime prediction with an explicit confidence level.</p>
+
+<h2>Result</h2>
+
+<figure>
+<svg class="chart" viewBox="0 0 560 196" role="img"
+     aria-label="Prediction error by method. Naive 72.52 percent. One capability scalar 70.98. Per-operator without parallelism 69.00. Plus parallelism whole-query 30.15. Plus parallelism localised 22.23. Full per-operator model 22.41.">
+  <line x1="236.0" y1="-6" x2="236.0" y2="168" stroke="var(--grid)" stroke-width="1"/>
+  <line x1="320.4" y1="-6" x2="320.4" y2="168" stroke="var(--grid)" stroke-width="1"/>
+  <line x1="404.8" y1="-6" x2="404.8" y2="168" stroke="var(--grid)" stroke-width="1"/>
+  <line x1="489.1" y1="-6" x2="489.1" y2="168" stroke="var(--grid)" stroke-width="1"/>
+
+  <text class="lbl" x="228" y="12" text-anchor="end">naive — assume prod = dev</text>
+  <rect class="b-base" x="236" y="2" width="244.8" height="15" rx="1.5"/>
+  <text class="val" x="487.8" y="13">72.52</text>
+
+  <text class="lbl" x="228" y="40" text-anchor="end">one capability scalar</text>
+  <rect class="b-bad" x="236" y="30" width="239.5" height="15" rx="1.5"/>
+  <text class="val" x="482.5" y="41">70.98</text>
+
+  <text class="lbl" x="228" y="68" text-anchor="end">per-operator, no parallelism</text>
+  <rect class="b-bad" x="236" y="58" width="232.9" height="15" rx="1.5"/>
+  <text class="val" x="475.9" y="69">69.00</text>
+
+  <text class="lbl" x="228" y="96" text-anchor="end">+ parallelism, whole-query</text>
+  <rect class="b-mid" x="236" y="86" width="101.7" height="15" rx="1.5"/>
+  <text class="val" x="344.7" y="97">30.15</text>
+
+  <text class="lbl" x="228" y="124" text-anchor="end">+ parallelism, localised</text>
+  <rect class="b-good" x="236" y="114" width="75.0" height="15" rx="1.5"/>
+  <text class="val" x="318.0" y="125">22.23</text>
+
+  <text class="lbl" x="228" y="152" text-anchor="end">full per-operator model</text>
+  <rect class="b-good" x="236" y="142" width="75.6" height="15" rx="1.5"/>
+  <text class="val" x="318.6" y="153">22.41</text>
+  <text class="ax" x="236.0" y="184">0</text>
+  <text class="ax" x="320.4" y="184" text-anchor="middle">25</text>
+  <text class="ax" x="404.8" y="184" text-anchor="middle">50</text>
+  <text class="ax" x="489.1" y="184" text-anchor="middle">75</text>
+  <text class="ax" x="236" y="195">mean absolute percentage error, 1 232 dev→prod pairs</text>
+</svg>
+<figcaption>Everything above the fourth bar stays within six points of doing nothing.
+The parallelism term is what separates the two groups — not the per-operator detail.</figcaption>
+</figure>
+
+<p>Three variants sit within six points of the naive baseline. Adding a term for <em>how much
+parallel speedup each machine actually delivers</em> moves the error from about 67–69% to 30%.
+Applying that term only to the part of the query plan that runs in parallel, rather than to
+the whole query, takes it to 22.2%.</p>
+
+<div class="note"><span class="t">The ablation that matters</span>
+<p>A <em>single</em> capability scalar with the parallelism term correctly localised scores
+<strong>22.23%</strong>. The full six-axis per-operator model scores <strong>22.41%</strong>.
+The paired difference is <strong>−0.17 pp, 95% CI [−0.49, +0.10]</strong> — statistically
+indistinguishable.</p>
+<p>The contribution is knowing <em>which part of the plan runs in parallel</em>, not
+measuring every operator separately. That is a simplification result, and it is reported as
+one rather than overstated.</p></div>
+
+<h2>Where it works, and where it does not</h2>
+
+<div class="scroll"><table>
+<thead><tr><th>Population</th><th class="n">Naive</th><th class="n">Model</th></tr></thead>
+<tbody>
+<tr><td>Same architecture — 7 machines, 154 pairs</td><td class="n">37.39</td><td class="n pos">29.31</td></tr>
+<tr><td>Cross architecture — 4 x86 machines, 88 pairs</td><td class="n">21.74</td><td class="n neg">68.92</td></tr>
+<tr><td>…after 5 calibration queries (pooled)</td><td class="n">21.74</td><td class="n">22.32</td></tr>
+</tbody></table></div>
+
+<p>Within an architecture the model earns eight points over the baseline, concentrated
+exactly where capability genuinely differs. Across an architecture boundary it fails, and
+it failed on <strong>all four</strong> x86 machines tested independently (66.15 / 67.26 /
+69.44 / 72.84%), with the four capability measurements agreeing closely with one another.
+The failure is systematic, not noise.</p>
+
+<h3>Why it fails, which is not what we expected</h3>
+
+<p>The obvious explanation is that a different instruction set changes the <em>relative</em>
+cost of database operations — that a sort is comparatively more expensive on one chip than
+another. Measured directly, it does not:</p>
+
+<div class="scroll"><table>
+<thead><tr><th>Operator-mix perturbation</th><th class="n">Spread</th></tr></thead>
+<tbody>
+<tr><td>arm64 → x86_64, across four independent x86 machines</td><td class="n">1.20× – 1.27×</td></tr>
+<tr><td>Worst pair of capability tiers <em>on a single host</em></td><td class="n">1.37×</td></tr>
+</tbody></table></div>
+
+<p>Crossing the architecture boundary disturbs the mix of operator costs no more than
+varying resource allocation on one machine does. What breaks instead is the
+<strong>absolute scale</strong>: for one measured x86 machine, the capability measurement
+implied it was 1.667× slower than the development machine; it was actually 1.044× —
+essentially the same speed. Throughput on a synthetic benchmark operation is not
+comparable across microarchitectures, which is the same defect carried by a simpler,
+single-number hardware benchmark this approach replaced, and which produced 324% error when
+tested laptop-to-cloud. Measuring six operator-level numbers instead of one did not fix it.</p>
+
+<h2>What fixes it</h2>
+
+<p>A constant scale error is removed exactly by a constant correction factor. Measuring a
+handful of queries on the target machine and fitting one multiplicative adjustment:</p>
+
+<div class="scroll"><table>
+<thead><tr><th>Queries measured on the target machine</th><th class="n">Cross-architecture error</th></tr></thead>
+<tbody>
+<tr><td>0 — zero-shot</td><td class="n neg">68.92</td></tr>
+<tr><td>3</td><td class="n">24.13</td></tr>
+<tr><td>5</td><td class="n pos">22.32</td></tr>
+</tbody></table></div>
+
+<div class="note"><span class="t">Stated honestly</span>
+<p>Calibrated, the cross-architecture model reaches <strong>parity</strong> with simply
+assuming production behaves like the development machine — 22.32% against 21.74%. It does
+not clearly beat it. Across an architecture boundary, the capability model contributes
+little that the calibration measurement alone did not already provide.</p>
+<p>The system therefore <strong>declines</strong> to return an uncalibrated
+cross-architecture prediction rather than present a number measured to be substantially
+worse than doing nothing.</p></div>
+
+<h2>How it improves with use</h2>
+
+<p>One correction factor is stored per <em>environment pair</em> and refitted as the median
+of every observation seen for that pair. Accuracy improves for a given pair as measurements
+accumulate — the calibration curve above is that mechanism in effect.</p>
+
+<p>It does <strong>not</strong> improve with the number of machines a deployment has
+previously seen. A correction absorbs one machine's own scale error and says nothing about
+a different machine. A correction fitted from a single observation is treated as
+provisional, because in one measured case a single arbitrary calibration query made the
+prediction measurably worse than no calibration at all.</p>
+
+<h2>Negative results</h2>
+
+<ul>
+<li><strong>Per-operator weighting earns nothing</strong> once the parallelism term is
+present — a paired difference of −0.17 percentage points with a confidence interval
+crossing zero.</li>
+<li><strong>A classical analytical cost model is statistically indistinguishable from its
+simplest component.</strong> On an earlier five-machine cloud evaluation, the full
+analytical model scores 21.61% MAPE and a single compute-ratio term alone scores 20.06% —
+not significantly different, 95% CI [−0.41, +3.51].</li>
+<li><strong>Query concurrency cannot be read off a plan.</strong> In a leave-one-query-out
+test, plan-derived features predict a query's concurrency sensitivity worse (mean absolute
+error 0.191) than simply using the population median (0.167). A population-level default
+still roughly halves the error under eight concurrent clients (73.79% → 41.81%); knowing
+the query's own measured sensitivity would reach 6.72%. Concurrency is therefore treated as
+a caller-supplied input rather than something the system infers.</li>
+<li><strong>Any model that scales by a single number per machine has a hard ceiling.</strong>
+On the five-machine cloud dataset, true scaling varies roughly 18–43× across different
+queries run on the same machine, which puts a floor near <strong>59.7%</strong> MAPE on any
+such single-factor predictor regardless of how well it is calibrated. The best measured
+result with calibration, 55.9%, sits close to that ceiling.</li>
+</ul>
+
+<h2>Measurement methodology and its own failure modes</h2>
+
+<p>Several published figures in this project were corrected after being caught by the
+project's own validation checks, each time because of a flaw in the measurement instrument
+rather than the predictive model. This is reported in detail because it is the finding most
+likely to generalise beyond this project: capability-probe repeatability is rarely reported
+in this literature, and here it materially changed the conclusions.</p>
+
+<ul>
+<li>An early reliability check validated a capability measurement by how much its
+individual repetitions varied, when the reported figure is actually a <em>median</em> of
+those repetitions. Parallel-execution measurements vary substantially run to run even
+though their median is highly reproducible, so the original check rejected a large share of
+otherwise valid measurements and silently shifted which machines contributed to the
+reported averages.</li>
+<li>An early capability probe ran for too short a duration to amortise one-time startup
+costs, which on one machine produced a physically impossible result — the machine appeared
+to run <em>faster</em> under parallel load than a single core alone could support. At a
+realistic measurement duration the same machine correctly showed parallel execution as
+<em>slower</em>, because the available cores were being shared.</li>
+<li>Probing a machine that was not otherwise idle at the time materially changed its
+measured capability — by more than half, in one measured case — which is why the system now
+refuses to register a measurement taken under contention.</li>
+<li>A storage-throughput axis was added to the capability probe specifically to explain a
+systematic bias in cross-environment predictions. On measurement, it was found to track CPU
+allocation far more strongly than it tracked available memory — meaning it was not actually
+isolating storage performance as intended. It is documented as such and excluded from the
+live prediction model rather than used despite the defect.</li>
+</ul>
+
+<h2>Scope and limitations</h2>
+
+<ol>
+<li><strong>Not a replacement for a staging-environment benchmark</strong> when an SLA
+decision rests on an absolute runtime figure rather than a relative comparison.</li>
+<li><strong>Differing data volumes between development and production are untested.</strong>
+Every environment measured in this evaluation holds identical data, so the data-volume
+scaling term has never been exercised at a ratio other than one.</li>
+<li><strong>No measurement axis isolates storage throughput.</strong> This is the diagnosed
+cause of a residual prediction bias: over-prediction correlates with how much of a query's
+cost is I/O-bound.</li>
+<li><strong>Single-client throughout.</strong> Under eight concurrent clients, measured
+runtime increased by a factor of 8.57× — larger than every other effect measured in this
+study, and not something the current system predicts on its own.</li>
+<li><strong>A bounded workload and environment set.</strong> 22 analytical queries at one
+data scale, one PostgreSQL version per environment, across eight containerised
+configurations on a single physical host, four independent cloud CI machines, and five
+historical cloud instances — not a production fleet.</li>
+<li><strong>PostgreSQL 14, 15, 17 and 18 were tested</strong> and parse correctly across all
+four. Versions 13 and 16 were not tested and are not claimed.</li>
+</ol>
+
+<h2>Contributors</h2>
+
+<p>Developed as a Phase&nbsp;3 capstone project in the Department of Computer Science and
+Engineering at PES University.</p>
+
+<div class="team-grid">
+  <div class="team-card"><div class="name">Harshith J</div><div class="srn">PES2UG23CS216</div></div>
+  <div class="team-card"><div class="name">Ishanvee Amit Sinha</div><div class="srn">PES2UG23CS232</div></div>
+  <div class="team-card"><div class="name">Kartik Bhat Sumbly</div><div class="srn">PES2UG23CS258</div></div>
+  <div class="team-card"><div class="name">Sarthak Wadhwa</div><div class="srn">PES2UG23CS535</div></div>
+</div>
+
+<div class="mentor-card">
+  <span class="role">Project Guide</span>
+  <div class="name">Dr. Nivedita Kasturi</div>
+  <div class="dept">Department of Computer Science and Engineering, PES University</div>
+</div>
+
+<p class="inst-line"><b>PES University</b> — Department of Computer Science and Engineering.
+Capstone Project, UE23CS441A.</p>
+
+</main>
+
+<footer><div class="w">
+  <div class="fline"><b>CETP</b> — Cross-Environment Runtime Prediction for PostgreSQL Queries</div>
+  <div class="fline">Capstone Project &middot; Department of Computer Science and
+  Engineering &middot; PES University</div>
+</div></footer>
+
+</body>
+</html>

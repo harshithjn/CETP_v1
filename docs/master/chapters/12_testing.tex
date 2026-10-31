@@ -1,0 +1,65 @@
+\chapter{Testing and verification}\label{ch:testing}
+
+\section{Test inventory}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.4cm}R{1.4cm}R{1.6cm}Y@{}}
+\toprule \thead{File} & \thead{Defs} & \thead{Collected} & \thead{Focus}\\ \midrule
+\texttt{test\_operator\_model.py} & 34 & 42 & decomposition, weights, calibration, cardinality, registry refusals, trust, concurrency\\
+\texttt{test\_product\_loop.py} & 33 & 38 & cross-ISA refusal, auto\_explain ingest, ranking, calibration store, telemetry, node-map completeness\\
+\texttt{test\_e2e.py} & 24 & 28 & Gen-1 gate: CLI end-to-end, locked values, four verdict branches, leakage guard, malformed input, buffer accounting\\
+\texttt{test\_operator\_evaluation.py} & 11 & 11 & grid selection, input hashing, metrics, bootstrap, regeneration and determinism\\
+\textbf{Total} & \textbf{102} & \textbf{119} & (collected count \evPACK; defs counted by me \evRUN)\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\textbf{What I ran:} \texttt{pytest tests/test\_operator\_model.py tests/test\_product\_loop.py} $\to$ \textbf{80 passed in 0.10\,s} (Python 3.10.12, standard library only) \evRUN. The other two files import scikit-learn/numpy/pandas
+and were not run by me; the full 119-test pass is the evidence-pack author's \evPACK. \texttt{cetp selftest} passed all five checks \evRUN.
+
+\section{Test strategy}
+\begin{itemize}
+\item \textbf{Specification by example.} \texttt{test\_operator\_model.py} builds small synthetic plans (helpers \texttt{plan}, \texttt{n}) so each rule has a one-screen test.
+\item \textbf{Locked values.} \texttt{test\_e2e.py::TestKnownAnswerRegression} locks five predictions; its own comment says it is ``a frozen regression lock on the model's arithmetic only -- not verified against a real plan''.
+\item \textbf{Refusal tests.} Every guard in \texttt{load\_rates} and \texttt{cross\_env.predict} has at least one test.
+\item \textbf{Reproducibility tests.} Metrics regeneration is compared to committed files with a tolerant dictionary comparison (\texttt{\_assert\_close}) and a determinism test (second run identical).
+\item \textbf{Leakage guards.} \texttt{TestLeakageGuard} asserts that the gate's feature lists contain no production-side columns.
+\end{itemize}
+
+\section{Coverage versus requirements}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{1.4cm}L{3.9cm}Y@{}}
+\toprule \thead{Req.} & \thead{Covered by} & \thead{Gap}\\ \midrule
+FR-2 & decomposition tests, 3 real fixtures & none material\\
+FR-3 & model tests, selftest, locked values & accuracy is validated by evaluation scripts, not unit tests\\
+FR-4 & \texttt{test\_cross\_arch\_*} (library) & \textbf{CLI path untested}; \cref{sec:cli-bypass}\\
+FR-5 & store tests & no concurrency/locking test\\
+FR-7 & \texttt{TestAllFourVerdictBranchesFire} & no test of false-alarm rate (measured only in the evaluation)\\
+FR-8 & selftest identity case only & \textbf{no unit test}; semantics are tautological\\
+FR-9 & ingest tests & hostile log content (nested braces in strings) not tested\\
+FR-10 & redaction tests & escape-string and dollar-quote literals not tested (\cref{ch:impl})\\
+FR-11 & telemetry tests & free-text \texttt{query\_id} not checked\\
+\bottomrule
+\end{tabularx}
+\end{center}
+There are no integration tests that talk to PostgreSQL, no performance tests, no property-based tests and no CI job that runs \texttt{pytest}: the three workflows run the gate, the regression check and the x86 probe, not the test suite (\evCODE\ headers). \texttt{make test} runs \texttt{pytest tests -q}.
+
+\section{Verification beyond unit tests}
+\begin{enumerate}
+\item \textbf{Cross-checking by recomputation.} \evRUN\ I recomputed the pooled conformal coverage from \src{results/tier1\_conformal.csv} (\cref{sec:conformal}) and re-derived the Gen-1 and Gen-2 worked examples by hand (\cref{ch:algo,ch:workflows}).
+\item \textbf{Leakage audit.} The canonical script reports each approach with a refit-per-fold classifier and with one global classifier. For the learned model the difference is 1.7\,pp (LOMO: 23.90 vs 25.62; the leaky variant is the \emph{worse} one), i.e.\ the earlier leakage did not flatter the LOMO headline \evFILE. (Under LOQO and LOMQO the leaky variant is marginally \emph{better}: 17.04 vs 17.29 and 26.56 vs 26.86.)
+\item \textbf{Determinism.} \texttt{make verify-determinism}: two runs, \texttt{cmp} the outputs. Result \evPACK.
+\item \textbf{Evidence audit.} The pack's C1--C16 contradictions and R1--R10 risks (\cref{app:issues}) are themselves a verification artefact.
+\end{enumerate}
+
+\section{Sanity checks on results (mine)}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{5.3cm}L{3.6cm}Y@{}}
+\toprule \thead{Check} & \thead{Result} & \thead{Tag}\\ \midrule
+$\sigma$ for c7i$\to$c5a by hand vs \texttt{selftest} & 0.5917 vs 0.592; 3587 $\to$ 2122\,ms & \evRUN\\
+Gen-2 q1 weights and ratio by hand vs program & $4.0046$ vs $4.0049$ & \evRUN\\
+Fixture self-time inflation & q1 3.00$\times$, q19 2.97$\times$ (docstring says 2.85$\times$) & \evRUN\\
+LOMO row count & $5\times168=840$ & \evCODE\\
+Warm-up claims vs file & 61 of 105 cells; worst 8.33$\times$ & \evFILE\\
+Committed pairs row vs fixture-based scaling & 4.008 vs 4.005 (different dev runs) & \evRUN\\
+\bottomrule
+\end{tabularx}
+\end{center}

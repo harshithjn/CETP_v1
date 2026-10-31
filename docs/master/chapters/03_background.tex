@@ -1,0 +1,102 @@
+\chapter{Background and related work}\label{ch:background}
+
+\section{Concepts a reader needs}
+\subsection{How PostgreSQL reports time}
+\texttt{EXPLAIN (ANALYZE, FORMAT JSON)} executes the query and returns a tree of plan nodes. Each node
+carries \texttt{Actual Total Time} (the time to produce all its rows, \emph{per loop}),
+\texttt{Actual Loops}, \texttt{Actual Rows}, and buffer counters; the document root carries
+\texttt{Execution Time} \citep{pg:explain}. Three details drive the design of CETP.
+\begin{enumerate}
+\item \textbf{Times are inclusive.} A node's time contains its children's time. The node's own work (its
+  \emph{self-time}) is its inclusive time minus its children's inclusive time.
+\item \textbf{Times are per loop.} A node executed $L$ times (for example the inner side of a nested loop)
+  reports the \emph{average} time of one execution, so total inclusive time is \texttt{Actual Total Time}
+  $\times L$.
+\item \textbf{Parallel nodes report averages across participants.} Below a \texttt{Gather} node, the
+  leader and workers each run the subtree; the reported per-node time is averaged, so node self-times sum to
+  roughly the total CPU time, not wall time. I measured the ratio on the three real fixtures at
+  $2.97\times$ (q19) and $3.00\times$ (q1) \evRUN\ (\cref{sec:worked}); the source comment says $2.85\times$.
+\end{enumerate}
+
+\subsection{Why parallelism dominates cross-machine differences}
+PostgreSQL launches up to \texttt{max\_parallel\_workers\_per\_gather} workers (default 2, giving a
+degree of parallelism of 3 with the leader). If a container is limited by a CPU quota (the Linux CFS
+scheduler, \texttt{docker --cpus}), three processes time-share fewer cores and the \emph{parallel
+speed-up} falls below 1: measured 0.769 at one CPU and 2.64--2.70 at two or more (\cref{tab:speedup}).
+A scalar capability ratio cannot represent this; it affects only the nodes below a \texttt{Gather}.
+
+\subsection{Metrics}\label{sec:metrics}
+Let $y_i$ be the measured production runtime and $\hat y_i$ the prediction. Because
+$\hat y_i = T^{\text{dev}}_i\,\hat s_i$ and $y_i=T^{\text{dev}}_i\,s_i$ share the same development time,
+relative errors on runtime and on the scaling factor $s$ are identical, and the evaluation scripts score
+$s$ directly.
+\[
+\MAPE=\frac{100}{n}\sum_i\frac{|\hat y_i-y_i|}{y_i},\qquad
+\text{MdAPE}=100\cdot\operatorname{median}_i\frac{|\hat y_i-y_i|}{y_i},\qquad
+q_i=\max\!\Big(\frac{\hat y_i}{y_i},\frac{y_i}{\hat y_i}\Big).
+\]
+MAPE is dominated by over-predictions (no upper limit) and is asymmetric; the repository therefore also
+reports MdAPE and $q$-error \citep{moerkotte:qerror}. All differences quoted as significant use a
+\emph{cluster} bootstrap: whole machines (folds) are resampled with replacement 2{,}000 times
+(seed 42), so correlated pairs from the same machine are not counted as independent evidence
+\citep{efron:bootstrap}.
+
+\subsection{Cross-validation protocols}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{2.4cm}Y@{}}
+\toprule \thead{Protocol} & \thead{What is held out}\\ \midrule
+LOMO & one machine: tests generalisation to unseen hardware (the claim that matters)\\
+LOQO & one query: tests generalisation to unseen workloads\\
+LOMQO & one machine \emph{and} one query: both unseen at once\\
+\bottomrule
+\end{tabularx}
+\end{center}
+A leakage-free implementation refits \emph{every} learned component (classifier, quantile models) inside
+each training fold; the repository audits this explicitly (\src{results/canonical\_leakage\_audit.csv}).
+Leakage is a known source of inflated estimates in applied machine learning \citep{kaufman:leakage}.
+
+\section{Related work}
+CETP sits between three literatures.
+
+\paragraph{Learned query performance prediction.}
+Early work predicts execution time from plan or query features with regression or kernel methods
+\citep{ganapathi:multiple,akdere:learning}; later work asks whether the optimizer's own cost model is
+usable after calibration \citep{wu:costmodels}. Plan-structured neural networks \citep{marcus:planstructured}
+and tree-based end-to-end estimators \citep{sun:endtoend} model the plan as a tree. These approaches
+train and test on the \emph{same} system and hardware. CETP's setting differs: the target
+\emph{machine} is the unseen variable. The most related line is zero-shot cost models
+\citep{hilprecht:zeroshot}, which generalise across \emph{databases} using transferable plan features. CETP
+instead transfers across \emph{hardware}, with an explicit physical model rather than a learned
+representation, and with a tiny training set (five or eight machines).
+
+\paragraph{Performance modelling and hardware characterisation.}
+The roofline model \citep{williams:roofline} bounds throughput by $\min(\text{peak compute},\,\text{bandwidth}\times\text{intensity})$.
+The STREAM triad \citep{mccalpin:stream} measures sustainable memory bandwidth. CETP's Gen-1
+signature (bandwidth plus multi-core GFLOPS) borrows these two measurements but replaces the minimum
+with a fixed-weight blend; the repository's own finding is that the weighting does not matter. The
+Gen-2 probe instead times PostgreSQL's own operators, which sidesteps the argument that a
+floating-point signature does not describe a database workload.
+
+\paragraph{Cardinality and optimizer evaluation.}
+\citet{leis:howgood} showed that cardinality errors, not the cost model, dominate plan quality. CETP
+avoids cardinality estimation by taking measured node times from \texttt{EXPLAIN ANALYZE} and, in its
+implemented-but-unvalidated cardinality term, only scales by a row ratio.
+
+\paragraph{Uncertainty and selective prediction.}
+Split conformal prediction gives distribution-free marginal coverage under exchangeability
+\citep{angelopoulos:gentle}; quantile regression with gradient boosting \citep{friedman:gbm} gives
+conditional estimates without that guarantee. The risk--coverage view of abstention follows
+\citet{geifman:selective}. CETP uses all three and reports where each fails (\cref{sec:conformal}).
+
+\paragraph{Measurement methodology.}
+Cloud runtime measurements vary substantially between instances and over time
+\citep{schad:cloudvariance,leitner:chaos}, and small environmental differences can change benchmark
+conclusions \citep{mytkowicz:wrongdata}. The warm-up discard, repetition counts and CV thresholds used in
+\cref{ch:impl} follow this concern.
+
+\paragraph{What is, as far as I can tell, new here.}
+I did not find prior work that (i) isolates \texttt{Gather}-subtree parallelism as the dominant
+cross-machine term for PostgreSQL scaling, (ii) reports that a roofline-style signature fails across
+instruction sets, and (iii) reports the associated negative results with cluster-bootstrap intervals. This
+is a statement about my limited literature search (one session, six papers verified by search, the rest
+from memory), not a novelty proof; a thesis-level claim needs a systematic review.

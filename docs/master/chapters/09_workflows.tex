@@ -1,0 +1,139 @@
+\chapter{End-to-end workflows}\label{ch:workflows}
+
+Seven workflows exist. Two are the product (W3, W4), one is the research engine (W1) and the rest feed
+data into them. Each lists who triggers it, the steps, and what can go wrong.
+
+\section{W1. Reproduce the published numbers}
+\textbf{Trigger:} \texttt{make results} (or \texttt{docker run cetp-artifact}). \textbf{Steps:}
+(1) \texttt{canonical\_evaluation.py} loads \src{data/corrected/tpch\_dataset\_corrected\_v2.csv}
+(2100 rows $=5$ machines $\times$ 21 queries $\times$ 20 repetitions; Q15 excluded). (2) It discards repetition 1 per cell, takes
+medians, builds 420 ordered dev$\to$prod pairs. (3) For each of LOMO/LOQO/LOMQO it refits the classifier and the quantile model
+inside each fold. (4) It scores six approaches, runs the cluster bootstrap and the leakage audit, then writes
+\src{results/canonical\_metrics.json} and \src{results/CANONICAL.md}. \textbf{Check:} \texttt{make verify-determinism}
+runs twice and compares. \textbf{Evidence:} the pack author ran this and found byte-identical output \evPACK; I did not \evUNK.
+\textbf{Risk:} the Gen-2 script (\texttt{make operator-results}) needs \src{data/plans\_grid}, which is git-ignored.
+
+\section{W2. Capture a machine signature}
+\textbf{Trigger:} \texttt{operator\_probe.py --machine-id ID --db DB [--host H --user U]}. \textbf{Steps:} create three \texttt{UNLOGGED}
+tables; run seven probes with forced operators; verify the planner used the intended node; compute rates, speed-up, reliability;
+write to the registry; drop tables in \texttt{finally}. \textbf{Risks:} a busy machine yields an unreliable record; the registry is a shared
+JSON file with no locking; probing production means creating tables there.
+
+\section{W3. Offline prediction from two plan files (\texttt{cetp predict-prod})}
+This is the path I ran. \Cref{sec:worked} traces it numerically.
+\begin{enumerate}
+\item Developer saves \texttt{EXPLAIN (ANALYZE, FORMAT JSON)} on dev, optionally production's plain \texttt{EXPLAIN}.
+\item \texttt{cetp predict-prod --dev-plan P --dev D --prod R} loads both machines' rates from the registry
+ (refusing v1, invalid or unreliable records), checks probe scales match.
+\item The model prices the plan, \texttt{cross\_env.predict} attaches trust and warnings, the CLI prints.
+\end{enumerate}
+\textbf{Defect:} step 3 omits the machine records, so the cross-ISA refusal is skipped (\cref{sec:cli-bypass}).
+
+\section{W4. Live prediction with plan forcing (\texttt{predict\_prod.py})}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[node distance=5mm and 8mm,
+ box/.style={draw=cetpblue,rounded corners=2pt,fill=lightgrey,minimum height=8mm,text width=30mm,align=center,font=\scriptsize},
+ prod/.style={draw=cetpred,rounded corners=2pt,fill=cetpred!6,minimum height=8mm,text width=30mm,align=center,font=\scriptsize},
+ arr/.style={-{Stealth[length=1.8mm]},thick,cetpgrey}]
+\node[prod] (a) {1. Production: \texttt{EXPLAIN} (no ANALYZE), plan only};
+\node[box,right=of a] (b) {2. Dev: force that plan with \texttt{pg\_hint\_plan}; default 5 runs, first discarded};
+\node[box,right=of b] (c) {3. Verify plan signature matches; take warm median};
+\node[box,below=of c] (d) {4. Look up stored calibration for (dev, prod)};
+\node[box,left=of d] (e) {5. \texttt{cross\_env.predict}: price nodes};
+\node[box,left=of e] (f) {6. Print; log telemetry};
+\node[prod,below=of e] (g) {7. Later: \texttt{--actual-ms}, record observation, refit};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e); \draw[arr] (e)--(f); \draw[arr] (f)|-(g);
+\draw[arr] (g.east) -| ([xshift=6mm]d.south east) -- (d.south east);
+\end{tikzpicture}
+\caption{W4, from \src{scripts/collection/predict_prod.py}. Red boxes touch production or the measured truth. Only step 1 contacts production unless \texttt{--actual-ms} is a real measurement.}
+\label{fig:w4}
+\end{figure}
+Unlike W3, this script passes both machine records, so a cross-ISA call with no stored calibration exits with code 4 and prints
+``REFUSED''. I did not run it (needs PostgreSQL and \texttt{pg\_hint\_plan}). \textbf{Defect (code reading, not executed):} the refusal handler returns 4 \emph{before} the \texttt{--actual-ms} block runs, so the observation that the message asks the user to supply is never recorded when the store holds no calibration for a cross-ISA pair; the loop cannot bootstrap through this script unless \texttt{--calibration} is set to something other than 1.0. \textbf{Doc mismatch:} the module docstring mentions
+\texttt{--calibrate k}, but no such argument exists in the parser \evCODE.
+
+\section{W5. CI gate (Generation 1)}
+\texttt{gate/cetp\_gate.py} reads dev features and two Gen-1 signatures, evaluates quantile models and the three-state rule, and exits non-zero on
+BLOCK (test: \texttt{test\_block\_exit\_code\_is\_one}). The workflow was changed so BLOCK is reported, not a build failure (commit \texttt{ffce2ec}).
+
+\section{W6. Ingestion and calibration loop}
+\texttt{auto\_explain} log $\to$ \texttt{parse\_auto\_explain\_log} (redacted plans + durations) $\to$ \texttt{rank\_queries} (top-3 by total time are
+calibration candidates) $\to$ measure those on production $\to$ \texttt{CalibrationStore.record} $\to$ median factor. The learning curve method
+shows the factor converging per pair. The loop's only quantitative evidence is a simulation: held-out MAPE falls from 77.72 to 15.01 ($n{=}36$, retrain trigger at 12)
+(\evFILE\ \src{results/addition7\_summary.json}), not a deployment.
+
+\section{W7. Container grid collection}
+\texttt{container\_grid.py} (\texttt{make grid-setup}, \texttt{grid-collect}) starts \texttt{postgres:15} with CPU in \{1,2,4,8\} and memory in \{1g,3g\},
+loads TPC-H, runs the probe and each query for repetitions, and saves plans and timings under \src{data/container\_grid}. It is the only way to
+generate Gen-2 evidence and was not run by me.
+
+\section{A worked example: one real execution, step by step}\label{sec:worked}
+Task: predict TPC-H q1's runtime on the 1-CPU, 1\,GB container \texttt{c1m1g} from the laptop \texttt{m1-host}. Inputs are the committed
+fixture \src{tests/test\_fixtures/q1\_local\_real\_explain.json} and the committed registry. Every number below was produced by running the shipped code
+(\evRUN) on the device in this session.
+
+\paragraph{Step 1: decompose.} \texttt{Execution Time} is 3{,}586.94\,ms. The tree has five nodes:
+\begin{center}\small
+\begin{tabular}{@{}llrrrc@{}}
+\toprule \thead{Node} & \thead{Axis} & \thead{Self ms} & \thead{Loops} & \thead{Rows} & \thead{Under Gather}\\ \midrule
+Aggregate (Sorted, finalize) & sort & 0.1 & 1 & 4 & no\\
+Gather Merge & unmapped & 0.0 & 1 & 12 & no\\
+Sort & sort & 0.8 & 3 & 12 & yes\\
+Aggregate (Hashed, partial) & hashagg & 3{,}214.5 & 3 & 12 & yes\\
+Seq Scan (parallel aware) & seqscan & 7{,}533.2 & 3 & 5{,}927{,}445 & yes\\
+\bottomrule
+\end{tabular}
+\end{center}
+Self-times sum to 10{,}748.6\,ms, which is $2.997\times$ the wall time; the \texttt{residual\_frac} is $-1.997$.
+The inflation is exactly the averaging effect described in \cref{ch:background}; nothing in the trust logic uses the residual.
+
+\paragraph{Step 2: machine rates (tuples/s) and speed-ups from the registry.}
+\begin{center}\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule \thead{Machine} & \thead{seqscan} & \thead{hashagg} & \thead{sort} & \thead{parallel speed-up $\pi$}\\ \midrule
+m1-host (dev) & 11{,}487{,}849 & 3{,}458{,}930 & 4{,}610{,}457 & 2.6252\\
+c1m1g (prod) & 9{,}929{,}772 & 2{,}851{,}544 & 3{,}844{,}003 & 0.7694\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Step 3: weights.} Parallel buckets are divided by $\pi_d=2.6252$: seqscan $7533.2/2.6252=2869.6$, hashagg
+$3214.5/2.6252=1224.5$, sort(par) $0.3$. Total $4094.4$. Weights: seqscan(par) $0.7008$, hashagg(par) $0.2991$, sort(par) $0.0001$,
+the serial sort $\approx0$. Unmapped share $0$ ($0.0$\,ms of Gather Merge).
+
+\paragraph{Step 4: ratios.}
+$\rho_{\text{seq,par}}=\dfrac{11{,}487{,}849\times2.6252}{9{,}929{,}772\times0.7694}=3.948$;\quad
+$\rho_{\text{agg,par}}=\dfrac{3{,}458{,}930\times2.6252}{2{,}851{,}544\times0.7694}=4.139$.
+
+\paragraph{Step 5: scaling.} $s=0.7008\times3.948+0.2991\times4.139+\ldots=4.0049$ (program output). Predicted runtime $=3586.9\times4.0049=14{,}365$\,ms.
+
+\paragraph{Step 6: sanity check against stored measurements.} The fixture is one particular run. The committed evaluation row for the same query and
+machine used a different dev run (2{,}246.7\,ms) and records predicted scaling 4.008 (vs 4.005 here: weights differ slightly between runs),
+predicted 9{,}005.6\,ms against an actual 7{,}874.0\,ms, i.e.\ $+14.4\%$ error versus $71.5\%$ for the naive baseline \evFILE\ (\src{results/laptop\_to\_prod\_pairs.csv}).
+This is the ``good'' case.
+
+\paragraph{Step 7: the same call towards an x86 runner.} For \texttt{gha-x86} the program gives $s=1.8717$ (seqscan(par) ratio 1.8745, hashagg(par) 1.8652):
+the model reports the target about $1.87\times$ slower. The measured value for the committed row is $1.239$: predicted 4{,}204.8\,ms vs actual 2{,}782.8\,ms ($+51.1\%$), naive error
+19.3\%. Over the three queries q1/q18/q19 on this runner the operator model errs by 51\%, 57\% and 80\%, naive by 19\%, 6\% and 2.5\% \evFILE. This is the cross-ISA failure in miniature.
+
+\paragraph{Step 8: what the CLI printed.} \texttt{scaling factor: 1.8717}, \texttt{predicted prod: 6,713.6 ms} (for the fixture's 3{,}586.9\,ms dev run),
+\texttt{explained: 100\%}, \texttt{trust: MEDIUM}, and four warnings, one of which cites stale numbers (\cref{sec:cli-bypass}). Exit status 0.
+
+\begin{notebox}
+The same example by hand for Gen 1 is \cref{ch:algo}: c7i$\to$c5a, $\sigma=0.5917$, 3{,}587\,ms $\to$ 2{,}122\,ms.
+\end{notebox}
+
+\section{The CLI bypasses the cross-architecture refusal}\label{sec:cli-bypass}
+\textbf{Finding (\evRUN).} The library function \texttt{cross\_env.predict} refuses an uncalibrated cross-ISA prediction \emph{only if it is given the two machine
+records}. The \texttt{cetp predict-prod} command (\src{cetp/cli.py}:146--190) loads the records into \texttt{dev\_rec}/\texttt{prod\_rec} but does not pass them. Result:
+\begin{lstlisting}[language={},mathescape=false,caption={Reproduction (read-only; no repository file was modified).}]
+$ python3 -m cetp.cli predict-prod --dev m1-host --prod gha-x86 \
+      --dev-plan tests/test_fixtures/q1_local_real_explain.json
+... scaling factor: 1.8717   predicted prod: 6,713.6 ms   trust: MEDIUM   (exit 0)
+
+>>> cross_env.predict(None, plan, 2246.7, dr, pr, dev_rec=drec, prod_rec=prec)
+CrossArchitectureUncalibrated: refusing an uncalibrated prediction from arm64 to x86_64 ...
+\end{lstlisting}
+\textbf{Severity:} high for the product claim (``refuses what it measured to be worse than doing nothing''), low for the research claims. \textbf{Why tests missed it:} no test invokes
+\texttt{cmd\_predict\_prod}. \textbf{Fix (not applied):} add \texttt{dev\_rec=dev\_rec, prod\_rec=prod\_rec} to the call and a CLI test.

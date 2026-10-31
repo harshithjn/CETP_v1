@@ -1,0 +1,65 @@
+\chapter{Technology stack}\label{ch:stack}
+
+\section{Languages and runtimes}
+\begin{center}\small
+\begin{longtable}{@{}L{3.1cm}L{2.7cm}L{5.0cm}L{3.4cm}@{}}
+\toprule \thead{Component} & \thead{Version} & \thead{Role and why} & \thead{Evidence}\\ \midrule \endhead
+Python & $\ge$3.11 declared; CI and Docker use 3.13 & All logic. Declared in \src{pyproject.toml}; 3.13 in \src{Dockerfile}. The selftest also passed on 3.10.12 here, below the declared floor, because the shipped package uses only the standard library & \evFILE; \evRUN\\
+PostgreSQL & 15 (probe/grid), 14/15/17/18 (plan studies) & Target system. \texttt{postgres:15} image in \src{container\_grid.py}; four versions in \src{data/plans\_pg*} & \evCODE\\
+\texttt{pg\_hint\_plan} & not pinned & Force production's plan on the dev server so plan divergence is removed by construction & \evCLAIM\ (module docstring)\\
+C & C11 & Gen-1 hardware probes (\src{hw\_probe\_suite.c}, \src{compute\_probe.c}, \src{membw\_antagonist.c}). Not read in full & \evUNK\\
+TypeScript / Node & not recorded here & VS Code extension \texttt{cetp-vscode-0.2.4.vsix} (Gen 1 only) & \evFILE\\
+GNU Make & any & Reproduction entry points (\cref{ch:setup}) & \evFILE\\
+Docker & any & Container grid (CPU/memory matrix) and artefact image & \evFILE\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\section{Libraries and pinned versions}
+Pinned exactly in \src{requirements.txt} (\evFILE). The pin is not decorative: unpinned scikit-learn made
+the Gen-1 gate fail with \texttt{No module named '\_loss'} when unpickling the quantile models (comment in
+\src{requirements.txt}).
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{3.3cm}L{2.2cm}Y@{}}
+\toprule \thead{Package} & \thead{Version} & \thead{Used for}\\ \midrule
+scikit-learn & 1.8.0 & Random-forest bottleneck classifier, gradient-boosted quantile models (research and Gen-1 gate only)\\
+numpy & 2.5.3 & Numerics in evaluation and gate\\
+pandas & 2.2.3 & Dataset handling in \src{canonical\_evaluation.py}\\
+scipy & 1.18.1 & Statistics (Pearson $r$, bootstrap helpers)\\
+joblib & 1.5.3 & Model (de)serialisation\\
+PyYAML & 6.0.2 & Gate SLA config files\\
+matplotlib & 3.10.1 & Figures in analysis scripts\\
+pytest & 9.0.3 & Test runner\\
+psycopg2-binary & $\ge$2.9 & Live PostgreSQL access (\texttt{research} extra only)\\
+setuptools & $\ge$68 & Build backend\\
+\bottomrule
+\end{tabularx}
+\end{center}
+The version numbers above are as written in the repository; I did not independently check that each
+released on the stated date (\texttt{numpy 2.5.3} and \texttt{scipy 1.18.1} are after my own knowledge of
+releases, so I treat them as the repository's record, not mine).
+
+\section{Choices a reviewer will ask about}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{3.4cm}YY@{}}
+\toprule \thead{Choice} & \thead{Reason given or inferable} & \thead{Cost}\\ \midrule
+Zero runtime dependencies & Avoid version coupling; ship formula + JSON table instead of a pickle (\src{pyproject.toml} comment) & The shipped package cannot use the learned models\\
+JSON / JSONL files, no database & Auditable, diff-able, atomic write via \texttt{os.replace} & No concurrent writers; no query capability\\
+SQL-only probing (Gen 2) & Works on managed PostgreSQL where there is no shell (\src{cross\_env.py} docstring) & Measures PostgreSQL's operators, not the raw hardware\\
+Docker CPU quotas to create ``machines'' & Cheap, controllable variation in parallelism & Quota is not the same as different silicon: all 8 cells run on one host and one ISA\\
+GitHub Actions x86 runners & Free real x86 targets for the cross-ISA test & Shared, noisy VMs; four near-identical machines (probe spread 2.160--2.167)\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Dependency risks}
+\begin{itemize}
+\item \textbf{Pickle coupling} between scikit-learn versions affects only the Gen-1 gate and research
+  scripts. \src{models/PROVENANCE.json} states the pickles were rebuilt under 1.8.0.
+\item \textbf{PostgreSQL version.} Plans change between 14/15/17/18 (12 of 22 TPC-H plans), and the
+  decomposer's operator map was extended after a corpus sweep found \texttt{BitmapAnd} unmapped
+  (\src{plan\_nodes.py} lines 46--52). A future PostgreSQL release introducing a new node type would
+  silently land in the unmapped residual, which is reported but not an error.
+\item \textbf{\texttt{pg\_hint\_plan} silently ignores hints it cannot express}, which is why the code
+  carries \texttt{plan\_forced=False} and a LOW trust flag (\src{cross\_env.py} lines 26--28, 191--192).
+\end{itemize}

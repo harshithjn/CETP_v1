@@ -1,0 +1,121 @@
+% =====================================================================
+% preamble.tex -- shared package imports and macros for the CETP master reference
+% Engine: pdflatex + bibtex (natbib). Nothing here needs shell-escape.
+% =====================================================================
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathptmx}
+\usepackage[scaled=0.92]{helvet}
+\usepackage{courier}
+\usepackage{microtype}
+\usepackage{pdflscape}
+\usepackage[a4paper,top=2.4cm,bottom=2.4cm,left=2.5cm,right=2.3cm]{geometry}
+\linespread{1.07}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,tabularx,array,multirow}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=1.4em,itemsep=0.15em,topsep=0.2em}
+\usepackage{needspace}
+\usepackage{caption,subcaption}
+\captionsetup{font=small,labelfont=bf,skip=4pt}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{float}
+\usepackage{upquote}
+\usepackage[numbers,sort&compress]{natbib}
+
+% ---------- colours ----------
+\definecolor{cetpblue}{HTML}{1F3A5F}
+\definecolor{cetpteal}{HTML}{0F766E}
+\definecolor{cetpgrey}{HTML}{64748B}
+\definecolor{cetpred}{HTML}{B91C1C}
+\definecolor{cetpamber}{HTML}{B45309}
+\definecolor{lightgrey}{HTML}{F1F5F9}
+
+% ---------- diagrams and charts ----------
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc,backgrounds,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
+
+% ---------- boxes ----------
+\usepackage[most]{tcolorbox}
+\tcbset{enhanced jigsaw,breakable,boxrule=0.5pt,arc=1.5pt,left=5pt,right=5pt,top=3pt,bottom=3pt,
+        fonttitle=\bfseries\small,before skip=6pt,after skip=6pt}
+\newtcolorbox{finding}[1][]{colback=cetpteal!6,colframe=cetpteal,title={Key finding},#1}
+\newtcolorbox{honest}[1][]{colback=cetpamber!7,colframe=cetpamber,title={Honest reading},#1}
+\newtcolorbox{warnbox}[1][]{colback=cetpred!6,colframe=cetpred,title={Caution},#1}
+\newtcolorbox{notebox}[1][]{colback=lightgrey,colframe=cetpgrey,title={Note},#1}
+\newtcolorbox{fcard}[2]{colback=lightgrey!60,colframe=cetpblue,
+  title={#1\hfill{\normalfont\scriptsize #2}},fontupper=\small}
+\newcommand{\fitem}[2]{\par\noindent{\bfseries\color{cetpblue}#1.}\ #2\par\vspace{1pt}}
+
+% ---------- code listings ----------
+\usepackage{listings}
+\lstdefinestyle{cetp}{basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false,
+  columns=fullflexible,keepspaces=true,frame=single,rulecolor=\color{cetpgrey!60},
+  backgroundcolor=\color{lightgrey!50},xleftmargin=2pt,xrightmargin=2pt,
+  numbers=none,showstringspaces=false,commentstyle=\color{cetpgrey}\itshape,
+  keywordstyle=\color{cetpblue}\bfseries,stringstyle=\color{cetpteal},
+  aboveskip=4pt,belowskip=4pt,literate={→}{{$\rightarrow$}}1}
+\lstdefinelanguage{pseudo}{morekeywords={for,each,in,if,else,elif,return,while,do,end,then,and,or,not,let,compute,raise,foreach,function,until},
+  sensitive=true,morecomment=[l]{\#},mathescape=true}
+\lstdefinelanguage{pyc}[]{Python}{morekeywords={self,None,True,False}}
+\lstset{style=cetp,language=Python}
+
+% ---------- references and links ----------
+\usepackage[colorlinks=true,linkcolor=cetpblue,citecolor=cetpteal,urlcolor=cetpblue,
+            pdftitle={CETP Master Technical Reference},pdfauthor={CETP capstone team},
+            bookmarksnumbered=true]{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+\urlstyle{tt}
+\Urlmuskip=0mu plus 1mu
+\def\UrlBreaks{\do\/\do\_\do\-\do\.\do\:}
+
+% ---------- text macros ----------
+% \src: a repository path, optionally with :line.  \fn: a symbol or short code token.
+\newcommand{\src}[1]{{\small\nolinkurl{#1}}}
+\newcommand{\fn}[1]{\nolinkurl{#1}}
+% evidence tags -- defined once in the evidence methodology section
+\newcommand{\evtag}[1]{{\sffamily\scriptsize\bfseries[#1]}}
+\newcommand{\evRUN}{\evtag{RUN}}
+\newcommand{\evPACK}{\evtag{PACK}}
+\newcommand{\evFILE}{\evtag{FILE}}
+\newcommand{\evCODE}{\evtag{CODE}}
+\newcommand{\evCLAIM}{\evtag{CLAIM}}
+\newcommand{\evUNK}{\evtag{UNK}}
+\newcommand{\pp}{\,\mathrm{pp}}
+\newcommand{\MAPE}{\mathrm{MAPE}}
+\newcommand{\ms}{\,\mathrm{ms}}
+
+% ---------- headers ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textsc{CETP Master Technical Reference}}
+\fancyhead[R]{\small\nouppercase{\leftmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\small\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+\titleformat{\chapter}[hang]{\Large\bfseries\color{cetpblue}}{\thechapter}{0.7em}{}
+\titlespacing*{\chapter}{0pt}{-10pt}{14pt}
+\titleformat{\section}{\large\bfseries\color{cetpblue}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{cetpblue!85!black}}{\thesubsection}{0.6em}{}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+
+% table helpers
+\renewcommand{\arraystretch}{1.12}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\thead}[1]{\textbf{#1}}
+\rowcolors{2}{white}{lightgrey!55}
+\renewcommand{\_}{\leavevmode\kern.04em\vbox{\hrule width.5em height.4pt}\penalty0\hskip0pt\relax}
+\emergencystretch=3em
+\usepackage{xurl}

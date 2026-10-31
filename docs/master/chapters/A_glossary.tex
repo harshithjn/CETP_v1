@@ -1,0 +1,21 @@
+\chapter{Glossary}\label{app:glossary}
+Acronyms are listed in the front matter (Abbreviations). Terms below are used with the meaning given here.
+\begin{description}\small
+\item[Actual Total Time] PostgreSQL \texttt{EXPLAIN ANALYZE} field: per-loop, per-participant average time of a node including children.
+\item[Calibration factor] Median of actual/predicted over $\ge3$ measured queries on a dev$\to$prod pair; multiplies later predictions.
+\item[Capability transfer] Prediction between machines of the same instruction set; contrasted with ISA transfer.
+\item[Cell] One container configuration (CPU quota, memory limit) or runner in the grids, e.g.\ \texttt{c4m1g}.
+\item[Dev / prod] Machine where the query is measured / machine whose runtime is predicted.
+\item[Gather / Gather Merge] Plan nodes that start parallel workers; everything below them is \emph{under gather}.
+\item[Gen-1 / Gen-2] The legacy two-scalar roofline predictor / the per-operator model (\cref{sec:two-gens}).
+\item[Inclusive / self time] Time including / excluding children, after multiplying by loops.
+\item[ISA transfer] Prediction across instruction sets (arm64 $\leftrightarrow$ x86-64).
+\item[LOMO / LOQO / LOMQO] Leave-one-machine / query / machine-and-query-out cross-validation.
+\item[Machine signature] Measured operator throughputs and parallel speed-up of one machine.
+\item[Naive baseline] Predict that prod time equals dev time.
+\item[Operator class] Group of plan nodes priced by one probe (seqscan, hashagg, sort, \dots).
+\item[Parallel speed-up] Measured ratio of serial to parallel probe time on a machine.
+\item[Residual fraction] Share of dev wall time not explained by node self-times.
+\item[Reliable cell] A cell whose probe passed the stability gate (median standard error $\le0.08$).
+\item[Unmapped / unpriced share] Node time with no operator class / no measured rate; priced at the geometric mean.
+\end{description}

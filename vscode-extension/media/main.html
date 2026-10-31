@@ -24,7 +24,7 @@
   </div>
 
   <div id="manual-fields" class="manual-fields">
-    <label class="group-label">Hardware signature &mdash; get it with <code>scripts/collection/hw_signature.py</code></label>
+    <label class="group-label">Hardware signature &mdash; <a href="https://harshithjn.github.io/CETP_v1/" target="_blank" rel="noopener">step-by-step guide</a></label>
     <div class="field-inline">
       <label for="bandwidth-input">Bandwidth (GB/s)</label>
       <input type="text" id="bandwidth-input" placeholder="e.g. 14.9" inputmode="decimal">
@@ -86,13 +86,6 @@
     scaling estimate, not a measurement.
   </div>
 
-  <div class="caveat">
-    <div class="caveat-title">Different CPU architecture?</div>
-    Do not trust this number across an architecture boundary (Apple Silicon to x86, say).
-    Measured on four x86 machines, the uncalibrated model scored ~68.9% against ~21.7% for
-    simply assuming production matches your machine. Measure 3&ndash;5 queries on the target
-    and calibrate &mdash; that brings it back to ~22%.
-  </div>
 </div>
 
 <script nonce="{{nonce}}" src="{{scriptUri}}"></script>

@@ -1,0 +1,57 @@
+\chapter{Design decisions, trade-offs and alternatives}\label{ch:decisions}
+
+The decision log below comes from the evidence pack's reading of code comments and git history (\evPACK, \src{docs/research/05\_history\_decisions.md}); the last column is my own assessment after reading the code and results. The stated rationale is the authors'; ``assessment'' is not.
+
+\begin{center}\small
+\begin{longtable}{@{}L{0.7cm}L{3.6cm}L{4.4cm}L{6.0cm}@{}}
+\toprule \thead{ID} & \thead{Decision} & \thead{Stated rationale / evidence} & \thead{Assessment}\\ \midrule \endhead
+D1 & Ship the analytical formula and a conformal table, not pickles, in the package & Pickles are scikit-learn-version coupled; learned model only interpolates (17.29 seen vs 26.86 unseen) & \textbf{Sound.} Cheap, auditable, and the learned model is not better on unseen machines\\
+D2 & Uniform weights $\{.5,.25,.25\}$ instead of classifier probabilities & 21.55 vs 21.61 (Tier 1) & \textbf{Sound}, but then the name ``roofline'' and the 300-tree classifier in the gate are decoration\\
+D3 & Multi-core GFLOPS as the compute signal & single-core has the wrong sign ($+0.213$ vs $-0.691$) & \textbf{Sound}; but the probe ran at \texttt{nproc} and the 4-vCPU machines overstate usable capacity (PROVENANCE caveat)\\
+D4 & Root-node buffers only & summing the tree inflated data 3.06--12$\times$ & \textbf{Correct fix of a real bug}; the value of fixing it is also a warning about the earlier results\\
+D5 & Discard the first (cold) repetition & slowest in 61 of 105 cells & \textbf{Sound}; p99 targets still contaminated in older artefacts\\
+D6 & Regression mode is ``the releasable product'' & absolute gate: 54.5\% false-alarm BLOCKs; ratio cancels hardware term & \textbf{Logic weak.} The cancellation is tautological (term always 1.0); the mode is a dev-side timing diff, which is useful but not a prediction, and its accuracy is untested\\
+D7 & Replace the C bandwidth/GFLOPS probe by SQL operator probes & FP-vector irrelevant to TPC-H; works on managed PostgreSQL; cross-ISA 324\% vs 123\% & \textbf{Reasonable}; but the new signature also fails cross-ISA and was never run on managed PostgreSQL\\
+D8 & Weighted ratio, not sum of scaled node times & parallel times are CPU-averaged ($\approx3\times$ wall on fixtures) & \textbf{Sound and verified} by my fixture measurement (2.97--3.00$\times$)\\
+D9 & Key the parallel correction on \texttt{under\_gather}, not \texttt{Parallel Aware} & corrected 46\% of q19 vs 100\% & \textbf{Sound}; the headline mechanism of the project\\
+D10 & Take the plan from production and force it on dev & plan divergence is 70.5\% of cross-env difference when plans change & \textbf{Good idea, untested}: 0 of 22 plans differ in the grid\\
+D11 & Median calibration, \texttt{spread} selection, $k\ge3$ & $k=1$ random is worse than none & \textbf{Sound}; yet $k=1$ spread is still worse (25.26 vs 22.41) and the store applies provisional factors anyway\\
+D12 & Refuse uncalibrated cross-ISA prediction & three measurements worse than naive & \textbf{Sound in the library}, \textbf{bypassed in the CLI}\\
+D13 & Per-pair calibration, no pooling & absorbs machine-specific scale error & Reasonable; costs data per pair\\
+D14 & Gate BLOCK must not fail CI & retrained models caused spurious failures & Pragmatic; CI green no longer says anything about predictions (pack C9)\\
+D15 & Delete all Markdown, keep PDFs & unknown & \textbf{Poor.} Leaves comments citing files that no longer exist and a docs pipeline that cannot run\\
+D16 & Remove the dashboard & showed superseded numbers & Sound\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\section{Trade-offs that shaped the project}
+\begin{enumerate}
+\item \textbf{Fidelity vs portability of the signature.} Hardware counters are unavailable on Nitro, so the project measures with the database itself. The price is that the signature depends on PostgreSQL version, build and settings, and cannot be compared across them (\texttt{assert\_comparable}).
+\item \textbf{Accuracy vs honesty.} The repository chose to expose negative results (cross-ISA failure, null weighting effect) and to refuse unsafe predictions. This costs a clean headline and gains credibility.
+\item \textbf{Ratio vs absolute prediction.} Predicting a ratio keeps the measured dev time as an anchor but requires a dev measurement per query.
+\item \textbf{Breadth vs depth.} Four large experiment families (tiers 1--4), JOB and TPC-DS collection code, an extension and a site were built; the headline evidence still rests on five EC2 machines and eight containers.
+\item \textbf{Marginal coverage vs per-machine guarantees.} Conformal intervals are valid in aggregate but not for a particular unseen machine (worst 0.78 at nominal 0.90).
+\end{enumerate}
+
+\section{Alternatives considered and not taken}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.0cm}YY@{}}
+\toprule \thead{Alternative} & \thead{Why plausible} & \thead{Why not here}\\ \midrule
+Hardware performance counters & Most direct capability measure & Blocked on AWS Nitro (\evCLAIM)\\
+Learned cost model on plan features & Literature precedent \citep{sun:endtoend,marcus:planstructured} & Needs many machines to learn hardware; learning curve shows 28.1 vs 23.0 with four\\
+Zero-shot cost models \citep{hilprecht:zeroshot} & Generalise to unseen databases & Address databases, not hardware; heavy\\
+Pure optimizer cost scaling & Free & Cost units do not map to time across machines \citep{wu:costmodels}\\
+Run the query on production & Ground truth & Dangerous or impossible; the problem's premise\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{What I would change first}
+\begin{enumerate}
+\item Pass the machine records in \texttt{cetp predict-prod} and add a CLI test (hours).
+\item Replace the always-1.0 ``hardware term'' by a Gen-2 ratio or retire the claim; add an accuracy experiment on labelled before/after pairs.
+\item Fix the redaction verifier for escape strings and dollar quotes; document that \texttt{full} is pseudonymisation.
+\item Regenerate stale warning text from the committed metrics rather than hard-coding numbers.
+\item Decide a single source of truth for documentation (restore Markdown or retarget comments).
+\end{enumerate}

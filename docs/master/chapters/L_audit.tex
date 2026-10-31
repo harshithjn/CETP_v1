@@ -1,0 +1,82 @@
+\chapter{Independent audit report}\label{app:audit}
+This appendix records an independent audit of the first version of this document against the repository (code, configuration, workflows, tests, committed results and git history). Every finding below has been applied to the text unless the status says otherwise. Evidence tags are as elsewhere: \evRUN{} executed in this audit, \evCODE{} read in the code but not executed, \evFILE{} read in a committed result file, \evPACK{} taken from the evidence pack, \evUNK{} not established. Severity is by effect on a reader who relies on the claim: \emph{critical} would invalidate a headline conclusion; \emph{high} would mislead on a result or behaviour; \emph{medium} is inaccurate but bounded; \emph{low} is cosmetic or minor. No critical finding was found.
+
+{\footnotesize
+\begin{landscape}
+\section{Audit table}
+\begin{longtable}{@{}L{0.9cm}L{1.1cm}L{1.5cm}L{4.1cm}L{4.1cm}L{3.9cm}L{3.9cm}L{2.2cm}@{}}
+\toprule \thead{ID} & \thead{Sev.} & \thead{Section} & \thead{Claim or passage} & \thead{Evidence} & \thead{Problem} & \thead{Correction} & \thead{Status}\\ \midrule \endhead
+A-01 & High & \cref{ch:conclusion} & ``ties or loses in four of seven same-ISA cells'' & Per-cell results: four cells lose to no-change, one ties, two 1-CPU cells win \evFILE & Overstated ties; the method loses outright in four cells & Named the four losing cells, one tie, two wins & Corrected, checked against result files\\
+A-02 & Medium & \cref{ch:results} & Learned model ``worst'' with machines unseen & LOMO: learned 23.90, analytical 21.61, no-change 31.96 \evFILE & No-change is worse (31.96) & ``worst of the five non-trivial models'' & Corrected\\
+A-03 & High & \cref{ch:results} & ``Differences between methods are small in every row''; per-machine table without no-change column & Per-machine MAPE incl. no-change: c7i 23.71 beats all fitted models; learned is 9--12\,pp worse on c5a, c7i \evFILE & Claim false for learned; the pooled 21.61 hides c7i & Added no-change column and rewrote sentence & Corrected\\
+A-04 & Medium & \cref{ch:results} & p50 ``unaffected in all 105'' cells & Maximum inflation $1.007\times$ \evFILE & Inflated by up to 0.7\%, not unaffected & Reworded with the bound & Corrected\\
+A-05 & Low & \cref{ch:results} & Naive baseline 23.03 vs canonical 23.05; 21.60 vs 21.61 & Two files use slightly different baselines & Looked like a contradiction & Stated both and why & Corrected\\
+A-06 & Medium & \cref{ch:testing} & Leakage ``did not flatter the headline'' & LOQO 17.04 vs 17.29; LOMQO 26.56 vs 26.86: leaky is marginally better \evFILE & True for LOMO only & Scoped to LOMO; added the others & Corrected\\
+A-07 & High & \cref{ch:algo} & Eq.~\eqref{eq:gen2} used an undefined $\kappa_c$ & \texttt{operator\_model.py} \evCODE & Symbol never defined; unspecified-operator term misrepresented & Rewrote equation with $\kappa_{\varnothing}$ and defined it & Corrected\\
+A-08 & Medium & \cref{ch:algo} & Eq.~\eqref{eq:gen1} presented as the shipped gate & \texttt{gate/cetp\_gate.py} uses classifier probabilities, own formula copy, pickled reference table \evCODE & Equation is the uniform-weight variant & Added explicit paragraph & Corrected\\
+A-09 & Medium & \cref{ch:arch} & Component figure arrows and caption & Import statements: no \texttt{predict}$\to$gate edge; \texttt{regress} uses \texttt{signature} \evCODE & Invented edge; wrong source node; arrows read as imports & Removed edge, rewired, caption now states data flow and lists the real imports & Corrected\\
+A-10 & Medium & \cref{ch:arch} & ``both CI workflows call Gen-1 only'' & Three workflows exist; one runs the Gen-2 probe \evCODE & Wrong count & Named all three & Corrected\\
+A-11 & Medium & \cref{ch:impl} & ingest: ``truncated JSON is dropped and recorded'' & \texttt{\_balanced\_json} returns \texttt{None}; loop continues silently \evCODE & Not recorded & Described the silent skip & Corrected; behaviour is a defect (X15)\\
+A-12 & Low & \cref{ch:impl} & ingest return type, \texttt{query\_id}, string-awareness worry & Returns \texttt{(entries, dropped)}; scanner tracks quotes and escapes \evCODE & Docstring and worry inaccurate & Corrected both & Corrected\\
+A-13 & Low & \cref{ch:impl} & Output fields; row-ratio default; hardware term 1.0 scope; gate reference table & \texttt{operator\_model.py}, \texttt{predict.py}, gate \evCODE & Incomplete or too narrow & Completed & Corrected\\
+A-14 & High & \cref{ch:interfaces,ch:setup} & Installed \texttt{cetp} works as documented & Wheel built and installed in a clean venv: \texttt{selftest} ``missing fixture''; default \texttt{predict-prod} raises \texttt{FileNotFoundError} \evRUN & Only source or editable installs work & Documented; added to defects X11 & Corrected; defect remains in product\\
+A-15 & Medium & \cref{ch:interfaces} & Single SLA semantics assumed & \texttt{cli.py}, gate \evCODE & Three different PASS/BLOCK rules & Added comparison & Corrected\\
+A-16 & Medium & \cref{ch:interfaces,ch:security} & CI regression workflow described generically & Hard-coded \texttt{--dev c7i --prod c5a}; runs PR SQL under \texttt{EXPLAIN ANALYZE} \evCODE & Machine labels meaningless; statements are executed & Documented; risk added & Corrected; defect remains (X13)\\
+A-17 & High & \cref{ch:workflows,ch:setup} & Suggested re-run with \texttt{--actual-ms} bootstraps calibration & \texttt{predict\_prod.py}: refusal returns 4 before the record block \evCODE & Cannot bootstrap on an empty store & Documented; X12 & Corrected; not executed; defect remains\\
+A-18 & Medium & \cref{ch:setup} & Install steps; \texttt{pip install -e .} ``inferred''; dependency list & Workflow uses it \evCODE; \texttt{psycopg2-binary} only in \texttt{research} extra & Mislabelled; missing dependency & Fixed label; added requirement and caveat & Corrected\\
+A-19 & Medium & \cref{app:config} & ``No environment variables are read'' & \texttt{CETP\_CALIBRATION\_PATH}, \texttt{CETP\_TELEMETRY\_PATH} \evCODE & False & Listed both with defaults & Corrected\\
+A-20 & Medium & Front matter, \cref{ch:repo} & PDFs ``not opened''; docs deleted; Makefile cannot build docs & Seven PDFs text-extracted in audit; docs reorganised in working tree; 14 of 17 commits dated 2026-10-13 \evRUN & Description of repository state inexact & Rewritten with HEAD vs working-tree distinction & Corrected\\
+A-21 & Medium & \cref{ch:limits,app:issues} & Stale numbers ``in the PDFs''; 5 vs 7 machines attributed to ``documents'' & HANDBOOK, LLD show 24.95/24.58; laptop\_to\_prod PDF 132 pairs, 28.54 vs 38.22; CANONICAL calls 0.562 wrong \evRUN & Vague; and the 7-machine documents include the Review 2 deck and LLD made earlier in this engagement & Located each stale value; named the earlier deliverables & Corrected; those two deliverables are not regenerated\\
+A-22 & Low & \cref{ch:limits} & Limitations list & Comment in \texttt{signature.py}: bandwidth probe source no longer exists \evCODE & Missing limitation & Added L11 & Corrected\\
+A-23 & Low & \cref{ch:exec} & ``unusually reproducible'' & Byte-identical outcome is from the pack; not re-run & Overclaim & Reworded to design intent plus pack-reported outcome & Corrected\\
+A-24 & Low & \cref{ch:security} & Security table & See A-16 & Omitted CI execution risk & Added row & Corrected\\
+A-25 & Low & Appendices & Lettering off by one; manual ``Appendix D'' & Table of contents & No Appendix B file; hard-coded reference & Added Appendix B; cross-reference now automatic; audit is Appendix L & Corrected\\
+A-26 & Low & Bibliography & Missing years; Moerkotte entry type & \texttt{references.bib} & Incomplete entries & Entry type fixed; undated web sources left undated rather than guessed & Corrected; years unverified\\
+A-27 & Low & \cref{app:trace} & FR-9 ``Met'' & Follows from A-11 & Overstated & Changed to Partial & Corrected\\
+\bottomrule
+\end{longtable}
+\end{landscape}}
+
+\section{Missing topics}
+\begin{itemize}
+\item Behaviour under a non-default PostgreSQL configuration (\texttt{work\_mem}, \texttt{jit}, parallel settings) is not analysed; only the probe's \texttt{assert\_comparable} guard is described.
+\item JOB and TPC-DS collection code exists but no results from it were found or documented.
+\item The VS Code extension is described only at interface level; its behaviour was not run.
+\item Licensing of vendored third-party data is not established (\evUNK).
+\end{itemize}
+
+\section{Contradictions between chapters (found and resolved)}
+\begin{itemize}
+\item Conclusion vs results on the learned model and on the same-ISA cells (A-01, A-02, A-03).
+\item Architecture figure vs implementation chapter on which modules call which (A-09).
+\item Configuration appendix vs setup chapter on environment variables (A-19).
+\item Setup chapter's calibration recipe vs workflows chapter's description of the refusal path (A-17).
+\end{itemize}
+
+\section{Unsupported or only partly supported claims that remain}
+\begin{itemize}
+\item Byte-identical regeneration and the 119-test count are taken from the pack and not re-run (\evPACK).
+\item \texttt{predict\_prod.py} refusal-before-record defect is read from code, not executed (\evCODE).
+\item Statements about EC2 instance behaviour rest on the pack because the raw logs no longer exist (\evPACK).
+\item The six literature entries checked by web search were checked for existence only, not for content.
+\item Bibliography years for undated web sources are absent, not guessed.
+\end{itemize}
+
+\section{Important implementation details previously undocumented}
+Now documented: the two environment variables; the gate's divergent formula and its lack of equal-range guard; silent skipping of truncated log entries; the three SLA rules; the hard-coded machine labels and statement execution in the regression workflow; the installed-package failure; and the lost bandwidth-probe source.
+
+\section{Questions the project owner must answer}
+\begin{enumerate}
+\item Data collection is dated January--April 2026 in the team's notes, but \texttt{signature.py} says August 2026 and git begins 2026-08-17. Which is right?
+\item Will the documentation reorganisation be committed, and which document set is canonical?
+\item Is the refusal-before-record order in \texttt{predict\_prod.py} intended?
+\item Are \texttt{c7i} and \texttt{c5a} in the regression workflow intended?
+\item Can the STREAM-style bandwidth probe source be recovered?
+\item Which headline narrative is the submission: Gen-1 canonical or Gen-2 laptop-to-prod?
+\item Do the EC2 logs exist anywhere?
+\item Was \texttt{models/calibration.json} regenerated after the warm-up fix (R10)?
+\item Should the Review 2 deck and LLD (7 machines, F1 0.562) be regenerated from canonical values, and the Review 3 deck's 21.60/23.03 and its gate-tier figures reconciled?
+\end{enumerate}
+
+\section{Compilation and reference check}
+Final build: \texttt{pdflatex}, \texttt{bibtex}, \texttt{pdflatex} twice. Result: 82 pages; 0 LaTeX errors; 0 undefined citations or references; 0 multiply defined labels; \texttt{bibtex} reports 3 warnings (empty year for the three undated web sources, left undated deliberately); 17 overfull boxes remain, none in the audit table, the largest (99\,pt) in the schema listing of \cref{app:schemas}. The page count is well above the original 20-page target. The changed pages (architecture figure, results table, audit table) were rendered and inspected; the remaining pages were not re-inspected after this pass.

@@ -1,0 +1,121 @@
+\chapter{System architecture}\label{ch:arch}
+
+\section{Architectural style}
+CETP is a Python library with a command-line front end, plus an offline research pipeline. It is
+\emph{not} a service: there is no daemon, no database of its own, and no network listener. State is
+held in three places, all plain files: the operator-signature registry
+(\src{models/operator\_signature.json}), the per-pair calibration store (\src{\textasciitilde/.cetp/calibration.json}), and
+an append-only telemetry log (JSON Lines). This keeps the product auditable and the runtime
+dependency set empty (\src{pyproject.toml}: \texttt{dependencies = []}, \evFILE).
+
+\section{Component view}
+\Cref{fig:components} groups the code by responsibility. The three horizontal tiers are independent
+enough to be read alone: acquisition (obtain measurements), modelling (turn measurements into a
+prediction), and interface (expose it).
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  comp/.style={draw=cetpblue,rounded corners=2pt,fill=lightgrey,minimum height=8mm,text width=29mm,align=center,font=\scriptsize},
+  new/.style={draw=cetpteal,rounded corners=2pt,fill=cetpteal!8,minimum height=8mm,text width=29mm,align=center,font=\scriptsize},
+  old/.style={draw=cetpgrey,dashed,rounded corners=2pt,fill=white,minimum height=8mm,text width=29mm,align=center,font=\scriptsize},
+  tier/.style={font=\footnotesize\bfseries\color{cetpblue},anchor=east},
+  arr/.style={-{Stealth[length=1.8mm]},thick,cetpgrey}]
+% acquisition
+\node[tier] at (-0.2,0) {Acquisition};
+\node[comp] (probe) at (2.0,0) {\texttt{operator\_probe.py} SQL micro-benchmarks};
+\node[comp,right=4mm of probe] (grid) {\texttt{container\_grid.py} CPU / memory matrix};
+\node[comp,right=4mm of grid] (pp) {\texttt{predict\_prod.py} live dev + prod run};
+\node[old,right=4mm of pp] (c) {\texttt{collect.py}, \texttt{hw\_signature.py} Gen-1 EC2};
+% modelling
+\node[tier] at (-0.2,-2.0) {Modelling};
+\node[new] (pn) at (2.0,-2.0) {\texttt{plan\_nodes.py} decompose plan};
+\node[new,right=4mm of pn] (om) {\texttt{operator\_model.py} weights, ratios, calibration};
+\node[new,right=4mm of om] (ce) {\texttt{cross\_env.py} refusal, trust, warnings};
+\node[old,right=4mm of ce] (pr) {\texttt{predict.py}, \texttt{regress.py}, \texttt{signature.py} Gen-1};
+% state
+\node[tier] at (-0.2,-4.0) {State};
+\node[comp] (reg) at (2.0,-4.0) {\texttt{operator\_signature.json} registry};
+\node[comp,right=4mm of reg] (cs) {\texttt{calibration\_store.py} per-pair};
+\node[comp,right=4mm of cs] (tm) {\texttt{telemetry.py} JSONL log};
+\node[comp,right=4mm of tm] (ig) {\texttt{ingest.py}, \texttt{redact.py}};
+% interface
+\node[tier] at (-0.2,-6.0) {Interface};
+\node[comp] (cli) at (2.0,-6.0) {\texttt{cli.py}: predict, predict-prod, regress, redact, signature, selftest};
+\node[old,right=4mm of cli] (gate) {\texttt{gate/cetp\_gate.py} 3-state SLA gate; own copy of the formula, loads pickles};
+\node[old,right=4mm of gate] (vs) {VS Code extension (Gen 1 only)};
+\node[old,right=4mm of vs] (ci) {GitHub Actions workflows};
+\draw[arr] (probe)--(reg); \draw[arr] (grid)--(reg); \draw[arr] (pp)--(cs);
+\draw[arr] (reg)--(ce); \draw[arr] (pn)--(om); \draw[arr] (om)--(ce); \draw[arr] (cs)--(ce);
+\draw[arr] (ce)--(cli); \draw[arr] (tm)--(cs);
+\end{tikzpicture}
+\caption{Component view. Solid teal = Gen 2 (per-operator); dashed = Gen 1 (two-scalar). Arrows show the
+main data flow; they are \emph{not} Python imports. Checked against the \texttt{import} statements (audit pass): \texttt{cross\_env} imports \texttt{operator\_model} and \texttt{plan\_nodes}; \texttt{operator\_model} imports \texttt{plan\_nodes}; \texttt{calibration\_store} imports \texttt{operator\_model}; \texttt{predict} and \texttt{regress} import \texttt{signature}; \texttt{ingest} imports \texttt{redact}; \texttt{telemetry}, \texttt{redact}, \texttt{plan\_nodes} and \texttt{signature} import nothing from the package; the gate imports none of them.}
+\label{fig:components}
+\end{figure}
+
+\begin{honest}
+The figure also shows the most important structural fact about the repository: the user-facing
+surfaces that exist outside the CLI (the VS Code extension and the two CI workflows that make predictions, \texttt{cetp-gate.yml} and \texttt{cetp-regression-check.yml}) call Gen-1 code only; the third workflow, \texttt{x86-operator-probe.yml}, runs the Gen-2 probe.
+The newer per-operator model is reachable through \texttt{cetp predict-prod} and
+\src{scripts/collection/predict_prod.py}. This is documented in the evidence pack (risk R-series) and
+re-confirmed here by reading \src{gate/cetp\_gate.py}, which loads \texttt{models/*.pkl} and calls the
+bottleneck-weighted formula.
+\end{honest}
+
+\section{Runtime data flow for one prediction}
+\Cref{fig:sequence} is the sequence for the Gen-2 path, from CLI invocation to printed result.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+ life/.style={draw=cetpgrey,dashed},
+ msg/.style={-{Stealth[length=1.8mm]},thick,cetpblue},
+ ret/.style={-{Stealth[length=1.8mm]},thick,cetpteal,dashed},
+ lab/.style={font=\scriptsize,midway,above,sloped,inner sep=1pt},
+ head/.style={draw=cetpblue,fill=lightgrey,rounded corners=2pt,minimum width=2.5cm,minimum height=7mm,font=\scriptsize\bfseries}]
+\foreach \x/\n in {0/{User / CLI},3.4/{\texttt{cross\_env}},6.8/{\texttt{operator\_model}},10.2/{\texttt{plan\_nodes}}}
+  { \node[head] at (\x,0) {\n}; \draw[life] (\x,-0.4)--(\x,-7.0); }
+\draw[msg] (0,-1.0)--(3.4,-1.0) node[lab] {load\_rates(dev), (prod)};
+\draw[msg] (3.4,-2.6)--(6.8,-2.6) node[lab] {predict\_runtime(plan, rates)};
+\draw[msg] (6.8,-3.2)--(10.2,-3.2) node[lab] {decompose(plan)};
+\draw[ret] (10.2,-3.8)--(6.8,-3.8) node[lab] {self-times, \texttt{under\_gather}};
+\draw[msg] (6.8,-4.4) .. controls (7.8,-4.4) and (7.8,-4.9) .. (6.8,-4.9) node[right,font=\scriptsize,xshift=6pt,yshift=5pt] {weights; $\sum w\rho\pi\kappa$};
+\draw[ret] (6.8,-5.5)--(3.4,-5.5) node[lab] {scaling, weights, ratios};
+\draw[msg] (3.4,-6.0) .. controls (4.4,-6.0) and (4.4,-6.4) .. (3.4,-6.4) node[right,font=\scriptsize,xshift=6pt,yshift=5pt] {trust, warnings};
+\draw[ret] (3.4,-6.8)--(0,-6.8) node[lab] {dict: scaling, ms, trust};
+\node[font=\scriptsize,anchor=west] at (3.55,-1.45) {refuse if cross-ISA and uncalibrated};
+\end{tikzpicture}
+\caption{Sequence for one Gen-2 prediction. The cross-architecture refusal fires inside
+\texttt{cross\_env.predict} only if the caller passed the machine records (see \cref{sec:cli-bypass}).}
+\label{fig:sequence}
+\end{figure}
+
+\section{Deployment topology}
+There is no deployed service. The realistic topologies are:
+\begin{enumerate}
+\item \textbf{Local developer.} Installs the package (the exact command, e.g.\ \texttt{pip install -e .}, is inferred from \texttt{pyproject.toml}, not verified \evUNK); the developer runs \texttt{cetp predict-prod}
+  with two EXPLAIN JSON files and two registry identifiers.
+\item \textbf{Live harness.} \src{scripts/collection/predict_prod.py} connects to dev and prod
+  PostgreSQL through \texttt{psycopg2}, runs \texttt{EXPLAIN} on production (no \texttt{ANALYZE}), forces
+  that plan on dev using \texttt{pg\_hint\_plan}, measures, predicts, and records into the calibration
+  store. It needs a database, so I did not run it (\evUNK).
+\item \textbf{CI.} The Gen-1 gate workflow (\src{.github/workflows/cetp-gate.yml}) installs the pinned
+  requirements and runs \src{gate/cetp\_gate.py} against a stored SLA configuration; a BLOCK verdict is
+  deliberately \emph{not} a build failure (commit \texttt{ffce2ec}).
+\item \textbf{Reproducibility artefact.} A \texttt{python:3.13-slim} Docker image reruns the analysis
+  from committed data with no database (\src{Dockerfile}).
+\end{enumerate}
+
+\section{Design principles visible in the code}
+\begin{enumerate}
+\item \textbf{Refuse rather than mislead.} Several functions raise on unsafe inputs: v1 signatures,
+  unreliable probes, mismatched probe scales, and uncalibrated cross-ISA prediction.
+\item \textbf{Every prediction carries its own critique.} The result dictionary always contains
+  \texttt{explained\_frac}, \texttt{unmapped\_frac}, a trust level and a list of warnings.
+\item \textbf{Zero dependencies in the shipped path.} The pickled scikit-learn models are confined to the
+  Gen-1 gate and the research scripts, because pickles are version-coupled.
+\item \textbf{Provenance is a first-class artefact.} \src{models/PROVENANCE.json} records
+  library versions and a \texttt{version\_mismatch: false} flag, and result generation is hash-checked
+  (\cref{sec:c10}).
+\end{enumerate}

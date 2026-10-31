@@ -2,7 +2,7 @@
   "name": "cetp-vscode",
   "displayName": "CETP",
   "description": "Cross-Environment TPC-H Runtime Prediction: sidebar and command wrapping the CETP Python backend",
-  "version": "0.1.0",
+  "version": "0.2.4",
   "publisher": "cetp-local",
   "engines": {
     "vscode": "^1.85.0"
@@ -86,8 +86,8 @@
         },
         "cetp.devCompute": {
           "type": "number",
-          "default": 0.807,
-          "description": "Dev machine compute score."
+          "default": 25.89,
+          "description": "Dev machine compute score (multi-core aggregate GFLOPS, c7i reference value). Must be the multi-core signature, not single-core -- single-core correlates with scaling at the wrong sign."
         },
         "cetp.defaultSlaMs": {
           "type": "number",

@@ -1,11 +1,19 @@
 import * as vscode from 'vscode';
 import { SidebarProvider } from './sidebarProvider';
-import { ProfileStore } from './profiles';
+import { ProfileStore, seedLegacyEc2Profiles } from './profiles';
 import { runPredictCommand } from './predictCommand';
 import { measureThisMachine } from './measure';
 
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const profileStore = new ProfileStore(context);
+
+  // Awaited BEFORE the webview provider is registered: resolveWebviewView() reads
+  // profileStore.list() synchronously on first render, and this extension activates
+  // on "onView:cetp.predictionView" -- i.e. activation can be triggered by the user
+  // opening the sidebar, so activate() and the view's first render can race. Awaiting
+  // here means the dropdown is never seen empty before the seed lands.
+  await seedLegacyEc2Profiles(profileStore);
+
   const sidebarProvider = new SidebarProvider(context.extensionUri, context, profileStore);
 
   context.subscriptions.push(

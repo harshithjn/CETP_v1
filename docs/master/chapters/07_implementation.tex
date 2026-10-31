@@ -1,0 +1,329 @@
+\chapter{Detailed implementation}\label{ch:impl}
+
+This chapter documents the functions that decide whether a prediction is right or wrong. Each card has
+the same nine items: purpose, inputs, logic, outputs, dependencies, edge cases, failure modes,
+verification and location. Line numbers are those of the file at HEAD plus working-tree changes
+(\evCODE). Test names refer to \src{tests/}; ``\evRUN'' means I executed it.
+
+\section{Plan decomposition}
+
+\begin{fcard}{decompose(plan)}{cetp/plan\_nodes.py:98--176}
+\fitem{Purpose}{Turn an \texttt{EXPLAIN (ANALYZE, FORMAT JSON)} tree into a flat list of nodes with
+\emph{self}-time, correcting for per-loop averaging, and tag each node with whether it lies below a \texttt{Gather}.}
+\fitem{Inputs}{A plan in any of three shapes: the full EXPLAIN list \texttt{[\{"Plan":\ldots\}]}, a dict
+with \texttt{"Plan"}, or a bare node (\texttt{\_unwrap}, l.\,87).}
+\fitem{Logic}{Depth-first walk. For node $n$ the inclusive time is $I_n=\texttt{Actual Total Time}\times
+\texttt{Actual Loops}$ (l.\,113--118). Self-time is $S_n=\max\!\big(0,\;I_n-\sum_{c\in\mathrm{children}}I_c\big)$ (l.\,131--134).
+\texttt{under\_gather} is inherited downward and becomes true after passing a \texttt{Gather} or
+\texttt{Gather Merge} (l.\,155--157). \texttt{parallel} is set if any node is \texttt{Parallel Aware} or a Gather.
+The operator axis comes from \texttt{operator\_for}.}
+\fitem{Outputs}{Dict with \texttt{nodes}, \texttt{execution\_time\_ms}, \texttt{parallel}, \texttt{analyzed},
+\texttt{self\_time\_sum\_ms}, \texttt{residual\_ms}, \texttt{residual\_frac}. Each node: \texttt{node\_type,
+operator, self\_ms, inclusive\_ms, rows} (rows $\times$ loops), \texttt{plan\_rows, loops, depth,
+parallel\_aware, under\_gather}.}
+\fitem{Dependencies}{None beyond the Python standard library; \texttt{operator\_for}, tables
+\texttt{OPERATOR\_MAP}, \texttt{AGG\_STRATEGY}, \texttt{PASSTHROUGH}.}
+\fitem{Edge cases}{(i) Plans without ANALYZE: \texttt{Actual Total Time} is absent, \texttt{self\_ms=None}, and
+\texttt{analyzed} is false. (ii) Parallel averaging can make the subtraction negative; it is clamped to 0
+(l.\,132--134), which silently discards time. (iii) \texttt{Actual Loops} of 0 or missing is treated as 1
+(\texttt{or 1}). (iv) Plans from PostgreSQL 18 with extra fields do not break parsing
+(\texttt{test\_pg18\_only\_fields\_do\_not\_break\_decomposition}).}
+\fitem{Failure modes}{Empty list raises \texttt{ValueError("empty plan")}. A new node type is not an error: it
+gets \texttt{operator=None} and its time falls in the unmapped residual. Self-times that do not sum to
+\texttt{Execution Time} produce a large \texttt{residual\_frac}; the function reports but does not reject.}
+\fitem{Verification}{\texttt{test\_self\_time\_subtracts\_children}, \texttt{test\_per\_loop\_time\_is\_multiplied\_by\_loops},
+\texttt{test\_negative\_self\_time\_is\_clamped}, \texttt{test\_under\_gather\_not\_parallel\_aware}. \evRUN\ I ran it on
+the three real fixtures: q1 has \texttt{Seq Scan} self-time 7{,}533\,ms and \texttt{Aggregate}
+(hashed) 3{,}214.5\,ms; node self-times sum to $3.00\times$ the wall time (\cref{sec:worked}).}
+\fitem{Location}{\src{cetp/plan\_nodes.py}, lines 98--176.}
+\end{fcard}
+
+\begin{fcard}{operator\_for(node) and the operator map}{cetp/plan\_nodes.py:34--84}
+\fitem{Purpose}{Decide which probe axis prices a node.}
+\fitem{Inputs}{A plan node dict (\texttt{Node Type}, and \texttt{Strategy} for aggregates).}
+\fitem{Logic}{\texttt{Aggregate} $\to$ by strategy: Hashed/Mixed $\to$ \texttt{hashagg}, Sorted $\to$
+\texttt{sort}, Plain $\to$ \texttt{seqscan}. Nodes in \texttt{PASSTHROUGH} (Gather, Limit, Result, Append,
+Materialize, Memoize, WindowAgg, \ldots) $\to$ \texttt{None}. Otherwise \texttt{OPERATOR\_MAP}: Seq Scan $\to$ seqscan;
+Hash/Hash Join $\to$ hashjoin; Sort/Incremental Sort/Merge Join $\to$ sort; Nested Loop and \emph{all} index and
+bitmap scans $\to$ nestloop.}
+\fitem{Outputs}{One of \texttt{seqscan, hashjoin, sort, hashagg, nestloop}, or \texttt{None}.}
+\fitem{Dependencies}{Constants only.}
+\fitem{Edge cases}{Missing \texttt{Strategy} defaults to ``Plain'' $\to$ seqscan. Unknown strategy falls to
+\texttt{hashagg}. \texttt{BitmapAnd/Or} were added after a corpus sweep over PostgreSQL 14/15/17/18 found
+them unmapped.}
+\fitem{Failure modes}{The mapping is a modelling assumption, not a measurement: treating Index Scan as
+\texttt{nestloop} is justified only by the comment that the probe's nestloop axis is an index-driven loop. A
+workload dominated by index scans is priced by an axis that was never validated against it.}
+\fitem{Verification}{Parametrised \texttt{test\_operator\_mapping}; \texttt{test\_aggregate\_splits\_by\_strategy};
+\texttt{test\_bitmap\_combination\_nodes\_have\_an\_axis}.}
+\fitem{Location}{\src{cetp/plan\_nodes.py}, lines 34--84.}
+\end{fcard}
+
+\section{The per-operator model}
+
+\begin{fcard}{weights\_from\_plan(plan, dev\_speedup)}{cetp/operator\_model.py:89--129}
+\fitem{Purpose}{Compute the normalised \emph{wall-time} share of each (axis, parallel) bucket, plus the unmapped share.}
+\fitem{Inputs}{Plan; \texttt{dev\_speedup} $\pi_d$ (default 1.0), the development machine's measured parallel speed-up.}
+\fitem{Logic}{For each node with $S_n>0$: $\text{par}_n=\texttt{under\_gather}_n$ (not \texttt{Parallel Aware}).
+Parallel nodes are converted from CPU-time to wall-time by $t=S_n/\pi_d$. Mapped time accumulates in
+bucket $(\text{op},\text{par})$ and unmapped time in a residual. Weights are
+$w_b=t_b/\big(\sum_b t_b+t_{\text{unmapped}}\big)$; the largest row count per bucket is kept for the
+cardinality term.}
+\fitem{Outputs}{Tuple \texttt{(weights, unmapped\_frac, profile)}; \texttt{weights} sums to $1-\texttt{unmapped\_frac}$.}
+\fitem{Dependencies}{\texttt{decompose}.}
+\fitem{Edge cases}{If total time is $0$ returns \texttt{(\{\}, 1.0, \ldots)}, meaning ``everything unmapped''.
+\texttt{dev\_speedup} of 0/None skips the conversion.}
+\fitem{Failure modes}{If the dev speed-up is mis-measured (the dev machine was contended),
+every parallel weight is wrong by the same factor; the normalisation hides that but shifts mass between
+serial and parallel buckets. Keying on \texttt{Parallel Aware} instead corrected only 46\% of q19's time and predicted
+$1.49\times$ against a true $3.01\times$ (code comment, l.\,145--152).}
+\fitem{Verification}{\texttt{test\_weights\_sum\_to\_one}, \texttt{test\_unmapped\_time\_is\_reported\_not\_dropped},
+\texttt{test\_parallel\_speedup\_changes\_the\_prediction}.}
+\fitem{Location}{\src{cetp/operator\_model.py}, lines 89--129.}
+\end{fcard}
+
+\begin{fcard}{predict\_scaling(plan, dev\_rates, prod\_rates, \ldots)}{cetp/operator\_model.py:140--204}
+\fitem{Purpose}{The model: predict $s=T_{\text{prod}}/T_{\text{dev}}$ and report how much of the plan it could explain.}
+\fitem{Inputs}{Plan; two rate dictionaries \{axis: tuples/s\}; optional \texttt{row\_ratio}, \texttt{calibration},
+\texttt{dev\_speedup}, \texttt{prod\_speedup}, \texttt{prod\_clients}, \texttt{concurrency\_elasticity}.}
+\fitem{Logic}{For each bucket $b=(\text{op},\text{par})$: $\rho_b=\dfrac{r_d(\text{op})\,\pi_d^{[\text{par}]}}{r_p(\text{op})\,\pi_p^{[\text{par}]}}$
+where $\pi^{[\text{par}]}$ equals the speed-up for parallel buckets and 1 otherwise; $\kappa_b$ is the cardinality
+factor. Contribution $w_b\rho_b\kappa_b$. Axes lacking a rate on either machine are \emph{unpriced}. The fallback
+$g=\mathrm{geomean}(\rho_b)$ prices both unmapped share and unpriced weight:
+$s_0=\sum_b w_b\rho_b\kappa_b+(u+m)\,g\,\kappa_{\text{none}}$. Final $s=s_0\cdot c\cdot N^{e}$ with calibration $c$.}
+\fitem{Outputs}{Dict with \texttt{scaling, scaling\_uncalibrated, concurrency\_factor, weights, weights\_by\_parallelism,
+per\_axis\_ratio, unmapped\_frac, unpriced\_axes, unpriced\_weight, explained\_frac, residual\_frac, parallel}, plus echo fields (\texttt{calibration, dev\_speedup, prod\_speedup, prod\_clients, concurrency\_elasticity\_used, concurrency\_elasticity\_is\_default, row\_ratio}); \texttt{predict\_runtime} adds \texttt{dev\_runtime\_ms, predicted\_prod\_ms}.}
+\fitem{Dependencies}{\texttt{weights\_from\_plan}, \texttt{cardinality\_factor}, \texttt{concurrency\_factor}.}
+\fitem{Edge cases}{No priced bucket: $g=1$. \texttt{row\_ratio=None}: all $\kappa=1$. Clients $\le1$: no concurrency.}
+\fitem{Failure modes}{(i) The formula predicts a \emph{ratio}, so it needs a measured $T_{\text{dev}}$.
+(ii) The geometric-mean fallback hides the fact that unpriced nodes may behave very differently from priced
+ones; the caller must read \texttt{explained\_frac}. (iii) The model is multiplicative in independent factors, so
+errors in the serial and parallel speed-ups compound. (iv) Zero or negative rates would raise
+\texttt{ZeroDivisionError} or yield nonsense; \texttt{load\_rates} does not validate positivity.}
+\fitem{Verification}{All tests in \src{tests/test\_operator\_model.py} (34 definitions, 42 collected);
+\evRUN\ 80 tests across that file and \texttt{test\_product\_loop.py} passed. Worked numerically in
+\cref{sec:worked}.}
+\fitem{Location}{\src{cetp/operator\_model.py}, lines 140--204.}
+\end{fcard}
+
+\begin{fcard}{cardinality\_factor(operator, row\_ratio, n\_rows)}{cetp/operator\_model.py:68--86}
+\fitem{Purpose}{Scale a node's cost when production holds a different amount of data.}
+\fitem{Inputs}{Axis name, row ratio $r=\text{rows}_p/\text{rows}_d$, optional row count $n$ of the node.}
+\fitem{Logic}{Linear axes: $r$. Sort (n log n): $r\big(1+\ln r/\ln n\big)$, the exact ratio of $n\log n$ costs;
+$n$ defaults to $10^5$.}
+\fitem{Outputs}{A multiplicative factor ($1.0$ if $r$ is missing or non-positive).}
+\fitem{Dependencies}{\texttt{COMPLEXITY}, \texttt{math}.}
+\fitem{Edge cases}{$n\le1$ falls back to the default; $r=1$ gives exactly 1.}
+\fitem{Failure modes}{\textbf{Unvalidated against data.} Every grid cell holds identical SF1 data, so
+only $r=1$ was ever exercised. The CLI keeps it off unless \texttt{--use-row-ratio} is passed, and a warning is
+emitted if $|r-1|>0.05$.}
+\fitem{Verification}{Unit tests on identity, superlinearity and insensitivity to assumed $n$ only
+(no empirical validation).}
+\fitem{Location}{\src{cetp/operator\_model.py}, lines 68--86.}
+\end{fcard}
+
+\begin{fcard}{fit\_calibration(observations) and select\_calibration\_queries(candidates, k)}{cetp/operator\_model.py:221--261}
+\fitem{Purpose}{Estimate a per-machine multiplicative correction from $k$ measured queries; choose which $k$ to measure.}
+\fitem{Inputs}{List of (predicted, actual) scalings; or \{query: predicted scaling\} and $k$.}
+\fitem{Logic}{$c=\operatorname{median}_i(a_i/p_i)$ over valid pairs. Selection: sort by predicted scaling; $k=1\Rightarrow$ the median
+query; else choose queries nearest to $k$ evenly spaced targets between min and max.}
+\fitem{Outputs}{A float $c$ (1.0 if no valid observation); a list of query ids.}
+\fitem{Dependencies}{None.}
+\fitem{Edge cases}{Pairs with non-positive values are dropped; $k\ge$ number of candidates returns all, sorted.}
+\fitem{Failure modes}{Median of one value is that value, so $k=1$ with a bad ratio is harmful; this is why the store
+flags $k<3$ as provisional (but still applies the factor; see \texttt{CalibrationStore}). A single multiplicative
+factor cannot correct an error that depends on the operator mix.}
+\fitem{Verification}{\texttt{test\_calibration\_uses\_median\_not\_mean}, \texttt{test\_calibration\_of\_nothing\_is\_identity},
+\texttt{test\_k1\_selection\_picks\_the\_median\_query}, \texttt{test\_selection\_spreads\_over\_the\_range},
+\texttt{test\_selection\_never\_repeats\_a\_query}. Empirical: few-shot MAPE on the Docker grid 22.41 ($k{=}0$), 25.26 ($k{=}1$), 21.30 ($k{=}2$), 21.81, 21.70,
+21.02 ($k{=}8$) \evFILE. Note $k{=}1$ is \emph{worse} than $k{=}0$.}
+\fitem{Location}{\src{cetp/operator\_model.py}, lines 221--261.}
+\end{fcard}
+
+\begin{fcard}{concurrency\_factor(clients, elasticity)}{cetp/operator\_model.py:132--137}
+\fitem{Purpose}{Scale runtime for $N$ simultaneous clients: $T(N)=T(1)\,N^{e}$.}
+\fitem{Inputs}{Client count, optional elasticity (default 0.734).}
+\fitem{Logic}{Returns $(N^{e},\,e)$ for $N>1$, else $(1.0,\text{None})$.}
+\fitem{Outputs}{Tuple.}
+\fitem{Dependencies}{\texttt{DEFAULT\_CONCURRENCY\_ELASTICITY}.}
+\fitem{Edge cases}{Negative or zero clients $\to$ factor 1.}
+\fitem{Failure modes}{$e$ varies 0.286--0.984 across queries and is \emph{not} predictable from the plan
+(leave-one-query-out MAE 0.191 using plan features versus 0.167 using the global median). The default
+reduces 8-client error from 73.8\% (ignoring concurrency) to 41.8\%, still large. Measured on one 8-core
+laptop only.}
+\fitem{Verification}{\texttt{test\_concurrency\_factor\_is\_applied\_and\_flagged\_as\_default},
+\texttt{test\_concurrency\_at\_one\_client\_is\_identity}; data in \src{results/concurrency\_model\_metrics.json}.}
+\fitem{Location}{\src{cetp/operator\_model.py}, lines 132--137.}
+\end{fcard}
+
+\section{Product flow and guards}
+
+\begin{fcard}{cross\_env.predict(\ldots)}{cetp/cross\_env.py:141--181}
+\fitem{Purpose}{One cross-environment prediction, with refusal, trust and warnings attached.}
+\fitem{Inputs}{Production plan (no ANALYZE) or None; dev analysed plan; dev runtime; rates; \texttt{plan\_forced};
+calibration; speed-ups; clients; \texttt{dev\_rec, prod\_rec} (signature records); \texttt{allow\_uncalibrated\_cross\_arch}.}
+\fitem{Logic}{(1) \texttt{architectures\_differ(dev\_rec, prod\_rec)} compares the last token of
+\texttt{client\_platform}. (2) If they differ \emph{and} \texttt{calibration == 1.0} and no override: raise
+\texttt{CrossArchitectureUncalibrated}. (3) A row ratio only if \texttt{use\_row\_ratio=True} (default False); production contributes \emph{plan} rows and development \emph{actual} rows, so it is only as good as production's estimates. (4) \texttt{predict\_runtime}.
+(5) Attach architecture fields, plan source, \texttt{\_trust}, \texttt{\_warnings}.}
+\fitem{Outputs}{The model dict plus \texttt{cross\_architecture, dev\_arch, prod\_arch, plan\_forced, plan\_source, trust, warnings}.}
+\fitem{Dependencies}{\texttt{operator\_model.predict\_runtime}, \texttt{plan\_nodes.decompose}.}
+\fitem{Edge cases}{Missing \texttt{client\_platform} on either side $\Rightarrow$ architectures treated as equal
+(\texttt{test\_missing\_platform\_info\_does\_not\_trigger\_refusal} makes this deliberate). Calibration of exactly $1.0$
+is the only ``uncalibrated'' signal, so passing $1.0000001$ defeats the guard.}
+\fitem{Failure modes}{\textbf{The CLI never passes \texttt{dev\_rec}/\texttt{prod\_rec}} (\cref{sec:cli-bypass}), so
+the guard is dead on that path. The warnings text quotes stale figures (28.54\% vs 38.22\%, ``132 pairs'') that
+do not match the committed metrics (29.31\% vs 37.39\% same-ISA, 242 pairs).}
+\fitem{Verification}{\texttt{test\_cross\_arch\_uncalibrated\_is\_refused}, \texttt{\_with\_calibration\_is\_allowed\_but\_warned},
+\texttt{\_override\_is\_possible\_but\_low\_trust}, \texttt{test\_same\_arch\_uncalibrated\_is\_not\_refused}.
+\evRUN\ library call raised the exception for m1-host $\to$ gha-x86; the same inputs via the CLI returned a prediction.}
+\fitem{Location}{\src{cetp/cross\_env.py}, lines 141--181.}
+\end{fcard}
+
+\begin{fcard}{load\_rates(registry\_path, machine\_id)}{cetp/cross\_env.py:84--109}
+\fitem{Purpose}{Return a machine's operator rates, refusing signatures that cannot be trusted.}
+\fitem{Inputs}{Registry path and machine id.}
+\fitem{Logic}{Raise \texttt{KeyError} if absent; \texttt{ValueError} if \texttt{signature\_kind} is not
+\texttt{operator\_rates\_v1/v2}, if it is \texttt{v1} (no parallel axis), if \texttt{invalid\_probes} is non-empty, or if
+\texttt{reliable} is \texttt{False}. Returns \texttt{(rates, record)}.}
+\fitem{Outputs}{Rates dict \{axis: tuples/s\}, full record.}
+\fitem{Dependencies}{\texttt{json}.}
+\fitem{Edge cases}{A missing \texttt{reliable} field is tolerated (treated as reliable).}
+\fitem{Failure modes}{\evRUN\ in the committed registry \texttt{c2m1g} is flagged unreliable (probe noise), so it
+cannot be used as a reference; evaluation still includes its cell, flagged ``unreliable'' (CV 0.307).}
+\fitem{Verification}{\texttt{test\_v1\_signature\_is\_refused}, \texttt{test\_invalid\_probes\_are\_refused},
+\texttt{test\_unreliable\_signature\_is\_refused}, \texttt{test\_missing\_reliable\_field\_is\_tolerated},
+\texttt{test\_unknown\_machine\_is\_refused}.}
+\fitem{Location}{\src{cetp/cross\_env.py}, lines 84--109.}
+\end{fcard}
+
+\begin{fcard}{\_trust(out) and \_warnings(out)}{cetp/cross\_env.py:184--259}
+\fitem{Purpose}{Assign a coarse trust level and list every reason to doubt the prediction.}
+\fitem{Inputs}{The model output dict.}
+\fitem{Logic}{Order matters: cross-ISA $\to$ LOW if uncalibrated else MEDIUM; \texttt{explained\_frac}$<0.5\to$LOW;
+forcing failed $\to$ LOW; uncalibrated $\to$ MEDIUM; no production plan $\to$ MEDIUM; unmapped share $>0.25\to$ MEDIUM; else HIGH.}
+\fitem{Outputs}{String LOW/MEDIUM/HIGH; list of warning strings.}
+\fitem{Dependencies}{None.}
+\fitem{Edge cases}{HIGH requires: same ISA, calibrated, production plan forced and verified, mapped share high.}
+\fitem{Failure modes}{The thresholds (0.5, 0.25, 0.1) are hand-set, not fitted; trust is a heuristic, not a
+calibrated probability. No experiment shows that HIGH-trust predictions are more accurate than MEDIUM ones.}
+\fitem{Verification}{\texttt{test\_unforced\_plan\_is\_never\_high\_trust}, \texttt{test\_uncalibrated\_is\_never\_high\_trust},
+\texttt{test\_forced\_plan\_can\_reach\_high\_trust}.}
+\fitem{Location}{\src{cetp/cross\_env.py}, lines 184--259.}
+\end{fcard}
+
+\begin{fcard}{CalibrationStore.record / save / calibration}{cetp/calibration\_store.py:54--139}
+\fitem{Purpose}{Persist measured (predicted, actual) scalings per (dev, prod) pair and expose the median correction.}
+\fitem{Inputs}{dev id, prod id, query id, predicted and actual scaling (positive), optional architectures.}
+\fitem{Logic}{Observations are keyed by query id, so re-measuring supersedes. \texttt{save} writes a temp file in the
+target directory then \texttt{os.replace} (atomic on POSIX). \texttt{calibration} returns
+\{factor, n, provisional, source\}; \texttt{provisional = n < 3}.}
+\fitem{Outputs}{JSON on disk at \texttt{\textasciitilde/.cetp/calibration.json} or \texttt{\$CETP\_CALIBRATION\_PATH}.}
+\fitem{Dependencies}{\texttt{fit\_calibration}, \texttt{tempfile}, \texttt{os}.}
+\fitem{Edge cases}{A corrupt file is ignored and the store degrades to zero-shot (no exception).}
+\fitem{Failure modes}{No file locking: two processes can lose each other's updates. The factor is still returned when
+provisional; applying it is the caller's decision. A user-facing CLI command to read the store is not part of
+\texttt{cli.py}.}
+\fitem{Verification}{\texttt{test\_store\_round\_trips\_through\_disk}, \texttt{test\_corrupt\_store\_degrades\_to\_zero\_shot\_rather\_than\_crashing},
+\texttt{test\_remeasuring\_a\_query\_supersedes\_its\_old\_value}, \texttt{test\_non\_positive\_observations\_are\_rejected}.}
+\fitem{Location}{\src{cetp/calibration\_store.py}, lines 54--139.}
+\end{fcard}
+
+\section{Privacy, ingestion and telemetry}
+
+\begin{fcard}{redact\_plan(obj, level, salt) and assert\_clean(plan)}{cetp/redact.py:87--165}
+\fitem{Purpose}{Remove literal values (and optionally identifiers) from an EXPLAIN document before it leaves the machine, then verify.}
+\fitem{Inputs}{Parsed plan (list/dict), \texttt{level} in \{structural, full\}, hashing salt.}
+\fitem{Logic}{Recursive copy. Fields in \texttt{EXPRESSION\_FIELDS} (Filter, Index Cond, Hash Cond, Output, \ldots) have string literals
+replaced by \texttt{'?'} and numeric literals by \texttt{?}. \texttt{Query Text} gets the same, or is replaced by
+``[redacted]'' at \texttt{full}. At \texttt{full}, identifier fields and identifier-like tokens inside expressions are
+replaced by \texttt{id\_} plus a 5-byte BLAKE2s hash of ``salt:name''. \texttt{assert\_clean} re-scans for surviving quotes or digits.}
+\fitem{Outputs}{A redacted copy; \texttt{True} or \texttt{ValueError}.}
+\fitem{Dependencies}{\texttt{re}, \texttt{hashlib}.}
+\fitem{Edge cases}{Structure fields (\texttt{Node Type}, \texttt{Strategy}, \ldots) are never touched.}
+\fitem{Failure modes}{\evRUN\ (a) PostgreSQL escape-string literals with an escaped quote:
+\texttt{E'O\textbackslash'Brien secret'} becomes \texttt{E'?'Brien secret'}, leaking \texttt{Brien secret}, and
+\texttt{assert\_clean} still returns True. (b) Dollar-quoted literals \texttt{\$\$secret\$\$} pass through untouched and
+\texttt{assert\_clean} returns True. (c) The default salt \texttt{"cetp"} is public and 40-bit hashes of common column
+names are dictionary-recoverable, so \texttt{full} is pseudonymisation, not anonymisation. (d) Structural level keeps
+relation and column names by design.}
+\fitem{Verification}{\texttt{test\_ingested\_plans\_are\_redacted\_before\_being\_returned}, \texttt{test\_query\_text\_literals\_are\_stripped},
+\texttt{test\_query\_text\_is\_dropped\_entirely\_at\_full\_level}. The failure cases above are \emph{not} covered by any test.}
+\fitem{Location}{\src{cetp/redact.py}, lines 87--165.}
+\end{fcard}
+
+\begin{fcard}{parse\_auto\_explain\_log(text, level, strict) and rank\_queries(rows)}{cetp/ingest.py:105--186}
+\fitem{Purpose}{Extract plans and durations from a PostgreSQL log written by \texttt{auto\_explain} (JSON format), redact them, and rank queries from \texttt{pg\_stat\_statements}.}
+\fitem{Inputs}{Log text; level; strict flag. Rows with \texttt{total\_ms}.}
+\fitem{Logic}{Regex finds ``duration: X ms plan:'', then a balanced-brace scan extracts the JSON; if parsing fails, repeated log prefixes are stripped and parsing is retried. Each plan is redacted then verified. Ranking sorts by total time and marks the top 3 as \texttt{calibration\_candidate}.}
+\fitem{Outputs}{\texttt{(entries, dropped)} where entries are \texttt{\{duration\_ms, plan\}}.}
+\fitem{Dependencies}{\texttt{redact}.}
+\fitem{Edge cases}{JSON that is complete but unparseable is dropped and recorded in \texttt{dropped}. An entry whose JSON is \emph{truncated} (no closing brace) is skipped \emph{silently}: \texttt{\_balanced\_json} returns \texttt{None} and the loop \texttt{continue}s without a record \evCODE.}
+\fitem{Failure modes}{The docstring promises a list of \texttt{\{duration\_ms, plan, query\_id\}}; the code returns a tuple \texttt{(entries, dropped)} and no \texttt{query\_id}. The statement says there is ``no flag to disable'' redaction, yet \texttt{strict=False} silently drops entries that fail the check. \texttt{\_balanced\_json} is string-aware (it tracks quotes and escapes), so braces inside JSON strings are handled; hostile or interleaved log content was not tested.}
+\fitem{Verification}{\texttt{test\_auto\_explain\_parses\_every\_log\_layout}, \texttt{test\_unparseable\_entry\_is\_dropped\_not\_raised}, \texttt{test\_ranking\_is\_by\_total\_time\_not\_mean}, \texttt{test\_ranking\_marks\_a\_calibration\_budget}.}
+\fitem{Location}{\src{cetp/ingest.py}, lines 105--186.}
+\end{fcard}
+
+\section{Regression detection}
+
+\begin{fcard}{regress.detect(before, after, dev\_sig, prod\_sig, \ldots)}{cetp/regress.py:30--82}
+\fitem{Purpose}{Decide whether a code or schema change makes a query slower in production, using a ratio in which the hardware term cancels.}
+\fitem{Inputs}{Two EXPLAIN ANALYZE plans of the same query on the same dev machine; Gen-1 signatures; threshold (default 1.20).}
+\fitem{Logic}{Predict both plans. $\text{dev\_ratio}=T_a/T_b$; $\text{prod\_ratio}=\hat T^{a}_{\text{prod}}/\hat T^{b}_{\text{prod}}=\text{dev\_ratio}\cdot s_a/s_b$; hardware term $=s_a/s_b$.
+Verdict REGRESSION if prod ratio $\ge1.2$, IMPROVEMENT if $\le1/1.2$, else NEUTRAL. Trust: HIGH if $|1-\text{hw term}|<0.02$, MODERATE if $<0.15$, else LOW.}
+\fitem{Outputs}{Dict with verdict, ratios, hardware term, trust sentence, before/after details.}
+\fitem{Dependencies}{Gen-1 \texttt{predict}, \texttt{signature}.}
+\fitem{Edge cases}{Identical plans give ratio 1 and ``cancelled''.}
+\fitem{Failure modes}{The Gen-1 scaling $s$ is computed from the two machine signatures alone (the default analytical weights are uniform and the plan is used only to read the dev runtime), so $s_a=s_b$ and the hardware term is \emph{exactly} 1.0 for any pair of plans (for both predictors, since \texttt{predict.predict} computes the scaling from the two signatures' ratios only). The cancellation is a tautology, not a finding, and the trust line is always HIGH. \evRUN\ comparing the q1 and q19 fixtures (two unrelated queries) returned hardware term 1.0, ``cancelled'', trust HIGH, predicted production ratio equal to the dev ratio (0.2382). The command therefore reports the measured dev-side ratio against a 1.20 threshold and adds no cross-machine information. \textbf{Its accuracy was never measured} (no labelled regression set).}
+\fitem{Verification}{\evRUN\ \texttt{grep regress tests/*.py} finds one comment and no test. The only check is the identity case in \texttt{cetp selftest} (same plan twice $\Rightarrow$ ratio 1.000, ``hardware term cancels''), which tests the tautology itself.}
+\fitem{Location}{\src{cetp/regress.py}, lines 30--82.}
+\end{fcard}
+
+\section{Generation-1 predictor and gate}
+
+\begin{fcard}{predict.analytical\_scaling, compute\_only\_scaling, hardware\_distance\_confidence}{cetp/predict.py:67--104}
+\fitem{Purpose}{Gen-1 closed-form scaling from two machine ratios, and a coarse outlier flag.}
+\fitem{Inputs}{$B=\text{bw}_p/\text{bw}_d$, $C=\text{cmp}_p/\text{cmp}_d$; production signature and reference machines.}
+\fitem{Logic}{$\sigma=0.5/B+0.25/C+0.25\sqrt{1/(BC)}$; cmp-only $\sigma=1/C$. Confidence $=\max(0,1-d_{\min}/\sqrt2)$ where $d_{\min}$ is the
+smallest Euclidean distance, after min--max normalisation of both axes, to any reference machine.}
+\fitem{Outputs}{Floats.}
+\fitem{Dependencies}{\texttt{signature.LEGACY} (five EC2 machines) as the reference set; the gate's copy reads its reference table from the pickled \texttt{hardware\_signature} instead.}
+\fitem{Edge cases}{If all reference bandwidths (or all computes) are equal the confidence is 1.0 (guard at l.\,97). The gate's own copy of this function has no such guard.}
+\fitem{Failure modes}{Division by zero if a ratio is 0. The threshold 0.6 is hand-set; there are only six distinct confidence values over the evaluation set. Normalising by the reference range means a production machine far outside it can still score $>0$ because the min--max is computed from reference points only.}
+\fitem{Verification}{Hand-check (\evRUN): c7i $\to$ c5a, $B=14.9/8.44$, $C=40.8071/25.8909$, $\sigma=0.5917$, giving 3{,}587\,ms $\to$ 2{,}122\,ms (matches the selftest).}
+\fitem{Location}{\src{cetp/predict.py}, lines 67--104; duplicate in \src{gate/cetp\_gate.py}, lines 99--148.}
+\end{fcard}
+
+\begin{fcard}{gate.three\_state\_verdict}{gate/cetp\_gate.py:151--183}
+\fitem{Purpose}{Map predicted quantiles and an SLA to PASS / WARN / BLOCK.}
+\fitem{Inputs}{Dev time, predicted scalings \{p50, p95, p99\}, confidence, threshold, SLA (ms).}
+\fitem{Logic}{If confidence $<0.6\Rightarrow$ WARN. Else if $p_{50}\cdot T_d>\text{SLA}\Rightarrow$ BLOCK. Else if $p_{99}\cdot T_d\le\text{SLA}\Rightarrow$ PASS. Else WARN.}
+\fitem{Outputs}{Dict: state, reason, predicted times, confidence, SLA.}
+\fitem{Dependencies}{Quantile models (GBR, 200 trees, depth 3, learning rate 0.05, seed 42) and a 300-tree random-forest classifier, both pickled with scikit-learn 1.8.0.}
+\fitem{Edge cases}{$\text{SLA}\le0$ raises in \texttt{run\_gate\_with\_models} (l.\,189).}
+\fitem{Failure modes}{On the 840-pair evaluation: BLOCK $n{=}66$ (7.9\%) had actual breach rate 45.45\%, so 54.5\% were false alarms; PASS $n{=}26$ (3.1\%) had breach 3.85\%; WARN $n{=}748$ (89\%). The gate says WARN almost always and is of little discrimination value. The p95/p99 training targets are warm-up contaminated (\src{models/PROVENANCE.json}).}
+\fitem{Verification}{\texttt{TestAllFourVerdictBranchesFire}, \texttt{test\_block\_exit\_code\_is\_one}, \texttt{TestConfidenceBoundary}; figures from \src{results/phase7\_gate\_evaluation.csv} \evFILE.}
+\fitem{Location}{\src{gate/cetp\_gate.py}, lines 151--183.}
+\end{fcard}
+
+\section{Acquisition: the operator probe}
+
+\begin{fcard}{operator\_probe.measure and main}{scripts/collection/operator\_probe.py:234--403}
+\fitem{Purpose}{Measure tuples/second for five PostgreSQL operators plus the parallel speed-up, using SQL only.}
+\fitem{Inputs}{Machine id, database, port, host/user.}
+\fitem{Logic}{Create three \texttt{UNLOGGED} tables (2.0\,M, 0.4\,M, 6.0\,M rows) and an index, \texttt{ANALYZE}. For each probe run
+\texttt{EXPLAIN (ANALYZE)} 9 times (11 for parallel, 3 for io), discard the first as warm-up, take the median of the rest;
+rate $=n_{\text{tuples}}/(\text{median}/1000)$. Session settings force the named operator (e.g.\ \texttt{enable\_nestloop=off}
+for hash join; \texttt{jit=off}; \texttt{work\_mem=64MB}). \texttt{verify\_operator\_used} checks the plan really contains the
+intended node. Reliability gate: bootstrap standard error of the median / median $\le0.08$ (\texttt{MAX\_MEDIAN\_SE}); CV is recorded (\texttt{MAX\_CV}=0.15) but not gated.
+The parallel speed-up is parallel\_seqscan / seqscan.}
+\fitem{Outputs}{An entry in \src{models/operator\_signature.json}: rates, parallel speed-up, probe scale, reliability flags.}
+\fitem{Dependencies}{\texttt{psql} on the path, a database with \texttt{CREATE} privilege, PostgreSQL $\ge$ the version used (15).}
+\fitem{Edge cases}{Invalid probes (wrong operator chosen) are listed, not used. Teardown runs in a \texttt{finally}.}
+\fitem{Failure modes}{On a busy machine the probe measures contention: one host's parallel speed-up moved from 2.47$\times$ to 1.66$\times$ while a
+container sweep ran. The io axis \emph{does not measure storage} (it tracks CPU quota, Spearman 0.762) and is deliberately not used by the model. The
+probe requires a shell \texttt{psql} client, which contradicts the ``works on managed PostgreSQL with no shell'' claim only in the sense that the
+\emph{client} still needs a shell, not the server.}
+\fitem{Verification}{Not run by me (needs PostgreSQL). Reliability behaviour is checked in \texttt{test\_unreliable\_signature\_is\_refused} on synthetic registries. Committed registry: 13 machines, 12 reliable (c2m1g not).}
+\fitem{Location}{\src{scripts/collection/operator\_probe.py}, lines 234--403; constants lines 80--215.}
+\end{fcard}

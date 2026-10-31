@@ -177,8 +177,14 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     const pythonPath = config.get<string>('pythonPath', 'python3');
     const database = config.get<string>('database', 'tpch');
     const devBandwidth = config.get<number>('devBandwidth', 8.44);
-    const devCompute = config.get<number>('devCompute', 0.807);
-    const backendScript = resolveBackendScript(config.get<string>('backendScript', ''));
+    // 25.89 is the multi-core c7i reference value (models/hardware_signature.pkl). The
+    // old fallback of 0.807 was that same machine's SINGLE-CORE score -- the one this
+    // project measured to correlate with scaling at the wrong sign. This fallback only
+    // applies if cetp.devCompute is literally unset, same bug as the package.json
+    // default fixed earlier, just duplicated here.
+    const devCompute = config.get<number>('devCompute', 25.89);
+    const repoRoot = config.get<string>('repoRoot', '');
+    const backendScript = resolveBackendScript(config.get<string>('backendScript', ''), repoRoot);
     const queryId = path.basename(filePath, path.extname(filePath));
 
     if (!(await fileExists(backendScript))) {

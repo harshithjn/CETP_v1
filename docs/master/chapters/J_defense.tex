@@ -1,0 +1,107 @@
+\chapter{Viva question bank}\label{app:defense}
+Fifteen questions from basic to adversarial. Each has a concise answer, a detailed explanation, evidence pointers and a likely follow-up.
+
+\begin{fcard}{1. Basic: what is CETP?}{Q\&A}
+\fitem{Concise}{A tool that predicts how long a PostgreSQL query will take on another machine from its plan and measured machine speeds.}
+\fitem{Detail}{Gen-2 decomposes an EXPLAIN ANALYZE plan into per-operator self-times, weights them, and multiplies by the dev-to-prod throughput ratio of each operator class, with a separate parallel speed-up for nodes under a Gather.}
+\fitem{Evidence}{\cref{ch:exec}; \cref{eq:gen2}.}
+\fitem{Follow-up}{What does it need from production? Only a machine signature, optionally $k\ge3$ measured queries.}
+\end{fcard}
+
+\begin{fcard}{2. Basic: why not just run it on production?}{Q\&A}
+\fitem{Concise}{Often unsafe or impossible; that is the problem premise.}
+\fitem{Detail}{Production may be live, large or access-restricted. The tool targets pre-deployment checks from a development box.}
+\fitem{Evidence}{\cref{ch:problem}.}
+\fitem{Follow-up}{Then why measure a signature on production at all? Probing needs CREATE and a short idle window; running the real query does not scale.}
+\end{fcard}
+
+\begin{fcard}{3. Architecture: how is it structured?}{Q\&A}
+\fitem{Concise}{A zero-dependency library plus collection scripts and an evaluation pipeline.}
+\fitem{Detail}{Plan parsing, operator model, cross-environment layer, calibration store, redaction/ingest/telemetry, CLI; probes and evaluations live outside the package.}
+\fitem{Evidence}{\cref{ch:arch}, \cref{ch:repo}.}
+\fitem{Follow-up}{Why zero dependencies? Easier install on arbitrary servers; Gen-1 gate still needs scikit-learn.}
+\end{fcard}
+
+\begin{fcard}{4. Implementation: what is the key technical idea?}{Q\&A}
+\fitem{Concise}{Parallel nodes are averaged across participants and must be scaled by a separate speed-up.}
+\fitem{Detail}{Self-times sum to about 3$\times$ wall on parallel plans (2.997$\times$ on the fixture). The model weights by wall share, divides parallel nodes by the machine's speed-up, and keys on \texttt{under\_gather}, not \texttt{Parallel Aware}.}
+\fitem{Evidence}{\cref{sec:worked} \evRUN; \cref{ch:decisions} D8--D9.}
+\fitem{Follow-up}{Why not Parallel Aware? It corrected 46\% of q19 against 100\% for under-gather.}
+\end{fcard}
+
+\begin{fcard}{5. Algorithms: write the prediction.}{Q\&A}
+\fitem{Concise}{$\hat t_p = t_d \cdot \sum_c w_c\,\rho_c$ with calibration and concurrency factors.}
+\fitem{Detail}{$w_c$ is dev wall share of class $c$; $\rho_c$ is the dev/prod rate ratio, with parallel classes using the speed-up ratio; unmapped or unpriced share uses the geometric mean.}
+\fitem{Evidence}{\cref{eq:ratio}.}
+\fitem{Follow-up}{What is the geometric-mean fallback justified by? Hand choice; its effect is not isolated.}
+\end{fcard}
+
+\begin{fcard}{6. Evaluation: how do you avoid leakage?}{Q\&A}
+\fitem{Concise}{Leave-one-machine-out with refit inside each fold and a cluster bootstrap.}
+\fitem{Detail}{Leaky versus leakage-free learned MAPE is 25.62 versus 23.90. Test folds are pairs touching the held-out machine (168 pairs; 840 evaluations).}
+\fitem{Evidence}{\cref{lst:lomo}; \cref{app:evidence}.}
+\fitem{Follow-up}{Why is the learned model so variable? 17.29 seen versus 26.86 unseen: it interpolates.}
+\end{fcard}
+
+\begin{fcard}{7. Results: does it beat naive?}{Q\&A}
+\fitem{Concise}{On five similar EC2 machines slightly; on the container grid decisively.}
+\fitem{Detail}{Tier 1: naive 31.96, analytical 21.61. Grid: naive 72.52, operator 22.41. But naive-linear versus cmp\_only is not significant, and on the laptop-to-prod set operator (43.72) is worse than naive (31.70).}
+\fitem{Evidence}{\cref{ch:results}.}
+\fitem{Follow-up}{Where does it lose? Across ISAs, 68.92 versus 21.74.}
+\end{fcard}
+
+\begin{fcard}{8. Honesty: what is your headline?}{Q\&A}
+\fitem{Concise}{Parallelism-aware capability transfer and honest negative results, not a new accurate predictor.}
+\fitem{Detail}{The roofline weighting, classifier and learned models add nothing over the simplest component; cross-ISA fails.}
+\fitem{Evidence}{\cref{ch:conclusion}.}
+\fitem{Follow-up}{Is that enough for a capstone? It is a defensible empirical contribution if framed without overclaiming.}
+\end{fcard}
+
+\begin{fcard}{9. Statistics: how large are the CIs?}{Q\&A}
+\fitem{Concise}{Wide for the contested comparisons.}
+\fitem{Detail}{analytical$-$cmp\_only +1.55 [$-0.41$, 3.51] and naive-linear$-$cmp\_only +2.99 [$-0.09$, 6.07] both include zero.}
+\fitem{Evidence}{\cref{app:evidence}.}
+\fitem{Follow-up}{So is cmp\_only better? Not demonstrably.}
+\end{fcard}
+
+\begin{fcard}{10. Uncertainty: do the intervals cover?}{Q\&A}
+\fitem{Concise}{Split conformal roughly does pooled; per unseen machine it does not.}
+\fitem{Detail}{At nominal 0.90 pooled 0.912, worst machine 0.780; GBR quantile 0.781 / 0.702. Gate BLOCK is wrong 54.5\% of the time.}
+\fitem{Evidence}{\cref{sec:conformal} \evRUN.}
+\fitem{Follow-up}{What would you ship? Conformal table with the per-machine caveat.}
+\end{fcard}
+
+\begin{fcard}{11. Failure modes: what breaks?}{Q\&A}
+\fitem{Concise}{Cross-ISA, plan changes, I/O-bound queries, busy probe hosts.}
+\fitem{Detail}{Plan drift is 70.5\% of cross-environment difference when plans change; probe on a busy host moved parallel speed-up 48\%; I/O class recall is 0.}
+\fitem{Evidence}{\cref{ch:limits}.}
+\fitem{Follow-up}{How does the tool signal this? Trust labels and refusals, except in the CLI bypass.}
+\end{fcard}
+
+\begin{fcard}{12. Security: what about sensitive data?}{Q\&A}
+\fitem{Concise}{Redact before sharing; but the verifier is incomplete.}
+\fitem{Detail}{Escape-string and dollar-quoted literals pass the verifier; the default salt is public.}
+\fitem{Evidence}{\cref{ch:security} \evRUN.}
+\fitem{Follow-up}{Is it PII-safe? Not yet.}
+\end{fcard}
+
+\begin{fcard}{13. Process: what was found wrong in your own evidence?}{Q\&A}
+\fitem{Concise}{C10: the evaluation globbed a directory, silently changing the grid; fixed with a manifest and hashes.}
+\fitem{Detail}{Operator MAPE moved 24.95 to 22.41. Lesson: select inputs explicitly and hash them.}
+\fitem{Evidence}{\cref{sec:c10}.}
+\fitem{Follow-up}{Which numbers are still stale? Paper draft, site, PDFs.}
+\end{fcard}
+
+\begin{fcard}{14. Critique: what would you do differently?}{Q\&A}
+\fitem{Concise}{Fewer experiment families, more distinct machines, and a CLI test from day one.}
+\fitem{Detail}{The population is five EC2 types and eight containers on one host; four runners are near-identical.}
+\fitem{Evidence}{\cref{ch:decisions}.}
+\fitem{Follow-up}{What first? Fix X1--X3 of \cref{app:issues}.}
+\end{fcard}
+
+\begin{fcard}{15. Future: what is the path to a real product?}{Q\&A}
+\fitem{Concise}{Managed-PostgreSQL and real x86 production validation, then ISA-aware calibration.}
+\fitem{Detail}{Needs a measured regression-detection accuracy, a Gen-2 CI integration, and an I/O axis.}
+\fitem{Evidence}{\cref{ch:limits}.}
+\fitem{Follow-up}{What would convince a sceptic? Zero-shot cross-ISA error below naive on held-out hardware.}
+\end{fcard}

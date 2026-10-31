@@ -1,0 +1,11 @@
+\chapter{Reproducibility commands}\label{app:reproduce}
+Commands I ran on the device (Python 3.10.12 VM, repo mounted read-write; \texttt{PYTHONDONTWRITEBYTECODE=1} so no repo file changed) \evRUN: the fixture prediction of \cref{sec:worked}, the conformal recomputation, and 80 tests (operator\_model, product\_loop; all passed). Commands I did \emph{not} run: the full 119-test suite, \texttt{make verify-determinism}, any probe or collection.
+\begin{lstlisting}[style=cetp,language={},mathescape=false]
+# from the repository root, Python >= 3.11
+python -m venv .venv && . .venv/bin/activate
+pip install -r requirements.txt        # pins: see the configuration appendix
+python -m pytest -q                    # 119 tests collected (pack)
+make verify-determinism                # re-run canonical outputs (not run by me)
+make help                              # lists collection targets (grid-collect, ...)
+\end{lstlisting}
+Collection targets need Docker and PostgreSQL and take 2--3\,h for the grid. The cross-ISA CLI and probe procedures are in \cref{ch:setup}.

@@ -1,0 +1,24 @@
+\chapter{Conclusion}\label{ch:conclusion}
+
+\section{What was built}
+A zero-dependency Python package and a research pipeline for predicting PostgreSQL query runtime on a different machine: a plan decomposer that corrects per-loop and parallel-averaged timings, a per-operator scaling model with machine rates measured by SQL probes, a calibration store, refusal and trust logic, plan ingestion and redaction, telemetry, a legacy two-scalar predictor with conformal intervals and an SLA gate, and an unusually deep evidence trail (about 78 committed result files, hash-checked regeneration, four test files).
+
+\section{What the evidence shows}
+\begin{enumerate}
+\item On five similar x86 EC2 machines a simple compute-ratio model reaches about 20--22\% MAPE against 32\% for assuming no change and 23\% for the bandwidth ratio; the differences between the three simple models are small.
+\item Handling \texttt{Gather}-level parallelism is what matters when machines differ in parallelism: error falls from about 67--73\% to about 22\% on a controlled container grid.
+\item Everything fancier (roofline weighting, classifier, per-operator rate weighting, learned models) is statistically indistinguishable from, or worse than, its simplest component.
+\item Across instruction sets the signature fails (68.9\% vs 21.7\%), and a prediction from an M1 laptop to x86 EC2 is worse than assuming nothing changes.
+\end{enumerate}
+
+\section{Answer in 30 seconds}
+CETP tries to tell you how long a PostgreSQL query will take on another machine, using the plan you already have and a handful of measured machine speeds. Its most solid finding is that the part of the plan that runs in parallel scales differently from the rest, and modelling that cuts error from roughly 70\% to roughly 22\% on our test machines. It does not yet work across processor architectures, and it says so by refusing, at least in its library.
+
+\section{Answer in two minutes (technical)}
+The dev EXPLAIN ANALYZE is decomposed into self-times per operator; nodes under a Gather are flagged because PostgreSQL reports them averaged across participants. Dev wall-time shares are turned into weights; each weight is multiplied by the dev-to-prod ratio of that operator's measured throughput, with the parallel speed-up of each machine applied to parallel nodes only. Unmapped or unpriced time is priced at the geometric mean of the rest; a median-of-ratios calibration from three or more measured queries absorbs a constant machine-specific error. The evaluation uses leave-one-machine-out cross-validation with refit-per-fold and a cluster bootstrap. The method wins decisively over the naive baseline where production's parallelism differs (1-CPU quota), loses to the no-change baseline in four of seven same-ISA cells (c4m1g, c4m3g, c8m1g, c8m3g), ties in one (c2m3g), wins clearly only in the two 1-CPU cells, and loses by a factor of three across ISAs.
+
+\section{Honest overall assessment}
+The research is careful and the negative results are the most valuable part; the product is an alpha with several real defects found in this audit (\cref{app:issues,app:audit}). If a panel asks ``does it work?'', the defensible answer is: it identifies and corrects the dominant effect (parallelism) within one ISA, it does not generalise zero-shot across ISAs, and the evidence for broader use is not there yet.
+\begin{honest}
+I would not describe CETP as ``accurately predicting production runtime''. The numbers support ``a small improvement over naive on similar machines, a large improvement when parallelism differs, and failure across ISAs''.
+\end{honest}
