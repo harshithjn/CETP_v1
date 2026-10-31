@@ -1,0 +1,97 @@
+\chapter{Data, schemas and storage}\label{ch:data}
+
+\section{Datasets}
+\begin{center}\small
+\begin{longtable}{@{}L{3.4cm}L{7.2cm}L{4.2cm}@{}}
+\toprule \thead{Dataset} & \thead{Content} & \thead{Evidence}\\ \midrule \endhead
+\texttt{data/corrected/tpch\_dataset\_corrected\_v2.csv} & EC2 study. 2{,}100 rows = 5 machines $\times$ 21 TPC-H queries $\times$ 20 repetitions; columns \texttt{machine\_id, query\_id, cost, time\_ms, shared\_hit, shared\_read, rows, rows\_processed}. SF1, PostgreSQL 15, EBS storage. Q15 excluded & \evRUN\ read header and row count (2100)\\
+\texttt{data/raw\_buggy\_do\_not\_use/} & Original dataset where buffer counters were summed over the whole plan tree, inflating them 3.06--12.00$\times$ & \evPACK\\
+\texttt{data/container\_grid/} & 8 Docker cells (CPU $\in\{1,2,4,8\}$ $\times$ memory $\in\{1,3\}$\,GB) plus 4 GitHub-Actions x86 cells (\texttt{gha-*}); \texttt{tpch\_<cell>.csv}; \texttt{grid\_manifest.json}; \texttt{operator\_signature\_grid.json} & \evFILE\\
+\texttt{data/laptop/} & Apple-M1 laptop runs: \texttt{tpch\_dataset\_m1.csv}, CPU-limited \texttt{tpch\_m1\_c1..c8.csv}, PostgreSQL 14/15/17/18 runs & \evFILE\\
+\texttt{data/plans*} & Stored EXPLAIN plans: \texttt{plans/}, \texttt{plans\_grid/} (untracked), \texttt{plans\_pg14/15/17/18} & \evFILE\\
+\texttt{data/external/} & Third-party: IMDB, JOB queries, TPC-DS kit, \texttt{pg\_hint\_plan} (23\,MB) & \evFILE\\
+\texttt{scripts/collection/queries*} & 22 TPC-H, 113 JOB and 99 TPC-DS query files. Only TPC-H enters the headline results & \evRUN\ file counts\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\subsection{Machine inventory}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{2.2cm}L{1.4cm}L{2.6cm}L{2.0cm}L{2.2cm}Y@{}}
+\toprule \thead{Machine} & \thead{Kind} & \thead{ISA} & \thead{Bandwidth$^\dagger$} & \thead{Multi-core GFLOPS} & \thead{Note}\\ \midrule
+c5a & EC2 & x86\_64 (AMD) & 14.90 & 40.81 & 4 vCPU\\
+m5a & EC2 & x86\_64 (AMD) & 10.01 & 31.54 & 4 vCPU\\
+r5n & EC2 & x86\_64 (Intel) & 9.39 & 24.97 & 2 vCPU\\
+z1d & EC2 & x86\_64 (Intel) & 9.77 & 28.08 & 2 vCPU\\
+c7i & EC2 & x86\_64 (Intel) & 8.44 & 25.89 & 2 vCPU\\
+m1-host & Laptop & arm64, Apple M1 & -- & -- & 8 GB, 8 cores, dev machine\\
+c\{1,2,4,8\}m\{1,3\}g & Docker & arm64 (on M1) & -- & -- & CPU/memory quotas\\
+gha-ubuntu-22.04/24.04/latest, gha-x86 & Runner & x86\_64 (AMD EPYC) & -- & -- & shared VMs, 2.16 speed-up\\
+\bottomrule
+\end{tabularx}
+\end{center}
+{\footnotesize $^\dagger$ STREAM-triad bandwidth and multi-core GFLOPS as hard-coded in \src{canonical\_evaluation.py}:65--71 and \src{cetp/signature.py}:31 (units are not stated in the source). vCPU counts are from \src{models/PROVENANCE.json} (c5a, m5a = 4; r5n, z1d, c7i = 2). The CPU vendor labels (AMD for c5a/m5a, Intel for r5n/z1d/c7i) are my own knowledge of the AWS instance families and are not recorded in the repository.}
+
+\section{Schemas}
+\subsection{Operator-signature registry record}
+\src{models/operator\_signature.json}: object keyed by machine id; each record (v2) contains
+\texttt{signature\_kind='operator\_rates\_v2'}, \texttt{machine\_id}, \texttt{client\_platform} (e.g.\ ``Darwin arm64''),
+\texttt{server\_version}, \texttt{rates\_tuples\_per\_s} \{seqscan, hashjoin, sort, hashagg, nestloop, io\_seqscan, parallel\_seqscan\},
+\texttt{parallel\_speedup}, \texttt{parallel\_speedup\_cv}, \texttt{parallel\_dop}, \texttt{probe\_scale}, \texttt{detail},
+\texttt{noisy\_probes}, \texttt{imprecise\_probes}, \texttt{invalid\_probes}, \texttt{reliable}, \texttt{max\_cv}, \texttt{max\_median\_se}.
+Constraint: records are comparable only at identical \texttt{probe\_scale} (enforced by \texttt{assert\_comparable}).
+
+\subsection{Calibration store}
+\texttt{\{"version":1, "pairs":\{"dev->prod":\{"dev","prod","dev\_arch","prod\_arch","observations":\{query\_id:\{"predicted\_scaling","actual\_scaling","recorded\_at"\}\}\}\}\}}.
+Path \texttt{\textasciitilde/.cetp/calibration.json}, override \texttt{CETP\_CALIBRATION\_PATH}.
+
+\subsection{Telemetry (JSON Lines)}
+One object per prediction: \texttt{ts, query\_id, dev, prod, predicted\_ms, dev\_ms, scaling, trust, calibration, cross\_architecture, prod\_clients, actual\_ms, resolved\_at}.
+\texttt{extra} keys named like \texttt{query, sql, statement, plan, filter, literals, query\_text} are refused. This guards only the \texttt{extra} dictionary: the
+\texttt{query\_id} string is free text and could contain a statement if a caller passes one.
+
+\subsection{Gen-1 conformal table}
+\src{models/calibration.json} (\texttt{cetp-calibration/1}): for predictors \texttt{analytical} and \texttt{cmp\_only}, the empirical quantiles of
+$\ln(y/\hat y)$ at levels 0.5, 0.8, 0.9, 0.95, 0.99 pooled over five LOMO folds, their exponentials as \texttt{multiplier}, and per-fold quantiles; plus four
+\texttt{caveats} (marginal coverage, five-machine envelope, engine versions, single client).
+
+\subsection{Evaluation outputs}
+\texttt{canonical\_metrics.json} has the keys \texttt{dataset, environment, headline, scaling\_factor\_results, bootstrap\_lomo, breakdowns\_lomo,
+leakage\_audit, measurement\_noise, bottleneck\_classifier\_loqo, shipped\_artifact\_consistency} (\evRUN\ read). \texttt{operator\_model\_metrics.json} is regenerated with
+input hashes so a stale input cannot silently reproduce (\cref{sec:c10}).
+
+\section{Data flow and lineage}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[node distance=4mm and 7mm,
+ box/.style={draw=cetpblue,rounded corners=2pt,fill=lightgrey,minimum height=8mm,text width=28mm,align=center,font=\scriptsize},
+ outn/.style={draw=cetpteal,rounded corners=2pt,fill=cetpteal!8,minimum height=8mm,text width=28mm,align=center,font=\scriptsize},
+ arr/.style={-{Stealth[length=1.8mm]},thick,cetpgrey}]
+\node[box] (raw) {Raw runs on machines (collect.py, container\_grid.py)};
+\node[box,right=of raw] (cor) {\texttt{data/corrected}, \texttt{data/container\_grid}};
+\node[box,right=of cor] (eval) {canonical / operator / laptop\_to\_* evaluation scripts};
+\node[outn,right=of eval] (res) {\texttt{results/*.json,csv} + \texttt{CANONICAL.md}};
+\node[box,below=of cor] (reg) {\texttt{models/operator\_signature.json}};
+\node[box,below=of eval] (cal) {\texttt{models/calibration.json}, pickles};
+\node[outn,below=of res] (pkg) {CLI, gate, docs, paper};
+\draw[arr] (raw)--(cor); \draw[arr] (cor)--(eval); \draw[arr] (eval)--(res);
+\draw[arr] (cor)--(reg); \draw[arr] (eval)--(cal); \draw[arr] (res)--(pkg); \draw[arr] (reg)--(pkg); \draw[arr] (cal)--(pkg);
+\end{tikzpicture}
+\caption{Lineage of data to published numbers. Only the right half is re-runnable from a fresh clone.}
+\label{fig:lineage}
+\end{figure}
+
+\section{Integrity controls}
+\begin{enumerate}
+\item \textbf{Hash-checked inputs.} The Gen-2 evaluation records SHA-256 of each input and the test
+  \texttt{test\_committed\_metrics\_were\_generated\_from\_the\_committed\_inputs} checks them.
+\item \textbf{Manifest-selected grid.} After C10 the evaluation reads \texttt{grid\_manifest.json} instead of globbing the directory; a test adds extra files and
+  checks the grid is unchanged (\texttt{test\_extra\_files\_in\_the\_grid\_directory\_do\_not\_change\_the\_grid}).
+\item \textbf{Shipped-artifact consistency.} \texttt{canonical\_evaluation.shipped\_artifact\_consistency} (l.\,390) cross-checks the shipped models against the
+  canonical dataset (\texttt{all\_consistent: true}).
+\item \textbf{Provenance file.} \src{models/PROVENANCE.json} records library versions and a \texttt{version\_mismatch} flag.
+\end{enumerate}
+\begin{honest}
+Data quality is the weakest part of the project. Raw EC2 logs are gone, the five instances were terminated, only five distinct EC2 hardware points exist, and the laptop-to-EC2
+pairs combine different PostgreSQL builds and storage. The measurement-noise section of \src{canonical\_metrics.json} says it directly: 11 of 105 cells exceed 5\% CV even after discarding the cold run.
+\end{honest}

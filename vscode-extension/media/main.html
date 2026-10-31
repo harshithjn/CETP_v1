@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src {{cspSource}}; img-src {{cspSource}}; script-src 'nonce-{{nonce}}';">
+<link href="{{styleUri}}" rel="stylesheet">
+<title>CETP Prediction</title>
+</head>
+<body>
+<form id="predict-form">
+  <div class="field">
+    <label for="file-path">Query file</label>
+    <div class="file-row">
+      <input type="text" id="file-path" placeholder="Select a .sql file" autocomplete="off">
+      <button type="button" id="browse-button">Browse…</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="profile-select">Production machine</label>
+    <select id="profile-select">
+      <option value="__manual__">Enter manually</option>
+    </select>
+  </div>
+
+  <div id="manual-fields" class="manual-fields">
+    <label class="group-label">Hardware signature &mdash; <a href="https://harshithjn.github.io/CETP_v1/" target="_blank" rel="noopener">step-by-step guide</a></label>
+    <div class="field-inline">
+      <label for="bandwidth-input">Bandwidth (GB/s)</label>
+      <input type="text" id="bandwidth-input" placeholder="e.g. 14.9" inputmode="decimal">
+    </div>
+    <div class="field-inline">
+      <label for="compute-input">Compute score (multi-core)</label>
+      <input type="text" id="compute-input" placeholder="e.g. 40.81 (multi-core)" inputmode="decimal">
+    </div>
+    <div class="field-checkbox">
+      <label><input type="checkbox" id="save-profile-checkbox"> Save as profile</label>
+    </div>
+    <div id="profile-name-field" class="field hidden">
+      <label for="profile-name-input">Profile name</label>
+      <input type="text" id="profile-name-input" placeholder="e.g. prod-c5a">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="sla-input">SLA threshold (ms)</label>
+    <input type="text" id="sla-input" inputmode="decimal">
+  </div>
+
+  <div id="form-error" class="form-error hidden"></div>
+
+  <button type="submit" id="run-button">Run Prediction</button>
+  <div id="status-row" class="status-row hidden">Running…</div>
+</form>
+
+<hr class="divider">
+
+<div id="empty-state" class="state">No prediction yet.</div>
+<div id="error-state" class="state hidden">
+  <div class="error-title">Prediction failed</div>
+  <div id="error-query" class="query-name"></div>
+  <div id="error-message" class="error-message"></div>
+</div>
+<div id="result-state" class="state hidden">
+  <div class="header-row">
+    <span id="query-name" class="query-name"></span>
+    <span id="verdict-badge" class="badge"></span>
+  </div>
+  <div id="timestamp" class="timestamp"></div>
+  <div class="metrics">
+    <div class="metric"><span class="metric-label">p50</span><span id="p50" class="metric-value"></span></div>
+    <div class="metric"><span class="metric-label">p95</span><span id="p95" class="metric-value"></span></div>
+    <div class="metric"><span class="metric-label">p99</span><span id="p99" class="metric-value"></span></div>
+  </div>
+  <div class="confidence-row">
+    <span class="metric-label">Confidence</span>
+    <div class="confidence-bar"><div id="confidence-fill" class="confidence-fill"></div></div>
+    <span id="confidence-value"></span>
+  </div>
+  <div id="reason" class="reason"></div>
+
+  <div class="accuracy-note">
+    <strong>Expected error ~21.6%</strong> on a machine the model has not seen, measured
+    leave-one-machine-out over 5 instance types and 21 TPC-H queries. A one-line
+    <code>1/compute_ratio</code> scores 20.06% on the same data, so treat this as a
+    scaling estimate, not a measurement.
+  </div>
+
+</div>
+
+<script nonce="{{nonce}}" src="{{scriptUri}}"></script>
+</body>
+</html>

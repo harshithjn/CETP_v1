@@ -1,0 +1,77 @@
+\chapter{Setup, deployment and operation}\label{ch:setup}
+
+Each command is labelled: \evRUN\ I ran it; \evPACK\ the evidence-pack author ran it; \textit{inferred} I derived it from the files but nobody ran it in this audit.
+
+\section{Prerequisites}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.0cm}L{3.6cm}Y@{}}
+\toprule \thead{Need} & \thead{For} & \thead{Note}\\ \midrule
+Python $\ge$ 3.11 (3.13 in CI/Docker) & everything & shipped package is stdlib-only; selftest also passed on 3.10.12 \evRUN\\
+Pinned scientific stack (\texttt{requirements.txt}) & reproducing results; Gen-1 gate & scikit-learn exactly 1.8.0\\
+Docker & container grid; artefact image & Docker Desktop on macOS (Makefile works around a credential-helper hang)\\
+PostgreSQL 15 with TPC-H SF1 & collection; probe; live harness & \texttt{psql} client on PATH for the probe\\
+\texttt{pg\_hint\_plan} on dev & plan forcing & optional (\texttt{--no-force})\\
+psycopg2-binary & \texttt{predict\_prod.py}, collection & not in \texttt{requirements.txt}; \texttt{pip install psycopg2-binary}\\
+Chrome/Chromium & docs build & pipeline currently broken\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Install and smoke test}
+\begin{lstlisting}[language={},mathescape=false]
+cd CETP
+python3 -m venv .venv && . .venv/bin/activate         # inferred
+pip install -e .                                       # CODE: used by cetp-regression-check.yml; no deps
+python3 -m cetp.cli selftest                           # RUN: "selftest PASSED"
+pip install -r requirements.txt                        # for research scripts/tests
+python3 -m pytest tests -q                             # PACK: 119 passed
+\end{lstlisting}
+The selftest prints five lines (redaction, Gen-1 prediction, regression identity, calibration file, operator model) and exits 0. A \emph{non-editable} install does not work: the wheel carries no \texttt{tests/} or operator registry (\cref{ch:interfaces}; \evRUN). The live harness additionally needs \texttt{psycopg2-binary}, which is in \texttt{pyproject.toml}'s \texttt{research} extra but not in \texttt{requirements.txt}.
+
+\section{Typical tasks}
+\begin{center}\small
+\begin{longtable}{@{}L{5.2cm}L{6.0cm}L{3.4cm}@{}}
+\toprule \thead{Task} & \thead{Command} & \thead{Status}\\ \midrule \endhead
+Predict from two plan files (Gen 2) & \texttt{cetp predict-prod --dev-plan P --dev m1-host --prod c1m1g} & \evRUN\ (m1-host $\to$ gha-x86)\\
+Predict (Gen 1) & \texttt{cetp predict --plan P --dev c7i --prod c5a} & \evRUN\ via selftest\\
+Redact a plan & \texttt{cetp redact plan.json -o out.json --level full --check} & \evRUN\ library\\
+Probe this machine & \texttt{make probe-here MACHINE\_ID=name} & not run\\
+Regenerate canonical results & \texttt{make results} & \evPACK\\
+Check determinism & \texttt{make verify-determinism} & \evPACK\\
+Build artefact image & \texttt{make artifact-verify} & not run\\
+Collect Docker grid & \texttt{make grid-setup \&\& make grid-collect} & not run (2--3\,h)\\
+Evaluate Gen 2 & \texttt{make operator-results} & \evPACK; needs \src{data/plans\_grid}\\
+\bottomrule
+\end{longtable}
+\end{center}
+\begin{warnbox}
+\texttt{make results} overwrites \src{results/CANONICAL.md} (deleted from HEAD and untracked in the current working tree) and \src{canonical\_metrics.json}; run it on a clean working tree so that \texttt{git diff} shows any drift. \texttt{make verify-determinism} writes
+copies to \texttt{/tmp}. \texttt{make promote-models} replaces pickles in \texttt{models/}.
+\end{warnbox}
+
+\section{Configuration}
+Environment variables: \texttt{CETP\_CALIBRATION\_PATH} (store location), \texttt{CETP\_TELEMETRY\_PATH} (default \texttt{\textasciitilde/.cetp/telemetry.jsonl}; \src{cetp/telemetry.py}:40--41), \texttt{PGDATABASE}, \texttt{MACHINE\_ID} (Makefile). Files: \src{gate/cetp.yml} (machine signatures
+and SLAs), \src{models/phase7\_gate\_config.json}. Defaults are listed in \cref{app:config}.
+
+\section{Operations}
+\begin{itemize}
+\item \textbf{Monitoring.} None built in. Telemetry rows and \texttt{Telemetry.summary()} give predicted-vs-actual MAPE next to the naive baseline once actuals are recorded.
+\item \textbf{Upgrades.} Re-probe machines after a PostgreSQL major upgrade (rates are per server version). Do not mix probe records with different \texttt{probe\_scale}.
+\item \textbf{Backups.} Back up \texttt{\textasciitilde/.cetp/} and the registry JSON.
+\item \textbf{Cost.} Prediction is free; probing needs minutes of idle machine; calibration queries run on production.
+\end{itemize}
+
+\section{Troubleshooting}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{5.6cm}Y@{}}
+\toprule \thead{Symptom} & \thead{Cause / action}\\ \midrule
+\texttt{ModuleNotFoundError: \_loss} in the gate & scikit-learn not pinned to 1.8.0; install from \texttt{requirements.txt}\\
+\texttt{error: <id> carries operator\_rates\_v1} & old signature; re-probe with the current probe\\
+\texttt{flagged unreliable} & machine was busy during the probe; re-run idle\\
+\texttt{probe scales differ} & the two machines were probed with different constants; re-probe both\\
+\texttt{CrossArchitectureUncalibrated} (live harness, exit 4) & measure 3--5 queries on production and supply a calibration. \textbf{The suggested re-run with \texttt{--actual-ms} cannot work on an empty store}: \texttt{predict\_prod.py} returns 4 before it records the observation (\evCODE, not executed). Record observations with \texttt{CalibrationStore.record} from Python, or pass an explicit \texttt{--calibration} other than 1.0\\
+\texttt{make results} changes numbers & check \texttt{git diff}; a drift of 0.01\,pp in laptop-to-prod regeneration is already known (C16)\\
+No \texttt{results/CANONICAL.md} after clone & the file is untracked in some states; generate it with \texttt{make results}\\
+\bottomrule
+\end{tabularx}
+\end{center}

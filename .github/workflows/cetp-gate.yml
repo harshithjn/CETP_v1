@@ -1,12 +1,19 @@
 name: CETP SLA Gate
 
 on:
+  # A change to the workflow itself, or to the pinned dependency set it installs, must
+  # re-run the gate -- otherwise a broken CI fix goes unnoticed, which is exactly what
+  # happened twice here (an unpinned scikit-learn, then a numpy with no wheel for the
+  # pinned Python).
   push:
     paths:
       - "gate/examples/gate_queries/**"
       - "gate/cetp.yml"
       - "gate/cetp_gate.py"
       - "models/**"
+      - "requirements.txt"
+      - ".github/workflows/cetp-gate.yml"
+  workflow_dispatch:
 
 jobs:
   gate:
@@ -26,21 +33,44 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          # 3.13 to match models/PROVENANCE.json: the gate unpickles models/*.pkl, which were built on 3.13.2 with the versions in requirements.txt (numpy 2.5.3 has no 3.11 wheel).
+          python-version: "3.13"
 
       - name: Install dependencies
-        run: pip install scikit-learn pandas numpy joblib pyyaml
+        # Pinned, not floating. The gate unpickles models/scaling_quantile_models.pkl, and
+        # an unpinned scikit-learn fails on it with ModuleNotFoundError: No module named
+        # '_loss' -- the pickle-staleness problem this project documents in
+        # models/MODEL_CARD.md, biting in CI. requirements.txt holds the versions the
+        # artifacts were built with.
+        run: pip install -r requirements.txt
 
+      # The gate's exit code is its VERDICT, not its health: 0 = PASS/WARN, 1 = BLOCK,
+      # 2 = the gate itself failed. This workflow demonstrates the gate on fixed example
+      # plans; it does not gate this repository's own source. A BLOCK is therefore a
+      # successful demonstration and must not turn the build red, while an exit of 2 (bad
+      # arguments, unloadable model, crash) must.
+      #
+      # This distinction is not academic: retraining the models on the corrected dataset
+      # moved q1's prediction to 3115.6 ms against its 3000 ms SLA, so the gate correctly
+      # began returning BLOCK -- and CI reported a product failure that did not exist. The
+      # honest fix is to read the exit code properly, not to loosen the example's SLA.
       - name: Run CETP gate for ${{ matrix.query.id }}
         id: gate
         run: |
+          set +e
           python gate/cetp_gate.py \
             --config gate/cetp.yml \
             --query-id ${{ matrix.query.id }} \
             --dev-features ${{ matrix.query.features }} \
             --json > verdict.json
+          rc=$?
+          set -e
           cat verdict.json
-        continue-on-error: true
+          if [ "$rc" -ge 2 ]; then
+            echo "::error::gate exited $rc -- the gate itself failed, not the query"
+            exit "$rc"
+          fi
+          echo "gate_exit=$rc" >> "$GITHUB_OUTPUT"
 
       - name: Post verdict to job summary
         run: |
@@ -48,6 +78,8 @@ jobs:
           REASON=$(python -c "import json; print(json.load(open('verdict.json'))['verdict']['reason'])")
           {
             echo "### CETP Gate — ${{ matrix.query.id }}: $STATE"
+            echo ""
+            echo "_Exit ${{ steps.gate.outputs.gate_exit }} — 0 PASS/WARN, 1 BLOCK. A BLOCK is the gate working, not the build breaking._"
             echo ""
             echo "$REASON"
             echo ""

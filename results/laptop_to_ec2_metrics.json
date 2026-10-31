@@ -1,0 +1,294 @@
+{
+  "cross_isa": true,
+  "dev": "m1-host (Apple M1, arm64, PostgreSQL 15.17)",
+  "ec2_mpwpg_is_an_inference": true,
+  "excluded_queries": {
+    "q15": "no EC2 counterpart",
+    "q16": "approximate laptop reconstruction",
+    "q20": "approximate laptop reconstruction"
+  },
+  "few_shot": {
+    "cmp_dop3": [
+      {
+        "k": 0,
+        "mape": 160.68182030966085,
+        "n_scored": 95,
+        "naive_mape": 129.39126872866524,
+        "rule": "spread"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 1,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 1,
+        "mape": 80.04465323722859,
+        "n_scored": 90,
+        "naive_mape": 132.1524368376781,
+        "rule": "random"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 2,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 2,
+        "mape": 84.34823005834279,
+        "n_scored": 85,
+        "naive_mape": 119.49752020403021,
+        "rule": "random"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 3,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 3,
+        "mape": 98.36856075122493,
+        "n_scored": 80,
+        "naive_mape": 124.98545358814108,
+        "rule": "random"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 5,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 5,
+        "mape": 55.88149701675368,
+        "n_scored": 70,
+        "naive_mape": 93.29135142713707,
+        "rule": "random"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 8,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 8,
+        "mape": 109.91827486294059,
+        "n_scored": 55,
+        "naive_mape": 139.26933264088606,
+        "rule": "random"
+      }
+    ],
+    "cmp_nproc8": [
+      {
+        "k": 0,
+        "mape": 337.7475931100883,
+        "n_scored": 95,
+        "naive_mape": 129.39126872866524,
+        "rule": "spread"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 1,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 1,
+        "mape": 80.04465323722859,
+        "n_scored": 90,
+        "naive_mape": 132.1524368376781,
+        "rule": "random"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 2,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 2,
+        "mape": 84.34823005834279,
+        "n_scored": 85,
+        "naive_mape": 119.49752020403021,
+        "rule": "random"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 3,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 3,
+        "mape": 98.36856075122495,
+        "n_scored": 80,
+        "naive_mape": 124.98545358814108,
+        "rule": "random"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 5,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 5,
+        "mape": 55.88149701675368,
+        "n_scored": 70,
+        "naive_mape": 93.29135142713707,
+        "rule": "random"
+      },
+      {
+        "inapplicable": "predictor is constant across queries, so `spread` has no range to spread over",
+        "k": 8,
+        "mape": null,
+        "n_scored": 0,
+        "naive_mape": null,
+        "rule": "spread"
+      },
+      {
+        "k": 8,
+        "mape": 109.91827486294059,
+        "n_scored": 55,
+        "naive_mape": 139.26933264088606,
+        "rule": "random"
+      }
+    ]
+  },
+  "mean_actual_scaling": 0.8516949594884706,
+  "median_actual_scaling": 0.6624327097924131,
+  "n_pairs": 95,
+  "n_queries": 19,
+  "operator_model_not_applicable": "the five EC2 instances are terminated; operator_probe.py cannot be run on them, so no operator rates or parallel speedup exist and none can be obtained",
+  "per_prod_machine": {
+    "c5a": {
+      "cmp_dop3_mape": 150.30862963468152,
+      "median_actual_scaling": 0.4995639357788556,
+      "n": 19,
+      "naive_mape": 183.6936320915849,
+      "vcpu": 4
+    },
+    "c7i": {
+      "cmp_dop3_mape": 188.68760922416237,
+      "median_actual_scaling": 0.645276416312361,
+      "n": 19,
+      "naive_mape": 121.34661583876527,
+      "vcpu": 2
+    },
+    "m5a": {
+      "cmp_dop3_mape": 118.95479614708854,
+      "median_actual_scaling": 0.7440666408733255,
+      "n": 19,
+      "naive_mape": 99.88866783901882,
+      "vcpu": 4
+    },
+    "r5n": {
+      "cmp_dop3_mape": 158.30846700533309,
+      "median_actual_scaling": 0.817088481340822,
+      "n": 19,
+      "naive_mape": 103.46370396592413,
+      "vcpu": 2
+    },
+    "z1d": {
+      "cmp_dop3_mape": 187.14959953703888,
+      "median_actual_scaling": 0.679413317630068,
+      "n": 19,
+      "naive_mape": 138.56372390803298,
+      "vcpu": 2
+    }
+  },
+  "predictors_zero_shot": {
+    "cmp_dop3": {
+      "mape": 160.68182030966096,
+      "mdape": 74.72985010756005,
+      "n": 95,
+      "qerror_median": 1.8670526699952612,
+      "qerror_p95": 6.2907238370942515
+    },
+    "cmp_nproc8": {
+      "mape": 337.74759311008825,
+      "mdape": 203.25096388684344,
+      "n": 95,
+      "qerror_median": 3.0325096388684343,
+      "qerror_p95": 10.917814362974921
+    },
+    "naive": {
+      "mape": 129.3912687286652,
+      "mdape": 57.4441404046269,
+      "n": 95,
+      "qerror_median": 1.6361744673200718,
+      "qerror_p95": 6.297233696120722
+    }
+  },
+  "prod": [
+    "c5a",
+    "c7i",
+    "m5a",
+    "r5n",
+    "z1d"
+  ],
+  "prod_arch": "x86_64 (EC2 c5a/m5a xlarge 4 vCPU; r5n/z1d/c7i large 2 vCPU)",
+  "scalar_predictor_floor": {
+    "mape_floor_pct": 59.683822810566014,
+    "per_machine": {
+      "c5a": {
+        "geometric_sd": 1.9451444685933235,
+        "max": 1.4722442698748806,
+        "max_over_min": 19.45663593461309,
+        "median_scaling": 0.4995639357788556,
+        "min": 0.07566797645916672
+      },
+      "c7i": {
+        "geometric_sd": 2.0701591106542185,
+        "max": 2.349852663083617,
+        "max_over_min": 25.93028626512926,
+        "median_scaling": 0.645276416312361,
+        "min": 0.09062193294193095
+      },
+      "m5a": {
+        "geometric_sd": 1.9270494344830813,
+        "max": 2.1291150858439236,
+        "max_over_min": 18.07835789352833,
+        "median_scaling": 0.7440666408733255,
+        "min": 0.11777148667944569
+      },
+      "r5n": {
+        "geometric_sd": 2.169487180151977,
+        "max": 3.43661875747359,
+        "max_over_min": 37.87040017874779,
+        "median_scaling": 0.817088481340822,
+        "min": 0.09074682974705296
+      },
+      "z1d": {
+        "geometric_sd": 2.207378187223607,
+        "max": 2.7656662045328146,
+        "max_over_min": 43.09879464987632,
+        "median_scaling": 0.679413317630068,
+        "min": 0.06417038404438885
+      }
+    },
+    "residual_max_over_min": 44.53092178327775
+  }
+}

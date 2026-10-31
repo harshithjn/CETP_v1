@@ -1,0 +1,61 @@
+\chapter{Limitations, risks and future work}\label{ch:limits}
+
+\section{Limitations that bound the claims}
+\begin{center}\small
+\begin{longtable}{@{}L{0.9cm}L{4.4cm}L{6.4cm}L{2.5cm}@{}}
+\toprule \thead{ID} & \thead{Limitation} & \thead{Evidence} & \thead{Effect}\\ \midrule \endhead
+L1 & Tiny hardware population: 5 EC2 types; 8 containers on one host; 4 near-identical runners & operator speed-ups on runners 2.160--2.167; EC2 instances terminated & Any learned or fitted conclusion rests on few distinct points\\
+L2 & No real production system measured; no managed PostgreSQL (RDS/Aurora) & absence in results & Motivation untested\\
+L3 & TPC-H SF1 only, one query at a time & dataset header; \texttt{calibration.json} caveats & Not representative of OLTP or large data\\
+L4 & Same plan assumed; 12/22 plans change across versions & \texttt{tier2\_versions.csv} (pack) & Plan drift can dominate (70.5\%)\\
+L5 & Zero-shot cross-ISA fails (68.9 vs 21.7) & \texttt{laptop\_to\_prod\_metrics.json} & Central product claim unmet\\
+L6 & I/O and storage not modelled; I/O class recall 0; the io probe axis tracks CPU quota & classifier metrics; probe comments & Wrong for disk-bound queries\\
+L7 & Cardinality term unvalidated; concurrency a population default (41.8\% at 8 clients) & code comments; concurrency metrics & Different data size or load unmodelled\\
+L8 & Precision of any grid figure is about $\pm2$--3\,pp (re-probing moved MAPE by up to 2.6\,pp) & C10 report & Do not quote decimals as precision\\
+L9 & Hardware-distance confidence is a hand-set constant on a 5-machine hull & \texttt{predict.py} docstring & Coarse outlier flag only\\
+L10 & Gen-1 reference set is always the 5 EC2 machines; registry or Gen-2 machines score low-confidence & \texttt{predict.py}:131 (pack R1) & Spurious warnings for new machines\\
+L11 & The Gen-1 bandwidth probe source no longer exists; the five legacy bandwidths are frozen and cannot be reproduced or extended & \texttt{signature.py} comment and \texttt{cetp signature list} output \evCODE & New machines cannot join the Gen-1 axis\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\section{Known defects and inconsistencies}
+Full register in \cref{app:issues}. The ones I consider most consequential:
+\begin{enumerate}
+\item \textbf{CLI bypasses the cross-ISA refusal} (\cref{sec:cli-bypass}; \evRUN).
+\item \textbf{\texttt{cetp regress}: hardware term is exactly 1.0 for any inputs} (\cref{ch:impl}; \evRUN).
+\item \textbf{Redaction verifier passes leaking plans} for escape-string and dollar-quoted literals (\evRUN).
+\item \textbf{Stale text in shipped warnings} citing 28.54\% vs 38.22\% (132 pairs) while committed metrics give 29.31\% vs 37.39\% (242 pairs overall, different cell set).
+\item \textbf{Two incompatible ``headline'' narratives} (Gen-1 canonical vs Gen-2 laptop-to-prod) circulate; earlier project documents, including the Review 2 deck and LLD produced earlier in this engagement, use 7 machines and F1 0.562, which \texttt{CANONICAL.pdf} states was computed on the buffer bug; the canonical values are 5 machines and 0.375 (\cref{app:issues}).
+\item \textbf{Timeline conflict}: the team's notes put data collection in January--April 2026; \texttt{signature.py} says ``August 2026'' and git history begins 2026-08-17. Unresolved; not asserted either way.
+\item \textbf{Calibration bootstrap in \texttt{predict\_prod.py}}: the refusal returns before \texttt{--actual-ms} is recorded (\cref{ch:workflows}).
+\item \textbf{Non-editable installs are broken} (\cref{ch:interfaces}; \evRUN).
+\item \textbf{Silent loss of truncated \texttt{auto\_explain} entries} (\cref{ch:impl}).
+\end{enumerate}
+
+\section{Evidence-integrity finding C10 and its fix}\label{sec:c10}
+\textbf{What happened.} The Gen-2 evaluation script read every file in \texttt{data/container\_grid/} and every cell in the signature file. When four x86 runner cells were added for the cross-ISA study, the ``8-cell container grid'' silently became a 12-cell mixed-ISA grid (2{,}904 pairs; naive 54.03\%, operator 29.70\%). Independently, the committed outputs (operator 24.95\%) had been generated from an older probe state than the signature file committed beside them. \textbf{Fix} (by the evidence-pack author, uncommitted): cell list now comes from \texttt{grid\_manifest.json}; input SHA-256 hashes are written into the result; a new 11-test file locks selection, hashing, regeneration and determinism; results regenerated (operator 22.41\%). \textbf{Consequence for readers:} quote 22.41 / 22.23, not 24.95 / 24.58; in the working tree the paper draft and \texttt{docs/index.html} already carry 22.41, but \texttt{docs/guides/HANDBOOK.pdf} and \texttt{docs/design/LLD.pdf} still print 24.95 / 24.58 and \texttt{docs/results/laptop\_to\_prod.pdf} still reports the older 132-pair result (28.54\% vs 38.22\%) (text extraction, audit pass \evRUN).
+\textbf{Lesson:} any evaluation script that selects its inputs by directory listing is a latent integrity bug.
+
+\section{Risks}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.8cm}L{1.6cm}Y@{}}
+\toprule \thead{Risk} & \thead{Level} & \thead{Mitigation available}\\ \midrule
+Reader quotes a number from a stale document & High & Use \cref{app:evidence}; regenerate paper/site/PDFs\\
+User trusts a CLI prediction across ISAs & High & Fix bypass; warn text\\
+Probe taken on a busy machine & Medium & Reliability gate exists; run idle\\
+Redaction leak via query text & Medium & Fix verifier; avoid shipping \texttt{Query Text}\\
+Lost updates in shared calibration file & Low--medium & File lock\\
+Future PostgreSQL adds new node types & Low & Residual is reported; add map entries\\
+NumPy/pickle incompatibility & Low & Gate is legacy; retire pickles\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Future work}
+\subsection{Immediate (hours to days)}
+Fix the CLI bypass and add its test; regenerate shipped warning strings from metrics; fix the redaction verifier and add adversarial cases; \texttt{git add} \texttt{data/plans\_grid}; update README counts (119 tests; PASS count); decide the documentation source of truth.
+\subsection{Medium term (weeks)}
+Replace the always-1.0 regression ratio by a Gen-2 plan-structure ratio and measure detection accuracy on labelled before/after pairs; wire Gen 2 into the extension and CI; run on a managed PostgreSQL instance and on real x86 production hardware; add file locking; validate the cardinality term with SF10 data (needs disk).
+\subsection{Long term (research)}
+Extend to more ISAs and instance families (the x86 runner cells are nearly identical machines); an I/O axis that actually measures storage (needs a table larger than RAM); learned plan-aware models trained on many machines; plan-change prediction; a systematic literature review to establish novelty.

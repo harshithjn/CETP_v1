@@ -1,0 +1,17 @@
+\chapter{Data schemas}\label{app:schemas}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.0cm}L{4.4cm}Y@{}}
+\toprule \thead{Artefact} & \thead{Columns / keys} & \thead{Note}\\ \midrule
+Tier-1 dataset & machine\_id, query\_id, cost, time\_ms, shared\_hit, shared\_read, rows, rows\_processed & 2100 rows = 5 machines $\times$ 21 queries $\times$ 20 reps; Q15 excluded\\
+\texttt{canonical\_metrics.json} & model $\to$ MAPE, MdAPE, paired differences with CIs, protocol results & authoritative Tier-1 numbers\\
+\texttt{tier1\_conformal.csv} & per machine, level, method $\to$ coverage & recomputed in this audit \evRUN\\
+\texttt{calibration.json} & multipliers p90/p95/p99; caveats & Gen-1 shipped table\\
+Machine signature file & per machine: operator rates, parallel speed-up, reliability flags & Gen-2; 13 machines in registry\\
+\texttt{grid\_manifest.json} & list of cells in the container grid & fixes C10\\
+Pairs files (Gen-2) & dev, prod, query, predicted, actual, naive & grid: 1232 pairs; laptop$\to$prod: 242\\
+Calibration store JSON & pair key $\to$ list of observations (actual, predicted) & written via \texttt{os.replace}\\
+Telemetry JSONL & timestamp, event, \texttt{extra} (forbidden keys removed) & one JSON object per line\\
+\bottomrule
+\end{tabularx}
+\end{center}
+Exact field names beyond those printed in the dataset header were not re-verified in every file (\evUNK).

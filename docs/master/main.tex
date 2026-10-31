@@ -1,0 +1,51 @@
+% =====================================================================
+% CETP -- Master Technical Reference (the "bible")
+% Build:  pdflatex main && bibtex main && pdflatex main && pdflatex main
+%   (or:  latexmk -pdf main.tex)
+% See README.md for details. Requires a standard TeX Live (tcolorbox, pgfplots,
+% listings, natbib, cleveref, booktabs, longtable, tabularx, fancyhdr, titlesec).
+% =====================================================================
+\documentclass[10pt,a4paper,oneside]{report}
+\input{preamble}
+
+\begin{document}
+\input{chapters/00_frontmatter}
+
+\input{chapters/01_executive}
+\input{chapters/02_problem}
+\input{chapters/03_background}
+\input{chapters/04_architecture}
+\input{chapters/05_stack}
+\input{chapters/06_repository}
+\input{chapters/07_implementation}
+\input{chapters/08_algorithms}
+\input{chapters/09_workflows}
+\input{chapters/10_data}
+\input{chapters/11_interfaces}
+\input{chapters/12_testing}
+\input{chapters/13_results}
+\input{chapters/14_setup}
+\input{chapters/15_security}
+\input{chapters/16_decisions}
+\input{chapters/17_limitations}
+\input{chapters/18_conclusion}
+
+\appendix
+\input{chapters/A_glossary}
+\input{chapters/B_acronyms}
+\input{chapters/C_reference}
+\input{chapters/D_config}
+\input{chapters/E_schemas}
+\input{chapters/F_reproduce}
+\input{chapters/G_traceability}
+\input{chapters/H_evidence}
+\input{chapters/I_issues}
+\input{chapters/J_defense}
+
+\bibliographystyle{plainnat}
+\renewcommand{\bibname}{Appendix K\quad References and bibliography}
+\bibliography{references}
+\addcontentsline{toc}{chapter}{Appendix K\quad References and bibliography}
+\setcounter{chapter}{11}
+\input{chapters/L_audit}
+\end{document}

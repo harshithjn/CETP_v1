@@ -1,0 +1,1583 @@
+{
+  "c1m1g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.11034023069810679,
+        "median_ms": 701.3745,
+        "median_se_rel": 0.04570663008673991,
+        "min_ms": 672.545,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2851543.6475092834
+      },
+      "hashjoin": {
+        "cv": 0.01776907530060118,
+        "median_ms": 732.2695,
+        "median_se_rel": 0.008892507595390068,
+        "min_ms": 714.471,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3277481.8560652873
+      },
+      "io_seqscan": {
+        "cv": 0.003761103956896143,
+        "median_ms": 827.0345,
+        "median_se_rel": 0.0018952213661580343,
+        "min_ms": 824.835,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7254836.406461882
+      },
+      "nestloop": {
+        "cv": 0.027488815287440446,
+        "median_ms": 453.608,
+        "median_se_rel": 0.011886023631254232,
+        "min_ms": 443.311,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 881818.6628101796
+      },
+      "parallel_seqscan": {
+        "cv": 0.13442612287604455,
+        "median_ms": 261.79449999999997,
+        "median_se_rel": 0.02135141166534357,
+        "min_ms": 192.071,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7639579.8995013265
+      },
+      "seqscan": {
+        "cv": 0.011679811374818886,
+        "median_ms": 201.41449999999998,
+        "median_se_rel": 0.006062315733295156,
+        "min_ms": 198.101,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9929771.689724425
+      },
+      "sort": {
+        "cv": 0.032873985065924635,
+        "median_ms": 520.2909999999999,
+        "median_se_rel": 0.011668851424206967,
+        "min_ms": 502.181,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3844002.683113873
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "c1m1g",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 0.7693610828340549,
+    "parallel_speedup_cv": 0.13493257762763142,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2851543.6475092834,
+      "hashjoin": 3277481.8560652873,
+      "io_seqscan": 7254836.406461882,
+      "nestloop": 881818.6628101796,
+      "parallel_seqscan": 7639579.8995013265,
+      "seqscan": 9929771.689724425,
+      "sort": 3844002.683113873
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c1m3g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.01510181490389517,
+        "median_ms": 676.2985,
+        "median_se_rel": 0.002878951941901273,
+        "min_ms": 662.248,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2957274.0439317846
+      },
+      "hashjoin": {
+        "cv": 0.15344108732571007,
+        "median_ms": 837.6195,
+        "median_se_rel": 0.05450126681787188,
+        "min_ms": 676.107,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2865262.8072770513
+      },
+      "io_seqscan": {
+        "cv": 0.0006908224447037425,
+        "median_ms": 608.002,
+        "median_se_rel": 0.0003481056286741228,
+        "min_ms": 607.705,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9868388.590827005
+      },
+      "nestloop": {
+        "cv": 0.05860534418919042,
+        "median_ms": 485.945,
+        "median_se_rel": 0.0274415086345672,
+        "min_ms": 463.098,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 823138.4210147238
+      },
+      "parallel_seqscan": {
+        "cv": 0.015397709107897914,
+        "median_ms": 263.14099999999996,
+        "median_se_rel": 0.004504206057903093,
+        "min_ms": 253.798,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7600487.951326476
+      },
+      "seqscan": {
+        "cv": 0.015559161797164612,
+        "median_ms": 198.72050000000002,
+        "median_se_rel": 0.004068845589246662,
+        "min_ms": 196.569,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10064386.91529057
+      },
+      "sort": {
+        "cv": 0.1387567780241597,
+        "median_ms": 508.719,
+        "median_se_rel": 0.04246230665791624,
+        "min_ms": 504.801,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3931443.488448436
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "c1m3g",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {
+      "hashjoin": 0.15344108732571007
+    },
+    "parallel_dop": 3,
+    "parallel_speedup": 0.7551863829657867,
+    "parallel_speedup_cv": 0.021890111045898993,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2957274.0439317846,
+      "hashjoin": 2865262.8072770513,
+      "io_seqscan": 9868388.590827005,
+      "nestloop": 823138.4210147238,
+      "parallel_seqscan": 7600487.951326476,
+      "seqscan": 10064386.91529057,
+      "sort": 3931443.488448436
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c2m1g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.03997810738588259,
+        "median_ms": 683.4045,
+        "median_se_rel": 0.01831151723779645,
+        "min_ms": 665.185,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2926524.4814747344
+      },
+      "hashjoin": {
+        "cv": 0.12993994885951163,
+        "median_ms": 715.2125,
+        "median_se_rel": 0.0703553769544532,
+        "min_ms": 657.319,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3355646.049251097
+      },
+      "io_seqscan": {
+        "cv": 0.008348526687744932,
+        "median_ms": 600.2575,
+        "median_se_rel": 0.004206825000288517,
+        "min_ms": 596.714,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9995710.174383493
+      },
+      "nestloop": {
+        "cv": 0.018052849417359528,
+        "median_ms": 463.374,
+        "median_se_rel": 0.008302486735768801,
+        "min_ms": 451.811,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 863233.586692391
+      },
+      "parallel_seqscan": {
+        "cv": 0.19723567527276495,
+        "median_ms": 78.15899999999999,
+        "median_se_rel": 0.05226134011032766,
+        "min_ms": 74.637,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 25588863.726506226
+      },
+      "seqscan": {
+        "cv": 0.2350820978922619,
+        "median_ms": 205.981,
+        "median_se_rel": 0.08483816492795376,
+        "min_ms": 196.702,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9709633.4127905
+      },
+      "sort": {
+        "cv": 0.14103263153727139,
+        "median_ms": 510.202,
+        "median_se_rel": 0.04896832500813567,
+        "min_ms": 504.694,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3920015.9936652537
+      }
+    },
+    "imprecise_probes": {
+      "seqscan": 0.08483816492795376
+    },
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "c2m1g",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {
+      "parallel_seqscan": 0.19723567527276495,
+      "seqscan": 0.2350820978922619
+    },
+    "parallel_dop": 3,
+    "parallel_speedup": 2.6354098696247394,
+    "parallel_speedup_cv": 0.3068639834678071,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2926524.4814747344,
+      "hashjoin": 3355646.049251097,
+      "io_seqscan": 9995710.174383493,
+      "nestloop": 863233.586692391,
+      "parallel_seqscan": 25588863.726506226,
+      "seqscan": 9709633.4127905,
+      "sort": 3920015.9936652537
+    },
+    "reliable": false,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c2m3g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.022889662520073944,
+        "median_ms": 680.7385,
+        "median_se_rel": 0.004528975653386777,
+        "min_ms": 676.398,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2937985.731672294
+      },
+      "hashjoin": {
+        "cv": 0.01657884385408968,
+        "median_ms": 618.1859999999999,
+        "median_se_rel": 0.006887941170729955,
+        "min_ms": 604.513,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3882326.678378353
+      },
+      "io_seqscan": {
+        "cv": 0.01356592741028941,
+        "median_ms": 601.7685,
+        "median_se_rel": 0.006835874725714039,
+        "min_ms": 595.996,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9970611.622243436
+      },
+      "nestloop": {
+        "cv": 0.01328261140458198,
+        "median_ms": 454.6875,
+        "median_se_rel": 0.002483910299459586,
+        "min_ms": 452.786,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 879725.0859106529
+      },
+      "parallel_seqscan": {
+        "cv": 0.1543800549183535,
+        "median_ms": 74.1155,
+        "median_se_rel": 0.01837121732414663,
+        "min_ms": 73.25,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 26984908.68981522
+      },
+      "seqscan": {
+        "cv": 0.008048407343492044,
+        "median_ms": 198.3745,
+        "median_se_rel": 0.0035269110081680042,
+        "min_ms": 196.017,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10081940.97527656
+      },
+      "sort": {
+        "cv": 0.003635030478408081,
+        "median_ms": 496.558,
+        "median_se_rel": 0.001050521656990597,
+        "min_ms": 494.166,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 4027726.8717853706
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "c2m3g",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {
+      "parallel_seqscan": 0.1543800549183535
+    },
+    "parallel_dop": 3,
+    "parallel_speedup": 2.676558884443875,
+    "parallel_speedup_cv": 0.15458970928674592,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2937985.731672294,
+      "hashjoin": 3882326.678378353,
+      "io_seqscan": 9970611.622243436,
+      "nestloop": 879725.0859106529,
+      "parallel_seqscan": 26984908.68981522,
+      "seqscan": 10081940.97527656,
+      "sort": 4027726.8717853706
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c4m1g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.0056410176748579784,
+        "median_ms": 665.3055,
+        "median_se_rel": 0.001437300119811311,
+        "min_ms": 664.075,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3006137.7818160225
+      },
+      "hashjoin": {
+        "cv": 0.029350999781692755,
+        "median_ms": 613.4205,
+        "median_se_rel": 0.0063205066952573075,
+        "min_ms": 609.344,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3912487.43724737
+      },
+      "io_seqscan": {
+        "cv": 0.011466422473087936,
+        "median_ms": 604.1575,
+        "median_se_rel": 0.005777933583714281,
+        "min_ms": 599.259,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9931185.162809366
+      },
+      "nestloop": {
+        "cv": 0.007108245980359603,
+        "median_ms": 442.4445,
+        "median_se_rel": 0.0027916653459560026,
+        "min_ms": 439.028,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 904068.1938638631
+      },
+      "parallel_seqscan": {
+        "cv": 0.004140445535410763,
+        "median_ms": 72.7775,
+        "median_se_rel": 0.0013219914418607847,
+        "min_ms": 72.274,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 27481020.919927172
+      },
+      "seqscan": {
+        "cv": 0.0032493289627159518,
+        "median_ms": 196.3365,
+        "median_se_rel": 0.0010298701819076268,
+        "min_ms": 195.086,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10186592.915733958
+      },
+      "sort": {
+        "cv": 0.04223596614390598,
+        "median_ms": 499.26149999999996,
+        "median_se_rel": 0.009632345563861661,
+        "min_ms": 495.844,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 4005916.739023538
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "c4m1g",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.6977637319226404,
+    "parallel_speedup_cv": 0.0052632146013294615,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 3006137.7818160225,
+      "hashjoin": 3912487.43724737,
+      "io_seqscan": 9931185.162809366,
+      "nestloop": 904068.1938638631,
+      "parallel_seqscan": 27481020.919927172,
+      "seqscan": 10186592.915733958,
+      "sort": 4005916.739023538
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c4m3g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.004925571227074522,
+        "median_ms": 669.5625,
+        "median_se_rel": 0.001649411292715841,
+        "min_ms": 664.608,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2987025.1096798284
+      },
+      "hashjoin": {
+        "cv": 0.008482484785853662,
+        "median_ms": 608.812,
+        "median_se_rel": 0.005356952366996803,
+        "min_ms": 603.288,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3942103.6379046403
+      },
+      "io_seqscan": {
+        "cv": 0.026156593373878406,
+        "median_ms": 596.6585,
+        "median_se_rel": 0.013180314927798968,
+        "min_ms": 585.623,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10056003.55982526
+      },
+      "nestloop": {
+        "cv": 0.003948001762116315,
+        "median_ms": 446.94,
+        "median_se_rel": 0.00172540298040618,
+        "min_ms": 446.207,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 894974.7169642458
+      },
+      "parallel_seqscan": {
+        "cv": 0.005242172434460784,
+        "median_ms": 73.364,
+        "median_se_rel": 0.0011919914399006277,
+        "min_ms": 72.625,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 27261327.081402324
+      },
+      "seqscan": {
+        "cv": 0.02522113438496737,
+        "median_ms": 195.76850000000002,
+        "median_se_rel": 0.005648089467619789,
+        "min_ms": 194.042,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10216148.154580537
+      },
+      "sort": {
+        "cv": 0.0008945417711666141,
+        "median_ms": 496.8325,
+        "median_se_rel": 0.00024801898965658864,
+        "min_ms": 495.771,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 4025501.5523340367
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "c4m3g",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.6684545553677554,
+    "parallel_speedup_cv": 0.025760162877924587,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2987025.1096798284,
+      "hashjoin": 3942103.6379046403,
+      "io_seqscan": 10056003.55982526,
+      "nestloop": 894974.7169642458,
+      "parallel_seqscan": 27261327.081402324,
+      "seqscan": 10216148.154580537,
+      "sort": 4025501.5523340367
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c8m1g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.01502548724313356,
+        "median_ms": 671.7405,
+        "median_se_rel": 0.008472279090813856,
+        "min_ms": 658.404,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2977340.208011874
+      },
+      "hashjoin": {
+        "cv": 0.00942768011629144,
+        "median_ms": 607.0385,
+        "median_se_rel": 0.0033463069891336186,
+        "min_ms": 597.555,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3953620.734105003
+      },
+      "io_seqscan": {
+        "cv": 0.04249861789197704,
+        "median_ms": 600.3615,
+        "median_se_rel": 0.021415065784975082,
+        "min_ms": 582.32,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 9993978.627876705
+      },
+      "nestloop": {
+        "cv": 0.008032985410112159,
+        "median_ms": 438.92,
+        "median_se_rel": 0.0028604077243513997,
+        "min_ms": 435.608,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 911327.8046113186
+      },
+      "parallel_seqscan": {
+        "cv": 0.005420849334521405,
+        "median_ms": 73.23849999999999,
+        "median_se_rel": 0.0016598861889947332,
+        "min_ms": 72.209,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 27308041.53553118
+      },
+      "seqscan": {
+        "cv": 0.00615579726054212,
+        "median_ms": 196.3635,
+        "median_se_rel": 0.0020432377195497803,
+        "min_ms": 193.993,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10185192.258235365
+      },
+      "sort": {
+        "cv": 0.0014669792715354473,
+        "median_ms": 495.5215,
+        "median_se_rel": 0.00047099767388109255,
+        "min_ms": 494.965,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 4036151.8117780965
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "c8m1g",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.6811513070311386,
+    "parallel_speedup_cv": 0.008202404977839061,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2977340.208011874,
+      "hashjoin": 3953620.734105003,
+      "io_seqscan": 9993978.627876705,
+      "nestloop": 911327.8046113186,
+      "parallel_seqscan": 27308041.53553118,
+      "seqscan": 10185192.258235365,
+      "sort": 4036151.8117780965
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "c8m3g": {
+    "client_platform": "Darwin arm64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.006448815887700206,
+        "median_ms": 661.912,
+        "median_se_rel": 0.0029675036237499335,
+        "min_ms": 658.535,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3021549.692406241
+      },
+      "hashjoin": {
+        "cv": 0.008754797873243106,
+        "median_ms": 604.3240000000001,
+        "median_se_rel": 0.0036100557957814243,
+        "min_ms": 595.155,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3971379.591080281
+      },
+      "io_seqscan": {
+        "cv": 0.003035291338941504,
+        "median_ms": 593.8195000000001,
+        "median_se_rel": 0.0015294841791141719,
+        "min_ms": 592.545,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10104080.448688531
+      },
+      "nestloop": {
+        "cv": 0.0032180154523581686,
+        "median_ms": 440.26300000000003,
+        "median_se_rel": 0.0017575874309285569,
+        "min_ms": 438.16,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 908547.8452652164
+      },
+      "parallel_seqscan": {
+        "cv": 0.03935697826794217,
+        "median_ms": 73.482,
+        "median_se_rel": 0.00932905781093186,
+        "min_ms": 72.66,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 27217549.876160145
+      },
+      "seqscan": {
+        "cv": 0.004216630062731616,
+        "median_ms": 195.8435,
+        "median_se_rel": 0.0022989235199157086,
+        "min_ms": 194.815,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 10212235.790312162
+      },
+      "sort": {
+        "cv": 0.005618406124750578,
+        "median_ms": 497.3225,
+        "median_se_rel": 0.0010549338204993487,
+        "min_ms": 496.67,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 4021535.321647422
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "c8m3g",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.6651901145858847,
+    "parallel_speedup_cv": 0.03958221453467711,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 3021549.692406241,
+      "hashjoin": 3971379.591080281,
+      "io_seqscan": 10104080.448688531,
+      "nestloop": 908547.8452652164,
+      "parallel_seqscan": 27217549.876160145,
+      "seqscan": 10212235.790312162,
+      "sort": 4021535.321647422
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "gha-ubuntu-22.04": {
+    "client_platform": "Linux x86_64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.006971021561326715,
+        "median_ms": 1031.095,
+        "median_se_rel": 0.003175355575665891,
+        "min_ms": 1025.277,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 1939685.479999418
+      },
+      "hashjoin": {
+        "cv": 0.05421534403659387,
+        "median_ms": 857.7255,
+        "median_se_rel": 0.027538401613248484,
+        "min_ms": 775.874,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2798097.9928893335
+      },
+      "io_seqscan": {
+        "cv": 0.007379604749365273,
+        "median_ms": 859.2094999999999,
+        "median_se_rel": 0.003718584956726462,
+        "min_ms": 854.726,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 6983163.012047702
+      },
+      "nestloop": {
+        "cv": 0.03708720523295446,
+        "median_ms": 691.3589999999999,
+        "median_se_rel": 0.017446171352881387,
+        "min_ms": 674.8,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 578570.6123736005
+      },
+      "parallel_seqscan": {
+        "cv": 0.014431232210291474,
+        "median_ms": 129.785,
+        "median_se_rel": 0.0014728090144324373,
+        "min_ms": 129.555,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 15410101.32141619
+      },
+      "seqscan": {
+        "cv": 0.003534788453085625,
+        "median_ms": 280.45000000000005,
+        "median_se_rel": 0.0011891213345036867,
+        "min_ms": 279.602,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7131395.970761276
+      },
+      "sort": {
+        "cv": 0.006172019950889765,
+        "median_ms": 647.7485,
+        "median_se_rel": 0.0012341399941602801,
+        "min_ms": 646.817,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3087618.111041554
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "gha-ubuntu-22.04",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.1608814577955853,
+    "parallel_speedup_cv": 0.014857832699132859,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 1939685.479999418,
+      "hashjoin": 2798097.9928893335,
+      "io_seqscan": 6983163.012047702,
+      "nestloop": 578570.6123736005,
+      "parallel_seqscan": 15410101.32141619,
+      "seqscan": 7131395.970761276,
+      "sort": 3087618.111041554
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "gha-ubuntu-24.04": {
+    "client_platform": "Linux x86_64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.029434189897196622,
+        "median_ms": 873.9290000000001,
+        "median_se_rel": 0.017906501886568685,
+        "min_ms": 857.166,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2288515.4285988905
+      },
+      "hashjoin": {
+        "cv": 0.02834031017112828,
+        "median_ms": 698.2845,
+        "median_se_rel": 0.011528237158984975,
+        "min_ms": 668.233,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3436994.520141862
+      },
+      "io_seqscan": {
+        "cv": 0.008120822324006224,
+        "median_ms": 818.489,
+        "median_se_rel": 0.004092084705877414,
+        "min_ms": 813.789,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7330581.107382017
+      },
+      "nestloop": {
+        "cv": 0.01994826081702719,
+        "median_ms": 632.0495000000001,
+        "median_se_rel": 0.009871217601205561,
+        "min_ms": 617.309,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 632861.8249045367
+      },
+      "parallel_seqscan": {
+        "cv": 0.01751026915730833,
+        "median_ms": 124.0985,
+        "median_se_rel": 0.0018211922905185729,
+        "min_ms": 123.7,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 16116230.252581619
+      },
+      "seqscan": {
+        "cv": 0.003161079203248275,
+        "median_ms": 268.0245,
+        "median_se_rel": 0.0016458471511411948,
+        "min_ms": 266.835,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7462004.406313602
+      },
+      "sort": {
+        "cv": 0.0017753253215003042,
+        "median_ms": 594.0695000000001,
+        "median_se_rel": 0.000848737944719882,
+        "min_ms": 592.549,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3366609.462360885
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "gha-ubuntu-24.04",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.159772277666531,
+    "parallel_speedup_cv": 0.017793311880889184,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2288515.4285988905,
+      "hashjoin": 3436994.520141862,
+      "io_seqscan": 7330581.107382017,
+      "nestloop": 632861.8249045367,
+      "parallel_seqscan": 16116230.252581619,
+      "seqscan": 7462004.406313602,
+      "sort": 3366609.462360885
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "gha-ubuntu-latest": {
+    "client_platform": "Linux x86_64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.02159020661347073,
+        "median_ms": 935.7565,
+        "median_se_rel": 0.008107297218701452,
+        "min_ms": 910.741,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2137308.156555685
+      },
+      "hashjoin": {
+        "cv": 0.04751716303590608,
+        "median_ms": 817.81,
+        "median_se_rel": 0.027219925092561176,
+        "min_ms": 762.555,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2934666.97643707
+      },
+      "io_seqscan": {
+        "cv": 0.023810665002308717,
+        "median_ms": 838.7935,
+        "median_se_rel": 0.01199820094631139,
+        "min_ms": 824.671,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7153131.253401463
+      },
+      "nestloop": {
+        "cv": 0.04571817388359176,
+        "median_ms": 638.8115,
+        "median_se_rel": 0.014311343345363131,
+        "min_ms": 627.893,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 626162.8038944196
+      },
+      "parallel_seqscan": {
+        "cv": 0.003094098157340386,
+        "median_ms": 124.871,
+        "median_se_rel": 0.0010924972331142057,
+        "min_ms": 124.398,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 16016529.057987845
+      },
+      "seqscan": {
+        "cv": 0.0014864508807910352,
+        "median_ms": 270.56,
+        "median_se_rel": 0.0005976878445104552,
+        "min_ms": 269.779,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7392075.694855114
+      },
+      "sort": {
+        "cv": 0.001597014479658847,
+        "median_ms": 593.4649999999999,
+        "median_se_rel": 0.00044380088814408367,
+        "min_ms": 593.017,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3370038.6711937524
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "gha-ubuntu-latest",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.1667160509645957,
+    "parallel_speedup_cv": 0.003432634502574024,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2137308.156555685,
+      "hashjoin": 2934666.97643707,
+      "io_seqscan": 7153131.253401463,
+      "nestloop": 626162.8038944196,
+      "parallel_seqscan": 16016529.057987845,
+      "seqscan": 7392075.694855114,
+      "sort": 3370038.6711937524
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  },
+  "gha-x86": {
+    "client_platform": "Linux x86_64",
+    "comparable_only_with": "other operator_rates_v2 records at the same probe_scale",
+    "detail": {
+      "hashagg": {
+        "cv": 0.007462158926175372,
+        "median_ms": 889.2895,
+        "median_se_rel": 0.0021319181839464306,
+        "min_ms": 875.919,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Limit",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 2248986.4099373715
+      },
+      "hashjoin": {
+        "cv": 0.020511502160079825,
+        "median_ms": 698.5055,
+        "median_se_rel": 0.00819109365406767,
+        "min_ms": 672.764,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Hash",
+          "Hash Join",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 3435907.090209025
+      },
+      "io_seqscan": {
+        "cv": 0.014706435268014252,
+        "median_ms": 829.0685000000001,
+        "median_se_rel": 0.00741057696340891,
+        "min_ms": 820.447,
+        "n_warm": 2,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7237037.7116004275
+      },
+      "nestloop": {
+        "cv": 0.009207040893714215,
+        "median_ms": 649.4175,
+        "median_se_rel": 0.0044944432772669575,
+        "min_ms": 635.861,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Index Only Scan",
+          "Nested Loop",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 615936.5893281287
+      },
+      "parallel_seqscan": {
+        "cv": 0.002563503174298995,
+        "median_ms": 124.309,
+        "median_se_rel": 0.000939247418633002,
+        "min_ms": 123.847,
+        "n_warm": 10,
+        "node_types": [
+          "Aggregate",
+          "Gather",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 16088939.658431811
+      },
+      "seqscan": {
+        "cv": 0.0020946088649347904,
+        "median_ms": 269.0875,
+        "median_se_rel": 0.001349120852030553,
+        "min_ms": 268.37,
+        "n_warm": 8,
+        "node_types": [
+          "Aggregate",
+          "Seq Scan"
+        ],
+        "tuples_per_s": 7432526.594509222
+      },
+      "sort": {
+        "cv": 0.0030956401847706777,
+        "median_ms": 592.6445,
+        "median_se_rel": 0.0011689550742469777,
+        "min_ms": 591.56,
+        "n_warm": 8,
+        "node_types": [
+          "Limit",
+          "Seq Scan",
+          "Sort"
+        ],
+        "tuples_per_s": 3374704.396986726
+      }
+    },
+    "imprecise_probes": {},
+    "invalid_probes": [],
+    "io_seqscan_is_not_a_storage_axis": "measured across the container grid it tracks CPU quota (Spearman +0.762) more than memory (+0.548), and is flat against seqscan on an unthrottled host. It is a sustained-throughput axis. cetp.operator_model does not use it.",
+    "machine_id": "gha-x86",
+    "max_cv": 0.15,
+    "max_median_se": 0.08,
+    "noisy_probes": {},
+    "parallel_dop": 3,
+    "parallel_speedup": 2.164666275169135,
+    "parallel_speedup_cv": 0.0033104281931049997,
+    "probe_scale": {
+      "jit": "disabled",
+      "parallel_dop": 3,
+      "reps": 9,
+      "reps_per_probe": {
+        "io_seqscan": 3,
+        "parallel_seqscan": 11
+      },
+      "table_a_rows": 2000000,
+      "table_b_rows": 400000,
+      "work_mem": "64MB"
+    },
+    "rates_tuples_per_s": {
+      "hashagg": 2248986.4099373715,
+      "hashjoin": 3435907.090209025,
+      "io_seqscan": 7237037.7116004275,
+      "nestloop": 615936.5893281287,
+      "parallel_seqscan": 16088939.658431811,
+      "seqscan": 7432526.594509222,
+      "sort": 3374704.396986726
+    },
+    "reliable": true,
+    "server_version": "15.19 (Debian 15.19-1.pgdg13+2)",
+    "signature_kind": "operator_rates_v2"
+  }
+}

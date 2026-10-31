@@ -1,0 +1,31 @@
+# CETP pinned dependencies.
+#
+# scikit-learn is pinned EXACTLY, not with a range: every file in models/ and
+# models_online/ is a pickled estimator, and pickled sklearn estimators carry no
+# cross-version compatibility guarantee.
+#
+# RESOLVED 2026-10-13: models/*.pkl are now pickled with the 1.8.0 pinned here, and
+# retrained on the buffer-corrected dataset with the multi-core compute signal. There is
+# no longer a version mismatch (models/PROVENANCE.json records version_mismatch: false).
+#
+# The pin still matters, and CI proved it: installing scikit-learn unpinned makes the gate
+# fail with `ModuleNotFoundError: No module named '_loss'` when it unpickles
+# scaling_quantile_models.pkl. Workflows must install from THIS file, not a loose list.
+#
+# The installable `cetp` package deliberately avoids this whole class of problem: it has no
+# runtime dependencies and ships the analytical formula plus models/calibration.json rather
+# than a pickle.
+#
+# results/CANONICAL.md does not load these pickles; it refits everything from the
+# corrected dataset inside each fold, so its numbers are unaffected.
+scikit-learn==1.8.0
+
+numpy==2.5.3
+pandas==2.2.3
+scipy==1.18.1
+joblib==1.5.3
+PyYAML==6.0.2
+matplotlib==3.10.1
+
+# Test / dev
+pytest==9.0.3

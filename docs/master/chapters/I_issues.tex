@@ -1,0 +1,46 @@
+\chapter{Known issues and contradictions register}\label{app:issues}
+\section{Defects found or confirmed in this audit}
+\begin{center}\small
+\begin{longtable}{@{}L{0.9cm}L{6.2cm}L{3.9cm}L{2.0cm}@{}}
+\toprule \thead{ID} & \thead{Issue} & \thead{Fix} & \thead{Severity}\\ \midrule \endhead
+X1 & \texttt{cetp predict-prod} omits machine records, bypassing the cross-ISA refusal (\cref{sec:cli-bypass}) \evRUN & pass records; add CLI test & High\\
+X2 & \texttt{cetp regress}: hardware term exactly 1.0 for any input \evRUN & compute from Gen-2 ratio or retire claim & Medium\\
+X3 & Redaction verifier passes escape-string and dollar-quoted literals \evRUN & extend patterns; adversarial tests & High\\
+X4 & Telemetry \texttt{\_FORBIDDEN} applies to \texttt{extra} only; \texttt{query\_id} is free text & validate all fields & Low\\
+X5 & Public default salt for hashed identifiers & require per-user salt & Low\\
+X6 & Shipped warning text hard-codes 28.54 vs 38.22 (132 pairs); metrics give 29.31 vs 37.39 (242 pairs) & render from metrics & Medium\\
+X7 & README says 28 tests; 119 collected & update README; README also says PASS 4/840 vs CSV 26 & Low\\
+X8 & Timeline conflict: notes say collection Jan--Apr 2026; \texttt{signature.py} says August 2026; first commit 2026-08-17 & team to resolve; do not assert & Medium\\
+X9 & Review 3 deck uses 21.60/23.03 vs canonical 21.61/23.05; gate tiers 40.99/27.26/75.31 and AUC 24.06/29.70 vs corrected files (27.03/33.43/22.97/32.22/70.66; AURC 25.44 vs 31.15) & correct the deck & Medium\\
+X10 & Deck says 5 machines, F1 0.375 (canonical); the Review 2 deck and LLD produced earlier in this engagement say 7 machines and F1 0.562, which \texttt{CANONICAL.pdf} calls wrong (buffer bug) & regenerate those two from canonical values & Medium\\
+X11 & Non-editable install fails (\texttt{selftest}, default registry) \evRUN & package fixtures and registry, or document editable install & Medium\\
+X12 & \texttt{predict\_prod.py} refusal returns before recording \texttt{--actual-ms} \evCODE & record first, or document workaround & High\\
+X13 & Regression workflow hard-codes \texttt{c7i}/\texttt{c5a} and executes PR SQL \evCODE & parameterise; restrict & Medium\\
+X14 & Gen-1 bandwidth probe source lost; legacy numbers unreproducible \evCODE & document; replace with Gen-2 axes & Medium\\
+X15 & Truncated \texttt{auto\_explain} entries skipped silently \evCODE & record in \texttt{dropped} & Low\\
+\bottomrule
+\end{longtable}
+\end{center}
+\section{Evidence-pack register}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{1.0cm}Y@{}}
+\toprule \thead{ID} & \thead{Item (pack \texttt{06\_gaps\_and\_traceability.md}; \evPACK)}\\ \midrule
+C1--C9, C11 & Documentation/number inconsistencies and stale artefacts across README, paper draft, site, PDFs, comments\\
+C10 & Directory-globbing evaluation and stale outputs; fixed (\cref{sec:c10})\\
+C12 & Three states of the same experiment in circulation\\
+C13 & \texttt{plans\_grid} is git-ignored\\
+C14--C15 & Further stale-value items (see pack)\\
+C16 & \texttt{laptop\_to\_prod} regeneration differs by 0.01 pp (43.7167 vs 43.7070)\\
+R1 & Hardware-distance confidence uses only the 5 legacy machines\\
+R2 & Public salt\\
+R3 & No locking of the calibration file\\
+R4, R7--R9 & See pack\\
+R5 & EC2 raw data gone\\
+R6 & No managed-database measurement\\
+R10 & Unknown whether \texttt{calibration.json} was regenerated after the warm-up fix\\
+\bottomrule
+\end{tabularx}
+\end{center}
+Items C14, C15, R4, R7--R9 are named in the pack's lists but I did not retain their wording; consult the pack before relying on them (\evUNK).
+\section{Not done}
+EC2 logs unavailable; PDFs read only for specific numbers (seven of them); \texttt{hw\_probe\_suite.c} header only and bodies of \texttt{laptop\_to\_*\_evaluation.py} not read; Docker/PostgreSQL not exercised; full test suite and determinism target not re-run; documentation pipeline broken since commit 38c4bf2 (Markdown deleted); VS Code extension and CI use Gen-1 only; regression-detection accuracy untested.

@@ -1,0 +1,18 @@
+\chapter{Function and module reference}\label{app:reference}
+Module list of the \texttt{cetp} package (2{,}278 lines, \evCODE). Per-function detail for the critical functions is in \cref{ch:impl}; signatures are not duplicated here because only code I read carries \evCODE, and a restated signature would be a second copy to go stale.
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{3.2cm}Y@{}}
+\toprule \thead{Module} & \thead{Responsibility}\\ \midrule
+\texttt{plan\_nodes} & Parse EXPLAIN JSON; \texttt{decompose}: inclusive/self time, loops, \texttt{under\_gather}\\
+\texttt{operator\_model} & Operator classes, \texttt{weights\_from\_plan}, ratio, unmapped/unpriced handling, concurrency, cardinality term\\
+\texttt{cross\_env} & Cross-environment prediction, \texttt{CrossArchitectureUncalibrated}, \texttt{assert\_comparable}, trust labels\\
+\texttt{calibration\_store} & Persistent per-pair observations; median factor; atomic save\\
+\texttt{regress} & Regression-detection mode (hardware term constant 1.0)\\
+\texttt{predict} & Gen-1 two-scalar prediction, hardware-distance confidence\\
+\texttt{redact}, \texttt{ingest} & Plan redaction (\texttt{structural}, \texttt{full}), verification, log ingestion\\
+\texttt{telemetry} & Opt-in local event log with forbidden-key filter\\
+\texttt{cli} & Sub-commands including \texttt{predict-prod} and \texttt{regress}\\
+\bottomrule
+\end{tabularx}
+\end{center}
+Outside the package: \texttt{operator\_probe.py} (signature measurement), \texttt{predict\_prod.py}, \texttt{build\_calibration.py}, \texttt{canonical\_evaluation.py} (Tier 1), \texttt{gate/cetp\_gate.py} (Gen-1 gate), and the collection scripts (\cref{ch:repo}).

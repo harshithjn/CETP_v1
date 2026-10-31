@@ -1,0 +1,27 @@
+\chapter{Requirement-to-implementation traceability}\label{app:trace}
+Status: \textbf{Met} = implemented and covered by evidence I saw; \textbf{Partial} = implemented with a known defect or without an accuracy test; \textbf{Unverified} = I did not run the evidence.
+\begin{center}\small
+\begin{longtable}{@{}L{1.3cm}L{3.9cm}L{3.9cm}L{2.2cm}L{1.6cm}@{}}
+\toprule \thead{Req.} & \thead{Implementation} & \thead{Verification} & \thead{Evidence} & \thead{Status}\\ \midrule \endhead
+FR-1 & \texttt{operator\_probe.py} & stability gate, \texttt{verify\_operator\_used} & \evCODE & Met (untested on managed PG)\\
+FR-2 & \texttt{plan\_nodes.decompose} & fixture run: self-times 2.997$\times$ wall & \evRUN & Met\\
+FR-3 & \texttt{cross\_env}, \texttt{operator\_model} & grid MAPE 22.41; fixture example & \evFILE, \evRUN & Met within ISA\\
+FR-4 & \texttt{CrossArchitectureUncalibrated}, \texttt{\_trust} & library raises; CLI does not & \evRUN & Partial\\
+FR-5 & \texttt{CalibrationStore} & operator\_model tests & \evRUN (80 tests) & Met; no locking\\
+FR-6 & concurrency exponent & 41.8\% error at 8 clients default & \evFILE & Partial\\
+FR-7 & \texttt{gate/cetp\_gate.py} & gate evaluation CSV; 54.5\% false-alarm BLOCK & \evFILE & Partial\\
+FR-8 & \texttt{regress} & none for accuracy & \evRUN & Partial\\
+FR-9 & \texttt{ingest} & product\_loop tests & \evRUN & Partial (truncated entries skipped silently)\\
+FR-10 & \texttt{redact} & verifier misses two leak forms & \evRUN & Partial\\
+FR-11 & \texttt{telemetry} & forbidden keys in \texttt{extra} only & \evCODE & Partial\\
+FR-12 & \texttt{cli} & e2e tests (24 of 28 defs) & \evPACK & Unverified (not run)\\
+NFR-1 & \texttt{verify-determinism}, hash inputs & byte-identical across two runs per pack & \evPACK & Unverified\\
+NFR-2 & \texttt{pyproject} & zero runtime deps & \evFILE & Met\\
+NFR-3 & per-fold refit; leaky 25.62 vs 23.90 & \texttt{canonical\_evaluation} & \evFILE & Met\\
+NFR-4 & CIs, paired differences & \texttt{canonical\_metrics.json} & \evFILE & Met\\
+NFR-5 & redact, telemetry & see FR-10, FR-11 & \evRUN & Partial\\
+NFR-6 & \texttt{os.replace} & code read & \evCODE & Met\\
+NFR-7 & \texttt{finally} drops in probe & code read; tables UNLOGGED & \evCODE & Met unless process killed\\
+\bottomrule
+\end{longtable}
+\end{center}

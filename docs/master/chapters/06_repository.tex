@@ -1,0 +1,90 @@
+\chapter{Repository walkthrough}\label{ch:repo}
+
+The repository root is \src{CETP/}. Line counts are from \texttt{wc -l} on the checked-out tree
+\evRUN. The tree is large because it contains both the product and the evidence behind it.
+
+\section{Top-level layout}
+\begin{center}\small
+\begin{longtable}{@{}L{3.1cm}L{9.4cm}L{2.2cm}@{}}
+\toprule \thead{Path} & \thead{Purpose} & \thead{Size / state}\\ \midrule \endhead
+\texttt{cetp/} & The installable package: 11 modules + \texttt{\_\_init\_\_.py} (empty) & 2,278 lines\\
+\texttt{gate/} & Gen-1 SLA gate: \texttt{cetp\_gate.py} (326), \texttt{cetp\_predict\_cli.py} (152), \texttt{cetp\_gate\_demo.py} (88) & uses pickles\\
+\texttt{scripts/collection/} & Data acquisition: probes, container grid, TPC-H/DS/JOB loaders, live predictor, C sources & 35 entries (21 Python, 3,336 lines)\\
+\texttt{scripts/analysis/} & Evaluation: one canonical script plus ~33 experiment scripts (tiers 1--4, phases 5--8, additions, fixes) and one notebook & 34 Python files, 8,852 lines\\
+\texttt{scripts/docs/} & PDF build tooling for the documentation (the Markdown it consumes was deleted in HEAD) & broken\\
+\texttt{tests/} & 4 test files + 3 real EXPLAIN fixtures (\texttt{q1}, \texttt{q18}, \texttt{q19}) & 1,260 lines\\
+\texttt{models/} & Registry JSON, \texttt{calibration.json}, 4 pickles, \texttt{PROVENANCE.json}, gate config & 2.1\,MB\\
+\texttt{data/} & Measurements: \texttt{corrected/}, \texttt{container\_grid/}, \texttt{laptop/}, \texttt{plans\_*}, \texttt{external/} (23\,MB) & mixed\\
+\texttt{results/} & 78 committed outputs (JSON/CSV/PNG); \texttt{CANONICAL.md} is the source of truth & 1.4\,MB\\
+\texttt{docs/} & Evidence pack (\texttt{research/00--09}), paper draft (\texttt{paper/CETP\_paper.tex}), PDF reports, static site & 14\,MB\\
+\texttt{vscode-extension/} & VS Code panel (v0.2.4, Gen 1 only) & built\\
+\texttt{.github/workflows/} & \texttt{cetp-gate.yml}, \texttt{cetp-regression-check.yml}, \texttt{x86-operator-probe.yml} & 3 workflows\\
+\texttt{dist/} & \texttt{cetp-datasets.tar.gz} and \texttt{MANIFEST.json} (dataset package) & artefact\\
+\texttt{models\_backup/}, \texttt{models\_online/} & Earlier pickles; online-learning model versions & legacy\\
+\texttt{Makefile}, \texttt{Dockerfile}, \texttt{pyproject.toml}, \texttt{requirements.txt} & Build, reproduce, package & --\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\begin{notebox}
+Git state at the time of writing (\evRUN): branch \texttt{x86-probe}, HEAD \texttt{38c4bf2} ``Delete all
+markdown except README; point README at the PDF docs'', 17 commits (first: \texttt{366c5d4} ``Version 1''),
+working tree modified (\texttt{M .gitignore}, \texttt{M Makefile}, \texttt{M README.md}, \texttt{M vscode-extension/*}, regenerated Gen-2 results) with a large uncommitted documentation reorganisation: the PDFs at their old \texttt{docs/} paths are deleted, re-appear untracked under \texttt{docs/\{design,guides,reference,results\}/}, and \texttt{docs/research/*.md}, \texttt{docs/README.md}, \texttt{results/CANONICAL.md} and \texttt{tests/test\_operator\_evaluation.py} are untracked. Fourteen of the 17 commits are dated 2026-10-13, the first three 2026-08-17. Several things this document relies on (the C10 fix, the
+regenerated Gen-2 results, \src{docs/paper/CETP\_paper.tex}) are \emph{uncommitted}.
+\end{notebox}
+
+\section{The package: module by module}
+\begin{center}\small
+\begin{longtable}{@{}L{3.1cm}R{0.9cm}L{10.4cm}@{}}
+\toprule \thead{Module} & \thead{Lines} & \thead{Responsibility and key symbols}\\ \midrule \endhead
+\texttt{plan\_nodes.py} & 192 & Decompose an EXPLAIN plan: \texttt{OPERATOR\_MAP} (l.\,34), \texttt{AGG\_STRATEGY} (56), \texttt{PASSTHROUGH} (60), \texttt{COMPLEXITY} (68), \texttt{operator\_for} (77), \texttt{decompose} (98), \texttt{operator\_profile} (179)\\
+\texttt{operator\_model.py} & 261 & The Gen-2 model: \texttt{AXES} (41), \texttt{DEFAULT\_CONCURRENCY\_ELASTICITY=0.734} (51), \texttt{cardinality\_factor} (68), \texttt{weights\_from\_plan} (89), \texttt{concurrency\_factor} (132), \texttt{predict\_scaling} (140), \texttt{predict\_runtime} (207), \texttt{fit\_calibration} (221), \texttt{select\_calibration\_queries} (239)\\
+\texttt{cross\_env.py} & 264 & Product flow: \texttt{CrossArchitectureUncalibrated} (63), \texttt{load\_rates} (84), \texttt{assert\_comparable} (112), \texttt{row\_ratio\_from\_plans} (120), \texttt{predict} (141), \texttt{\_trust} (184), \texttt{\_warnings} (205)\\
+\texttt{calibration\_store.py} & 168 & Per-pair, per-query calibration state; \texttt{MIN\_OBSERVATIONS=3} (43); atomic save (101)\\
+\texttt{telemetry.py} & 199 & Local JSONL log; \texttt{\_FORBIDDEN} keys (46); record/resolve/summary\\
+\texttt{ingest.py} & 202 & Parse \texttt{auto\_explain} logs (105), rank \texttt{pg\_stat\_statements} (161, 189)\\
+\texttt{redact.py} & 218 & Structural/full redaction, \texttt{assert\_clean} (145), CLI \texttt{cetp-redact} (178)\\
+\texttt{regress.py} & 103 & Regression detection on same-hardware plan pairs; threshold 1.20 (30)\\
+\texttt{predict.py} & 154 & Gen-1 predictor: \texttt{analytical\_scaling} (67), \texttt{compute\_only\_scaling} (82), \texttt{hardware\_distance\_confidence} (88), \texttt{predict} (107)\\
+\texttt{signature.py} & 141 & Gen-1 machine table \texttt{LEGACY} (31), registry loading, ratios (105), warnings (119)\\
+\texttt{cli.py} & 376 & Entry points: \texttt{cmd\_predict} (64), \texttt{cmd\_regress} (96), \texttt{cmd\_redact} (112), \texttt{cmd\_signature} (117), \texttt{cmd\_predict\_prod} (146), \texttt{cmd\_selftest} (220), parser (293)\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\section{Where the evidence lives}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.3cm}Y@{}}
+\toprule \thead{Question} & \thead{File}\\ \midrule
+Headline numbers, CIs, ablations & \src{results/CANONICAL.md}, \src{results/canonical\_metrics.json}, generated by \src{scripts/analysis/canonical\_evaluation.py} (854 lines)\\
+Gen-2 container-grid evaluation & \src{results/operator\_model\_metrics.json}, \src{results/operator\_model\_pairs.csv}, from \src{operator\_model\_evaluation.py} (518 lines)\\
+Laptop $\to$ production & \src{results/laptop\_to\_prod\_metrics.json}, \src{laptop\_to\_prod\_pairs.csv}\\
+Laptop $\to$ EC2 & \src{results/laptop\_to\_ec2\_metrics.json}, \src{laptop\_to\_ec2\_pairs.csv}\\
+Gate behaviour & \src{results/phase7\_gate\_evaluation.csv}, \src{tier1\_gate.csv}\\
+Measurement noise & \src{results/canonical\_measurement\_cv.csv}\\
+Leakage audit & \src{results/canonical\_leakage\_audit.csv}\\
+Conformal calibration & \src{results/tier1\_conformal.csv}, \src{models/calibration.json}\\
+Gaps, contradictions, risks & \src{docs/research/06\_gaps\_and\_traceability.md}, \src{08\_method\_comparison\_and\_contribution.md}, \src{09\_C10\_investigation\_and\_fix.md}\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Reading order for a new contributor}
+\begin{enumerate}
+\item \src{README.md}, then \src{results/CANONICAL.md} (one hour).
+\item \src{cetp/plan\_nodes.py} then \src{cetp/operator\_model.py}: the whole Gen-2 idea is about 450 lines.
+\item \src{tests/test\_operator\_model.py}: it is the best executable specification of the model.
+\item \src{cetp/cross\_env.py} for refusals and trust.
+\item \src{scripts/analysis/canonical\_evaluation.py} \texttt{run\_cv} (line 239): how folds and leakage are handled.
+\end{enumerate}
+
+\section{Hazards in the tree}
+\begin{itemize}
+\item \texttt{data/raw\_buggy\_do\_not\_use/} holds the original, buffer-inflated dataset; the name is the
+  warning (the bug summed buffer counters across the tree, inflating them 3.06--12.00$\times$).
+\item \texttt{data/plans\_grid} (1.1\,MB) is untracked and git-ignored, so a fresh clone cannot rerun the
+  per-operator evaluation (\evPACK, risk list).
+\item \texttt{cetp\_measurements\_addition7\_demo.db} at the root is a SQLite demo database from the
+  online-learning experiment.
+\item \texttt{scripts/docs/} cannot rebuild most of the documentation: it renders Markdown to PDF, and in HEAD only \texttt{README.md} survives (the working tree adds untracked \texttt{docs/README.md}, \texttt{docs/research/*.md} and \texttt{results/CANONICAL.md}).
+\end{itemize}

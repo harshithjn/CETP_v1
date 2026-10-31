@@ -1,0 +1,186 @@
+{
+  "dev": "m1-host",
+  "dev_parallel_speedup": 2.6252440946069227,
+  "few_shot": [
+    {
+      "k": 0,
+      "n_scored": 242,
+      "naive_mape": 31.701001795612807,
+      "operator_mape": 43.716665323595755,
+      "rule": "spread"
+    },
+    {
+      "k": 1,
+      "n_scored": 231,
+      "naive_mape": 31.870788385907375,
+      "operator_mape": 30.896780816809198,
+      "rule": "spread"
+    },
+    {
+      "k": 1,
+      "n_scored": 231,
+      "naive_mape": 31.4349953631565,
+      "operator_mape": 32.04139957561612,
+      "rule": "random"
+    },
+    {
+      "k": 2,
+      "n_scored": 220,
+      "naive_mape": 30.71541298892187,
+      "operator_mape": 27.607344728252272,
+      "rule": "spread"
+    },
+    {
+      "k": 2,
+      "n_scored": 220,
+      "naive_mape": 31.832278668643664,
+      "operator_mape": 30.29647256729767,
+      "rule": "random"
+    },
+    {
+      "k": 3,
+      "n_scored": 209,
+      "naive_mape": 31.334024825820382,
+      "operator_mape": 26.24241137339865,
+      "rule": "spread"
+    },
+    {
+      "k": 3,
+      "n_scored": 209,
+      "naive_mape": 31.790279009673416,
+      "operator_mape": 26.744192324848814,
+      "rule": "random"
+    },
+    {
+      "k": 5,
+      "n_scored": 187,
+      "naive_mape": 32.88870807564131,
+      "operator_mape": 25.81690849516194,
+      "rule": "spread"
+    },
+    {
+      "k": 5,
+      "n_scored": 187,
+      "naive_mape": 30.966526428699254,
+      "operator_mape": 22.267278857319738,
+      "rule": "random"
+    },
+    {
+      "k": 8,
+      "n_scored": 154,
+      "naive_mape": 30.493882968681156,
+      "operator_mape": 20.33814175736712,
+      "rule": "spread"
+    },
+    {
+      "k": 8,
+      "n_scored": 154,
+      "naive_mape": 31.348165885657806,
+      "operator_mape": 22.624075055414167,
+      "rule": "random"
+    }
+  ],
+  "mean_explained_frac": 0.9908079885101612,
+  "mean_unmapped_frac": 0.009192011489838855,
+  "n_pairs": 242,
+  "n_queries": 22,
+  "per_prod_machine": {
+    "c1m1g": {
+      "n": 22,
+      "naive_mape": 62.57627400694082,
+      "operator_mape": 23.467660795796057
+    },
+    "c1m3g": {
+      "n": 22,
+      "naive_mape": 59.778357884230395,
+      "operator_mape": 31.26403389758195
+    },
+    "c2m3g": {
+      "n": 22,
+      "naive_mape": 22.17230929534748,
+      "operator_mape": 22.15009564784068
+    },
+    "c4m1g": {
+      "n": 22,
+      "naive_mape": 32.4122216614429,
+      "operator_mape": 36.00328360429009
+    },
+    "c4m3g": {
+      "n": 22,
+      "naive_mape": 32.70345676328852,
+      "operator_mape": 36.395812470786396
+    },
+    "c8m1g": {
+      "n": 22,
+      "naive_mape": 30.838592238552625,
+      "operator_mape": 33.42253932585658
+    },
+    "c8m3g": {
+      "n": 22,
+      "naive_mape": 21.274346637849,
+      "operator_mape": 22.488767018247433
+    },
+    "gha-ubuntu-22.04": {
+      "n": 22,
+      "naive_mape": 22.75352894717095,
+      "operator_mape": 67.2584883847978
+    },
+    "gha-ubuntu-24.04": {
+      "n": 22,
+      "naive_mape": 21.790374546816395,
+      "operator_mape": 66.14905449583847
+    },
+    "gha-ubuntu-latest": {
+      "n": 22,
+      "naive_mape": 20.99720274441628,
+      "operator_mape": 69.4386601122917
+    },
+    "gha-x86": {
+      "n": 22,
+      "naive_mape": 21.414355025685516,
+      "operator_mape": 72.84492280622618
+    }
+  },
+  "predictors": {
+    "naive": {
+      "mape": 31.701001795612804,
+      "mdape": 21.621102776403305,
+      "qerror_median": 1.2414999761876042,
+      "qerror_p95": 3.3234686067250054
+    },
+    "operator": {
+      "mape": 43.71666532359576,
+      "mdape": 33.0414459032122,
+      "qerror_median": 1.3743559724767955,
+      "qerror_p95": 2.2036440224442613
+    }
+  },
+  "prod_cells": [
+    "c1m1g",
+    "c1m3g",
+    "c2m3g",
+    "c4m1g",
+    "c4m3g",
+    "c8m1g",
+    "c8m3g",
+    "gha-ubuntu-22.04",
+    "gha-ubuntu-24.04",
+    "gha-ubuntu-latest",
+    "gha-x86"
+  ],
+  "same_isa_caveat": "all prod cells are containers on the same arm64 host as dev; this measures capability transfer, not ISA transfer",
+  "settings_mismatches": {},
+  "signed_bias_per_machine": {
+    "c1m1g": 0.07627210387908011,
+    "c1m3g": 0.23133211228030584,
+    "c2m3g": 0.06013902928335982,
+    "c4m1g": 0.3277875517741778,
+    "c4m3g": 0.34313190479000755,
+    "c8m1g": 0.3088043397996875,
+    "c8m3g": -0.02828537843680531,
+    "gha-ubuntu-22.04": 0.672584883847978,
+    "gha-ubuntu-24.04": 0.6614905449583848,
+    "gha-ubuntu-latest": 0.694386601122917,
+    "gha-x86": 0.7284492280622618
+  }
+}

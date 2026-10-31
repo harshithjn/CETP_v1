@@ -1,0 +1,146 @@
+\chapter{Algorithms and mathematical models}\label{ch:algo}
+
+All formulas here are transcribed from code; the file and line of each are given. Symbols: $s$ is the
+scaling factor $T_{\text{prod}}/T_{\text{dev}}$; subscripts $d$ and $p$ denote development and production.
+
+\section{Generation 1: two-scalar analytical model}
+\subsection{Definition}
+With bandwidth ratio $B=\text{bw}_p/\text{bw}_d$ and compute ratio $C=\text{cmp}_p/\text{cmp}_d$
+(\src{cetp/predict.py}:67--79):
+\begin{equation}\label{eq:gen1}
+\sigma_{\text{anal}} = \tfrac12\,\frac1B + \tfrac14\,\frac1C + \tfrac14\sqrt{\frac1{BC}},\qquad
+\sigma_{\text{cmp}}=\frac1C .
+\end{equation}
+The three weights $(0.5,0.25,0.25)$ were originally replaced by the probabilities of a random-forest
+bottleneck classifier (classes bandwidth, compute, io, mixed). Tier-1 ablation showed the classifier adds
+nothing, so the default is uniform (\evFILE\ \src{results/tier1\_ablation.csv}):
+\begin{center}\small
+\begin{tabular}{@{}lr@{}}
+\toprule \thead{Variant (LOMO)} & \thead{MAPE \%}\\ \midrule
+uniform weights (shipped) & 21.55\\ one-hot classifier weights & 21.62\\ bandwidth only & 23.05\\
+compute only & 20.06\\ oracle (true class) & 17.07\\ \bottomrule
+\end{tabular}
+\end{center}
+The ``oracle'' row says that \emph{knowing} each query's true bottleneck would reach 17.07\%, but the
+classifier reaches macro-F1 0.375 (I/O recall 0) against 0.161 for the trivial majority guess, so the oracle is
+not attainable with the features available.
+
+\paragraph{The shipped gate differs from Equation~\eqref{eq:gen1}.} In \src{gate/cetp\_gate.py} the three weights are the classifier's probabilities, with the \texttt{io} probability added to the bandwidth weight, and the result is an input feature of the quantile models rather than the prediction itself. The gate keeps its own copies of the formula and of the confidence function (it imports nothing from \texttt{cetp/}); its confidence function reads the reference machines from the pickled \texttt{hardware\_signature} table and has no guard for equal-range axes \evCODE.
+
+\subsection{Why it is called ``roofline'' and why that is a stretch}
+A true roofline takes a minimum of bounds, $\min(P_{\max},\,\beta I)$. Equation~\eqref{eq:gen1} is a
+\emph{weighted harmonic-style blend}. The geometric-mean term $\sqrt{1/(BC)}$ is a mixture heuristic with no
+derivation. The evaluation script itself records \texttt{roofline\_machinery\_justified: false}
+(\src{results/canonical\_metrics.json}, \evFILE).
+
+\subsection{Hand-checked example}
+c7i $\to$ c5a (\src{cetp/signature.py}:31): $B=14.9/8.44=1.7654$, $C=40.8071/25.8909=1.5761$.
+$\sigma=0.5/1.7654+0.25/1.5761+0.25\sqrt{1/(1.7654\times1.5761)}=0.2832+0.1586+0.1499=0.5917$.
+With $T_d=3587$\,ms the prediction is $2122$\,ms, exactly what \texttt{cetp selftest} prints \evRUN.
+
+\subsection{Confidence}
+After min--max normalising bandwidth and compute over the five reference machines,
+$\text{conf}=\max\!\big(0,\,1-d_{\min}/\sqrt2\big)$ where $d_{\min}$ is the distance to the nearest reference.
+Threshold 0.6 is hand-set (\src{cetp/predict.py}:30). The score is constant per production machine, so it
+cannot rank individual queries.
+
+\section{Generation 2: per-operator model}
+\subsection{Derivation}
+Let a plan have operator buckets $b$ with development \emph{self}-times $S_b$. Under a \texttt{Gather} each
+participant reports an averaged time, so $\sum_b S_b\approx 3\,T_{\text{wall}}$ on the fixtures (measured
+2.97--3.00$\times$). If one tried $T_p=\sum_b S_b\,\rho_b$ the answer would be $\approx3\times$ too large. Normalising
+to \emph{shares} cancels that constant:
+\begin{equation}\label{eq:gen2}
+s=c\cdot N^{e}\;\Big[\sum_{b} w_b\,\rho_b\,\kappa_b \;+\;(u+m)\,\bar\rho\,\kappa_{\varnothing}\Big],\qquad
+w_b=\frac{t_b}{\sum_{b'}t_{b'}+t_u},\quad t_b=\begin{cases}S_b/\pi_d&b\text{ parallel}\\ S_b&\text{serial}\end{cases}
+\end{equation}
+with, for bucket $b=(a,\text{par})$ on axis $a$:
+\begin{equation}\label{eq:ratio}
+\rho_b=\frac{r_d(a)\;\pi_d^{[\text{par}]}}{r_p(a)\;\pi_p^{[\text{par}]}},\qquad
+\bar\rho=\Big(\prod_b\rho_b\Big)^{1/|b|}.
+\end{equation}
+Here $r(a)$ is the measured tuples/s of axis $a$; $\pi$ is the machine's measured parallel speed-up
+(parallel$\_$seqscan over seqscan); $u$ is the unmapped share, $m$ the unpriced share, $\kappa_b$ the
+cardinality factor of bucket $b$, $\kappa_{\varnothing}$ the factor for an unspecified operator (equal to the row ratio, or 1 when none is supplied), $c$ the calibration, $N^{e}$ the concurrency factor. Implementation:
+\src{cetp/operator\_model.py}:140--204.
+
+\paragraph{Why divide parallel self-times by $\pi_d$.}
+A parallel node's reported self-time is a CPU-time share. Dividing by the dev speed-up converts it to a
+wall-time share, which is what the runtime prediction needs. Why multiply $r_d$ by $\pi_d$ and divide $r_p$ by
+$\pi_p$ in \eqref{eq:ratio}: the per-worker rate times the speed-up is the effective wall rate of a parallel node.
+
+\paragraph{Checking it on a degenerate case.} If both machines have identical rates and speed-ups, every
+$\rho_b=1$, hence $s=1$; if the production machine grants no parallelism ($\pi_p=1$) while the dev machine
+grants $\pi_d=2.5$ on a purely parallel plan, $s=2.5$. Both are asserted by \texttt{cetp selftest}
+(\evRUN: ``identical machines 1.000; prod without parallelism 2.50x slower'').
+
+\subsection{Cardinality factor}
+\begin{equation}
+\kappa(\text{op},r,n)=\begin{cases} r & \text{linear ops}\\[2pt] r\,\big(1+\ln r/\ln n\big)& \text{sort (}n\log n\text{)}\end{cases}
+\end{equation}
+since $\dfrac{rn\log(rn)}{n\log n}=r\,\dfrac{\log r+\log n}{\log n}$. This is exact for $n\log n$ costs. It is implemented but not validated against data.
+
+\subsection{Concurrency}
+$T(N)=T(1)\,N^{e}$ with default $e=0.734$ (median over 22 queries on one 8-core machine; range 0.286--0.984,
+median $r^2=0.944$ \evFILE\ \src{results/concurrency\_model\_metrics.json}). This is a power law; it has no mechanism and
+should not be confused with Amdahl's law \citep{amdahl:1967} or the universal scalability law \citep{gunther:usl}, which model throughput saturation.
+
+\subsection{Few-shot calibration}
+$c=\operatorname{median}_{i\in K}(a_i/p_i)$ for a set $K$ of measured queries. The median is robust to a single bad
+ratio, but with $|K|=1$ a single outlier still passes through unchanged, which is the measured failure.
+Selection picks $k$ queries whose predicted scalings are closest to $k$ evenly spaced targets on $[\min,\max]$, which
+makes the set span the range of the quantity being corrected.
+
+\section{Uncertainty: conformal multipliers and quantile regression}\label{sec:conformal-method}
+\subsection{Split-conformal on log residuals}
+For each held-out machine $h$, compute residuals $\epsilon=\ln(y/\hat y)$ on pairs involving $h$, pool across the 5 folds, and take quantiles
+$q_\alpha$. The shipped interval is $\hat y\cdot e^{q_\alpha}$ (\src{scripts/analysis/build\_calibration.py}:41--88).
+Resulting multipliers (analytical, \src{models/calibration.json}, \evFILE): p90 $\times1.366$, p95 $\times1.472$, p99 $\times1.967$.
+The guarantee is \emph{marginal} coverage under exchangeability \citep{angelopoulos:gentle}; machines are not exchangeable
+samples of a population, so the guarantee is only approximate (\cref{sec:conformal}).
+
+\subsection{Gradient-boosted quantile regression}
+Three GBR models (loss=quantile, $\alpha\in\{0.5,0.95,0.99\}$, 200 trees, depth 3, learning rate 0.05, seed 42) predict $p_{50},p_{95},p_{99}$ of
+the scaling factor from 13 features (dev cost, buffers, rows, ratios, classifier probabilities, analytical prediction).
+Because the p95/p99 training targets are inflated by cold first runs (\src{models/PROVENANCE.json}), these are biased upward.
+
+\section{Evaluation algorithms}
+\begin{lstlisting}[language=pseudo,caption={Leakage-free leave-one-machine-out evaluation (\texttt{canonical\_evaluation.run\_cv}, l.\,239--296).},label=lst:lomo]
+for each held-out machine h in {c5a, c7i, m5a, r5n, z1d}:
+    train_cells  = cells whose machine != h
+    train_pairs  = pairs where dev != h and prod != h
+    test_pairs   = pairs where dev == h or prod == h        # 168 pairs
+    clf  = fit_random_forest(train_cells)                    # refit per fold
+    gbr  = fit_quantile(attach_probabilities(train_pairs, clf), alpha=0.5)
+    for each test pair: record predictions of all six approaches
+score(y, p) = MAPE, MdAPE, q-error over all folds pooled        # 840 rows
+\end{lstlisting}
+The 420 ordered pairs ($5\times4\times21$) are each scored twice (once when the dev machine is held out, once
+for prod), giving 840 evaluation rows \evCODE.
+
+\begin{lstlisting}[language=pseudo,caption={Paired cluster bootstrap on the MAPE difference (l.\,306--328).},label=lst:boot]
+groups = split predictions by fold                           # 5 groups (LOMO)
+repeat 2000 times (seed 42):
+    pick = sample len(groups) groups with replacement
+    d[i] = MAPE(a, sample) - MAPE(b, sample)
+return point estimate, 2.5 and 97.5 percentiles of d
+\end{lstlisting}
+\paragraph{Limitation.} With only five clusters the bootstrap has at most $5^5=3125$ distinct resamples (fewer
+distinct MAPE values), so a 95\% interval from percentiles is coarse; the intervals are best read as ``direction and
+rough size'', not precision. For the Docker grid there are eight clusters.
+
+\section{Complexity}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.3cm}L{3.6cm}Y@{}}
+\toprule \thead{Operation} & \thead{Time} & \thead{Note}\\ \midrule
+\texttt{decompose} & $O(V)$ in plan nodes $V$ & recursive; Python recursion depth = plan depth (depth not measured here; limited by Python's recursion limit)\\
+\texttt{weights\_from\_plan}, \texttt{predict\_scaling} & $O(V)$ + $O(|b|)$ & $|b|\le10$ buckets\\
+\texttt{fit\_calibration} & $O(k\log k)$ & sort of $k$ ratios\\
+\texttt{select\_calibration\_queries} & $O(Q\log Q+kQ)$ & $Q$ candidate queries; naive nearest search\\
+Probe (per machine) & minutes & 7 probes $\times$ 9--11 reps, each hundreds of ms; table creation dominates\\
+Cluster bootstrap & $O(n\cdot F\cdot\text{rows})$ & 2000 resamples; concatenates frames each iteration (seconds)\\
+\bottomrule
+\end{tabularx}
+\end{center}
+Prediction cost is negligible (microseconds to milliseconds); the expensive steps are acquisition: probing a machine and
+measuring the calibration queries.

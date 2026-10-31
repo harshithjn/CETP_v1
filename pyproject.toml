@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cetp"
+version = "0.4.0"
+description = "Predict PostgreSQL query runtime on a production machine from a development-machine EXPLAIN plan"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Harshith J" }]
+keywords = ["postgresql", "query-performance", "ci", "sla", "explain"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Database",
+    "Programming Language :: Python :: 3",
+]
+
+# scikit-learn is needed only by the research scripts in scripts/analysis. The shipped
+# predictor deliberately uses the analytical formula plus a precomputed calibration table
+# (models/calibration.json) rather than a pickled model, so the runtime dependency set is
+# tiny and immune to scikit-learn version coupling. See models/MODEL_CARD.md.
+dependencies = []
+
+[project.optional-dependencies]
+research = [
+    "scikit-learn==1.8.0",
+    "numpy==2.5.3",
+    "pandas==2.2.3",
+    "scipy==1.18.1",
+    "joblib==1.5.3",
+    "PyYAML==6.0.2",
+    "matplotlib==3.10.1",
+    "psycopg2-binary>=2.9",
+]
+dev = ["pytest==9.0.3"]
+
+[project.scripts]
+cetp = "cetp.cli:main"
+cetp-redact = "cetp.redact:main"
+
+[project.urls]
+Homepage = "https://github.com/pseudo0244/CETP"
+
+[tool.setuptools]
+packages = ["cetp"]
+
+[tool.setuptools.package-data]
+cetp = ["../models/calibration.json"]

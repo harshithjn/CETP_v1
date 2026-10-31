@@ -1,0 +1,23 @@
+\chapter{Configuration reference}\label{app:config}
+\begin{center}\small
+\begin{longtable}{@{}L{4.0cm}L{3.6cm}L{7.2cm}@{}}
+\toprule \thead{Constant} & \thead{Value} & \thead{Meaning / source}\\ \midrule \endhead
+Probe table sizes & 2{,}000{,}000; 400{,}000; 6{,}000{,}000 rows & SCALE\_A, SCALE\_B, SCALE\_IO (\evCODE)\\
+\texttt{work\_mem} for probes & 64\,MB & operator\_probe\\
+Repetitions & 9 (parallel 11, io 3) & first rep discarded\\
+Stability gate & SE $\le0.08$; CV $\le0.15$ informational & MAX\_MEDIAN\_SE, MAX\_CV\\
+Parallel degree in probe & 3 & PARALLEL\_DOP\\
+Gen-1 roofline weights & $0.5/0.25/0.25$; cmp\_only $\sigma=1/C$ & \cref{eq:gen1}\\
+Confidence threshold & 0.6, hand-set & \texttt{predict}\\
+Gate regression threshold & 1.20 & gate\\
+Random forest / GBR & 300 trees; 200 trees, depth 3, lr 0.05, seed 42 & Gen-1 models\\
+Calibration minimum & 3 observations; selection \texttt{spread} & CalibrationStore\\
+Concurrency exponent & 0.734 (population median) & concurrency study\\
+Redaction & BLAKE2s 5-byte digest; default salt \texttt{"cetp"} & \texttt{redact}\\
+Bootstrap & 2000 resamples, seed 42 & canonical\_evaluation\\
+Python & $\ge3.11$ & pyproject\\
+Pins (results environment) & scikit-learn 1.8.0, numpy 2.5.3, pandas 2.2.3, scipy 1.18.1, joblib 1.5.3, PyYAML 6.0.2, matplotlib 3.10.1, pytest 9.0.3 & requirements (\evFILE); I could not verify these versions exist\\
+\bottomrule
+\end{longtable}
+\end{center}
+Environment variables read by the package \evCODE: \texttt{CETP\_CALIBRATION\_PATH} (calibration store; default \texttt{\textasciitilde/.cetp/calibration.json}) and \texttt{CETP\_TELEMETRY\_PATH} (telemetry; default \texttt{\textasciitilde/.cetp/telemetry.jsonl}). The Makefile uses \texttt{MACHINE\_ID} and \texttt{PGDATABASE}. The CLI otherwise takes paths as arguments.

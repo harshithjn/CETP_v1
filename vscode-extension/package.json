@@ -1,0 +1,115 @@
+{
+  "name": "cetp-vscode",
+  "displayName": "CETP",
+  "description": "Cross-Environment TPC-H Runtime Prediction: sidebar and command wrapping the CETP Python backend",
+  "version": "0.2.4",
+  "publisher": "cetp-local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onCommand:cetp.predict",
+    "onView:cetp.predictionView"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "cetp.predict",
+        "title": "CETP: Predict Query Runtime",
+        "icon": "$(dashboard)"
+      },
+      {
+        "command": "cetp.measureMachine",
+        "title": "CETP: Measure This Machine's Hardware Signature"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "cetp.predict",
+          "when": "resourceExtname == .sql",
+          "group": "cetp"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "cetp.predict",
+          "when": "resourceExtname == .sql",
+          "group": "cetp"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "cetp-sidebar",
+          "title": "CETP",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "cetp-sidebar": [
+        {
+          "id": "cetp.predictionView",
+          "name": "Prediction",
+          "type": "webview"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "CETP",
+      "properties": {
+        "cetp.pythonPath": {
+          "type": "string",
+          "default": "python3",
+          "description": "Path to the Python interpreter used to run the CETP backend."
+        },
+        "cetp.backendScript": {
+          "type": "string",
+          "default": "",
+          "description": "Path to cetp_predict_cli.py. Defaults to gate/cetp_predict_cli.py in the workspace root when empty."
+        },
+        "cetp.database": {
+          "type": "string",
+          "default": "tpch",
+          "description": "Postgres database name to run EXPLAIN against."
+        },
+        "cetp.devBandwidth": {
+          "type": "number",
+          "default": 8.44,
+          "description": "Dev machine bandwidth score (GB/s)."
+        },
+        "cetp.devCompute": {
+          "type": "number",
+          "default": 25.89,
+          "description": "Dev machine compute score (multi-core aggregate GFLOPS, c7i reference value). Must be the multi-core signature, not single-core -- single-core correlates with scaling at the wrong sign."
+        },
+        "cetp.defaultSlaMs": {
+          "type": "number",
+          "default": 500,
+          "description": "Default SLA threshold in milliseconds, offered as the starting value in the prompt."
+        },
+        "cetp.repoRoot": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the CETP checkout. Needed so the hardware probe can be found. Defaults to the first workspace folder."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -w -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  }
+}

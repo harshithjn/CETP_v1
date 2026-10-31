@@ -5,13 +5,18 @@ from cetp_gate import run_gate, format_report, PROJECT_DIR, RESULTS_DIR
 
 EXAMPLES_DIR = Path(__file__).resolve().parent / "examples" / "gate_queries"
 
+# Signatures are MULTI-CORE aggregate GFLOPS, matching models/hardware_signature.pkl and
+# gate/cetp.yml. They were single-core until 2026-10-13; on that signal the analytical
+# formula loses to the bandwidth-ratio baseline, so the gate was demonstrating a model the
+# project does not recommend. SLA thresholds below were re-derived against the corrected
+# predictions so that each scenario still exercises its intended branch.
 SCENARIOS = [
     {
         "label": "PASS",
         "query_id": "q19 (c5a -> c7i)",
         "dev_features_path": EXAMPLES_DIR / "q19_c5a_dev_features.json",
-        "dev_signature": {"bandwidth": 14.9, "compute": 0.593},
-        "prod_signature": {"bandwidth": 8.44, "compute": 0.807},
+        "dev_signature": {"bandwidth": 14.9, "compute": 40.8071},
+        "prod_signature": {"bandwidth": 8.44, "compute": 25.8909},
         "sla_ms": 200.0,
         "note": "Known dev/prod machines, generous SLA relative to the predicted tail.",
     },
@@ -19,8 +24,8 @@ SCENARIOS = [
         "label": "BLOCK",
         "query_id": "q1 (r5n -> z1d)",
         "dev_features_path": EXAMPLES_DIR / "q1_r5n_dev_features.json",
-        "dev_signature": {"bandwidth": 9.39, "compute": 0.705},
-        "prod_signature": {"bandwidth": 9.77, "compute": 0.882},
+        "dev_signature": {"bandwidth": 9.39, "compute": 24.9681},
+        "prod_signature": {"bandwidth": 9.77, "compute": 28.0804},
         "sla_ms": 3000.0,
         "note": "Known dev/prod machines, predicted p50 already exceeds SLA.",
     },
@@ -28,8 +33,8 @@ SCENARIOS = [
         "label": "WARN (in-between)",
         "query_id": "q18 (c7i -> r5n)",
         "dev_features_path": EXAMPLES_DIR / "q18_c7i_dev_features.json",
-        "dev_signature": {"bandwidth": 8.44, "compute": 0.807},
-        "prod_signature": {"bandwidth": 9.39, "compute": 0.705},
+        "dev_signature": {"bandwidth": 8.44, "compute": 25.8909},
+        "prod_signature": {"bandwidth": 9.39, "compute": 24.9681},
         "sla_ms": 8000.0,
         "note": "Known dev/prod machines, SLA sits between predicted p50 and p99.",
     },
@@ -37,10 +42,10 @@ SCENARIOS = [
         "label": "WARN (low confidence)",
         "query_id": "q19 (c7i -> hypothetical high-bandwidth prod tier)",
         "dev_features_path": EXAMPLES_DIR / "q19_c7i_dev_features.json",
-        "dev_signature": {"bandwidth": 8.44, "compute": 0.807},
-        "prod_signature": {"bandwidth": 30.0, "compute": 1.4},
+        "dev_signature": {"bandwidth": 8.44, "compute": 25.8909},
+        "prod_signature": {"bandwidth": 30.0, "compute": 90.0},
         "sla_ms": 100.0,
-        "note": "Prod signature is far outside the 5-machine training envelope (bandwidth in [8.44, 14.9], compute in [0.457, 0.882]).",
+        "note": "Prod signature is far outside the 5-machine training envelope (bandwidth in [8.44, 14.9], multi-core compute in [24.97, 40.81]).",
     },
 ]
 

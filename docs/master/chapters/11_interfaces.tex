@@ -1,0 +1,76 @@
+\chapter{Interfaces and APIs}\label{ch:interfaces}
+
+CETP exposes a command-line interface, a Python API, two JSON file formats and three CI workflows. There is no network API.
+
+\section{Command-line interface}
+Entry points \texttt{cetp} (\texttt{cetp.cli:main}) and \texttt{cetp-redact} are declared in \src{pyproject.toml}. Subcommands (\src{cetp/cli.py}:293--376):
+\begin{center}\small
+\begin{longtable}{@{}L{2.5cm}L{6.6cm}L{5.7cm}@{}}
+\toprule \thead{Command} & \thead{Key options} & \thead{Behaviour and exit}\\ \midrule \endhead
+\texttt{predict} & \texttt{--plan P|-}, \texttt{--dev/--prod ID} or explicit bandwidth/compute, \texttt{--predictor analytical|cmp\_only}, \texttt{--sla-ms}, \texttt{--json} & Gen-1 prediction with conformal bounds and confidence flag\\
+\texttt{regress} & \texttt{--before}, \texttt{--after}, \texttt{--threshold 1.20}, \texttt{--fail-on-regression} & Gen-1 ratio check (\cref{ch:impl}: hardware term is always 1.0); exit 1 on REGRESSION when asked\\
+\texttt{redact} & \texttt{plan}, \texttt{-o}, \texttt{--level structural|full}, \texttt{--check} & Strip literals; \texttt{--check} runs \texttt{assert\_clean}\\
+\texttt{signature} & \texttt{list|probe}, \texttt{--machine-id}, \texttt{--db}, \texttt{--port} & List registry machines or probe the local one\\
+\texttt{predict-prod} & \texttt{--dev-plan}, \texttt{--prod-plan}, \texttt{--dev}, \texttt{--prod}, \texttt{--registry}, \texttt{--plan-forced yes|no|unknown}, \texttt{--calibration}, \texttt{--use-row-ratio}, \texttt{--sla-ms}, \texttt{--json} & Gen-2 prediction. Exit 2 on registry errors. \textbf{Does not enforce cross-ISA refusal} (\cref{sec:cli-bypass})\\
+\texttt{selftest} & -- & Five checks; exit 0 if all pass. \evRUN\ ``selftest PASSED''\\
+\bottomrule
+\end{longtable}
+\end{center}
+Note that there is no CLI command for the \texttt{CalibrationStore}, for telemetry, or for \texttt{ingest}: those are reachable only from Python or from \src{scripts/collection/predict\_prod.py}.
+
+\textbf{Installed-package caveat} (\evRUN: I built the wheel from a copy of the repository, installed it into a clean virtual environment and ran it). The wheel contains \texttt{cetp/} and \texttt{models/calibration.json} only (the latter lands as a top-level \texttt{models/} directory in \texttt{site-packages}). Consequently \texttt{cetp selftest} stops with ``missing fixture \ldots/site-packages/tests/test\_fixtures/q1\_local\_real\_explain.json'', and \texttt{cetp predict-prod} with the default registry ends in an uncaught \texttt{FileNotFoundError} traceback for \texttt{models/operator\_signature.json} instead of the documented exit 2. \texttt{cetp signature probe} shells out to \texttt{scripts/collection/hw\_signature.py}, which is not packaged either. Only a source checkout or an editable install (\texttt{pip install -e .}, which the regression workflow uses) works as documented.
+
+\textbf{SLA semantics differ between tools.} \texttt{cetp predict --sla-ms} prints PASS when the 95\% bound is within the SLA, BLOCK when the \emph{point} estimate exceeds it, WARN otherwise; \texttt{cetp predict-prod --sla-ms} prints PASS/BREACH on the point estimate alone; the Gen-1 gate uses p50 for BLOCK and p99 for PASS (\cref{ch:impl}). The same prediction can therefore be PASS in one and WARN in another \evCODE.
+
+\section{Python API (public surface)}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{5.4cm}Y@{}}
+\toprule \thead{Symbol} & \thead{Contract}\\ \midrule
+\texttt{plan\_nodes.decompose(plan)} & plan $\to$ nodes with self-time and \texttt{under\_gather}\\
+\texttt{operator\_model.predict\_scaling / predict\_runtime} & plan + rates $\to$ result dict (\cref{ch:impl})\\
+\texttt{operator\_model.fit\_calibration, select\_calibration\_queries} & few-shot calibration\\
+\texttt{cross\_env.load\_rates, assert\_comparable, predict} & product flow; raises \texttt{KeyError}, \texttt{ValueError}, \texttt{CrossArchitectureUncalibrated}\\
+\texttt{calibration\_store.CalibrationStore} & \texttt{record, save, calibration, pairs, learning\_curve}\\
+\texttt{telemetry.Telemetry} & \texttt{record\_prediction, resolve, rows, resolved, summary, observations\_for\_calibration}\\
+\texttt{ingest.parse\_auto\_explain\_log, rank\_queries, fetch\_pg\_stat\_statements} & plan intake with redaction\\
+\texttt{redact.redact\_plan, assert\_clean, redact\_file} & privacy\\
+\texttt{predict.predict, regress.detect} & Gen 1\\
+\bottomrule
+\end{tabularx}
+\end{center}
+There is no declared public API (\texttt{\_\_init\_\_.py} is empty and no \texttt{\_\_all\_\_} at package level), no type hints on most functions, and no versioned deprecation policy. Semantic stability is not promised (package is ``Alpha'').
+
+\section{Result dictionary (Gen 2)}
+Key fields returned by \texttt{cross\_env.predict}: \texttt{scaling} (final), \texttt{scaling\_uncalibrated}, \texttt{predicted\_prod\_ms}, \texttt{dev\_runtime\_ms}, \texttt{weights}, \texttt{weights\_by\_parallelism},
+\texttt{per\_axis\_ratio}, \texttt{explained\_frac}, \texttt{unmapped\_frac}, \texttt{unpriced\_axes}, \texttt{dev\_speedup}, \texttt{prod\_speedup}, \texttt{concurrency\_factor}, \texttt{cross\_architecture},
+\texttt{plan\_forced}, \texttt{plan\_source}, \texttt{trust}, \texttt{warnings}.
+
+\section{Gate interface}
+\texttt{gate/cetp\_gate.py} CLI (parser at l.\,258): inputs an EXPLAIN-derived feature file or plan, two Gen-1 signatures (or config), an SLA in ms; prints a report; exit code 1 on BLOCK, 0 on PASS/WARN
+(\texttt{TestAllFourVerdictBranchesFire}). SLAs can be set per query in a YAML/JSON config (\texttt{resolve\_sla\_ms}, l.\,241).
+
+\section{CI and editor integrations}
+\begin{itemize}
+\item \texttt{cetp-gate.yml}: triggered by pushes touching \texttt{gate/}, \texttt{models/}, \texttt{requirements.txt} or the workflow itself (and manually); a matrix runs the Gen-1 gate on three stored c7i feature files (q19, q1, q18); BLOCK does not fail the build (\texttt{ffce2ec}). It tests the gate's plumbing against fixed inputs, not a user's queries.
+\item \texttt{cetp-regression-check.yml}: on pull requests that change \texttt{*.sql} files; starts a \texttt{postgres:15} service, compares the same query before and after the change, redacts plans before upload. Its own header calls this ``the recommended mode''. Given the always-1.0 hardware term (\cref{ch:impl}) it is effectively a dev-side timing comparison. It also hard-codes \texttt{--dev c7i --prod c5a} for every query, so the machine labels carry no meaning for the adopting project, and it runs the pull request's SQL under \texttt{EXPLAIN (ANALYZE)} against its service database, which \emph{executes} the statements (\evCODE; workflow lines 60--90).
+\item \texttt{x86-operator-probe.yml}: runs the operator probe and TPC-H on GitHub x86\_64 runners (three images) to produce x86 registry entries (commit \texttt{aa20181}); triggered by pushes to branch \texttt{x86-probe} and manually. Its header states the earlier laptop$\to$EC2 result: irreducible per-machine-scalar MAPE floor 59.7\%, best measurement 55.88\%.
+\item VS Code extension \texttt{cetp-vscode-0.2.4.vsix} (Gen 1 only; uncommitted source changes exist in the working tree, not reviewed).
+\end{itemize}
+I read the first 40 lines of each workflow \evCODE; I did not run any workflow (\evUNK).
+
+\section{Error handling summary}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.3cm}L{3.0cm}Y@{}}
+\toprule \thead{Condition} & \thead{Signal} & \thead{Handling}\\ \midrule
+Unknown machine id & \texttt{KeyError} $\to$ CLI exit 2 & message lists known machines\\
+v1 / invalid / unreliable signature & \texttt{ValueError} $\to$ exit 2 & message says how to re-probe\\
+Probe scales differ & \texttt{ValueError} $\to$ exit 2 & shows the differing keys\\
+Plan without ANALYZE & \texttt{ValueError} (Gen 1) / exit 2 (Gen 2) & ask for ANALYZE\\
+Cross-ISA, uncalibrated & \texttt{CrossArchitectureUncalibrated}; live harness exit 4 & \textbf{not raised by the CLI}\\
+Corrupt calibration store & ignored silently & degrades to zero-shot\\
+Corrupt telemetry line & skipped & \texttt{test\_telemetry\_survives\_a\_corrupt\_line}\\
+Truncated \texttt{auto\_explain} entry & skipped without record & \evCODE; no test\\
+Default registry absent (wheel install) & uncaught \texttt{FileNotFoundError} & \evRUN\\
+\bottomrule
+\end{tabularx}
+\end{center}

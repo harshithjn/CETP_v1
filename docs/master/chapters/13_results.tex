@@ -1,0 +1,136 @@
+\chapter{Results and evaluation}\label{ch:results}
+
+All values are percentage error (MAPE) unless stated, lower is better. Sources are result files read in this session (\evFILE) or numbers re-derived by me (\evRUN).
+
+\section{Study A: five EC2 machines, TPC-H SF1 (Gen 1)}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[ybar,width=0.92\textwidth,height=5.4cm,bar width=14pt,ymin=0,ymax=36,
+  symbolic x coords={naive,naive-linear,cmp-only,analytical,gated,learned},xtick=data,
+  ylabel={MAPE (\%)},nodes near coords,nodes near coords style={font=\scriptsize},
+  every node near coord/.append style={/pgf/number format/.cd,fixed,precision=2},
+  x tick label style={font=\footnotesize},ylabel style={font=\footnotesize},enlarge x limits=0.1]
+\addplot[fill=cetpblue!70,draw=cetpblue] coordinates {(naive,31.96) (naive-linear,23.05) (cmp-only,20.06) (analytical,21.61) (gated,22.32) (learned,23.90)};
+\end{axis}
+\end{tikzpicture}
+\caption{Leave-one-machine-out MAPE, 840 held-out evaluations (\src{results/canonical\_metrics.json}, \evFILE).}
+\label{fig:lomo}
+\end{figure}
+
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{5.6cm}rrY@{}}
+\toprule \thead{Paired difference (MAPE, pp)} & \thead{Point} & \thead{95\% CI} & \thead{Reading}\\ \midrule
+naive-linear $-$ analytical & +1.44 & [0.32, 2.56] & analytical wins, small\\
+naive-linear $-$ gated & +0.73 & [0.29, 1.22] & gated wins, smaller\\
+analytical $-$ cmp-only & +1.55 & [$-$0.41, 3.51] & \textbf{not distinguishable}\\
+naive-linear $-$ cmp-only & +2.99 & [$-$0.09, 6.07] & not distinguishable\\
+naive-linear $-$ learned & $-$0.85 & [$-$5.44, 3.12] & learned no better\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\textbf{Protocol invariance.} Analytical is 21.61 / 21.66 / 21.64 under LOMO / LOQO / LOMQO. The learned model varies 23.90 / 17.29 / 26.86, so its quality depends strongly on what is held out; with queries unseen it is the best of the six (17.29) but with machines unseen it is the worst of the five non-trivial models (23.90 against 21.61 for analytical; only the no-change baseline, 31.96, is worse).
+\textbf{Single vs multi-core compute.} With the single-core signal the analytical LOMO MAPE is 31.86 (cmp-only 51.44): the compute signal's sign matters. Correlation of the compute score with measured throughput is $-0.691$ (multi-core) against $+0.213$ (single-core) \evFILE.
+
+\subsection{Per machine (LOMO)}
+\begin{center}\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule \thead{Held-out machine} & \thead{Analytical} & \thead{Naive-linear} & \thead{Naive (no change)} & \thead{Learned}\\ \midrule
+c5a & 19.80 & 19.68 & 47.02 & 28.86\\ c7i & 25.39 & 27.75 & \textbf{23.71} & 31.37\\ m5a & 20.36 & 20.58 & 29.35 & 19.53\\ r5n & 22.64 & 25.97 & 34.54 & 22.45\\ z1d & 19.87 & 21.26 & 25.17 & 17.27\\
+\bottomrule
+\end{tabular}
+\end{center}
+Analytical and naive-linear differ by at most 3.4\,pp in any row (on c5a naive-linear is nominally better by 0.1\,pp), but the learned model is 9--12\,pp worse on c5a and c7i than the best simple model, and \textbf{on c7i the no-change baseline (23.71) beats every fitted model} \evFILE. The pooled 21.61 hides that.
+
+\subsection{Classifier and noise}
+Bottleneck classifier macro-F1 0.375 against a 0.161 majority baseline; I/O-class recall 0. Measurement noise: median CV 0.54\% after discarding the cold run, 11 of 105 cells above 5\%; cold first run slowest in 61 of 105 cells (worst $8.33\times$), inflating p99 targets in 46 of 105 cells (worst $6.92\times$) while p50 is inflated by under 1\% (maximum $1.007\times$) in all 105 cells \evFILE.
+
+\section{Study B: Docker capability grid (Gen 2)}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[xbar,width=0.9\textwidth,height=6.2cm,bar width=9pt,xmin=0,xmax=85,
+  symbolic y coords={operator,scalar localized par,scalar geo par,operator serial,scalar geo,scalar seq,naive},ytick=data,
+  y dir=reverse,xlabel={MAPE (\%)},nodes near coords,nodes near coords style={font=\scriptsize},
+  every node near coord/.append style={/pgf/number format/.cd,fixed,precision=2},
+  y tick label style={font=\footnotesize},xlabel style={font=\footnotesize}]
+\addplot[fill=cetpteal!75,draw=cetpteal] coordinates {(22.41,operator) (22.23,scalar localized par) (30.15,scalar geo par) (69.00,operator serial) (66.97,scalar geo) (70.98,scalar seq) (72.52,naive)};
+\end{axis}
+\end{tikzpicture}
+\caption{Eight arm64 container cells, 22 queries, 1{,}232 pairs. ``par'' = parallel-speed-up term enabled. (\src{results/operator\_model\_metrics.json}, \evFILE.)}
+\label{fig:grid}
+\end{figure}
+The jump is from ~67--71\% to ~22--30\% once parallelism is handled; the weighting scheme matters little. Paired bootstrap: scalar-localised-par minus operator $-0.17$\,pp, CI $[-0.49,+0.10]$ (indistinguishable); scalar-geo-par minus scalar-localised-par $+7.92$ [1.45, 16.31]; naive minus operator $+50.11$.
+Excluding the one unreliable cell (c2m1g, CV 0.307): operator 22.89, naive 80.63. Few-shot (spread rule): $k{=}0$ 22.41; $k{=}1$ 25.26; $k{=}2$ 21.30; $k{=}3$ 21.81; $k{=}5$ 21.70; $k{=}8$ 21.02.
+\begin{table}[ht]\centering\small
+\caption{Parallel speed-up $\pi$ per container cell (probe; \src{models/operator\_signature.json}).}\label{tab:speedup}
+\begin{tabular}{@{}lcccccccc@{}}
+\toprule cell & c1m1g & c1m3g & c2m1g & c2m3g & c4m1g & c4m3g & c8m1g & c8m3g\\ \midrule
+$\pi$ & 0.769 & 0.755 & 2.635 & 2.677 & 2.698 & 2.668 & 2.681 & 2.665\\
+\bottomrule
+\end{tabular}
+\end{table}
+Serial-axis spread across cells is only $1.39\times$ against $3.57\times$ for the parallel term: the grid mostly varies parallelism. Plans identical across cells (0 of 22 differ), so ``plan forcing'' cannot be tested here. Note c2m1g is flagged unreliable and its $\pi$ is not trustworthy.
+
+\section{Study C: laptop to ``production'' (242 pairs, 11 targets)}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[ybar,width=\textwidth,height=5.6cm,bar width=6pt,ymin=0,ymax=80,
+  symbolic x coords={c1m1g,c1m3g,c2m3g,c4m1g,c4m3g,c8m1g,c8m3g,gha-22,gha-24,gha-lat,gha-x86},xtick=data,
+  x tick label style={font=\scriptsize,rotate=35,anchor=east},ylabel={MAPE (\%)},legend style={font=\scriptsize,at={(0.02,0.97)},anchor=north west},enlarge x limits=0.06]
+\addplot[fill=cetpblue!70,draw=cetpblue] coordinates {(c1m1g,23.47) (c1m3g,31.26) (c2m3g,22.15) (c4m1g,36.00) (c4m3g,36.40) (c8m1g,33.42) (c8m3g,22.49) (gha-22,67.26) (gha-24,66.15) (gha-lat,69.44) (gha-x86,72.85)};
+\addplot[fill=cetpgrey!60,draw=cetpgrey] coordinates {(c1m1g,62.58) (c1m3g,59.78) (c2m3g,22.17) (c4m1g,32.41) (c4m3g,32.70) (c8m1g,30.84) (c8m3g,21.27) (gha-22,22.75) (gha-24,21.79) (gha-lat,21.00) (gha-x86,21.41)};
+\legend{Operator model,Naive}
+\end{axis}
+\end{tikzpicture}
+\caption{Dev machine: Apple-M1 laptop. Containers run on the same host; ``gha-*'' are x86\_64 runners (\src{results/laptop\_to\_prod\_metrics.json}, \evFILE).}
+\label{fig:l2p}
+\end{figure}
+Zero-shot over all 11 targets: operator 43.72 vs naive 31.70. Same-ISA (7 containers): 29.31 vs 37.39. x86 runners (4): 68.92 vs 21.74. In the same-ISA group the operator model wins in only \textbf{two} cells (c1m1g, c1m3g, the 1-CPU quotas where naive is 60--63\%); it ties in c2m3g and \textbf{loses in the other four}. The 7-cell advantage is therefore driven by the one scenario the parallel term was designed for. The file itself notes ``all prod cells are containers on the same arm64 host as dev; this measures capability transfer, not ISA transfer''. Signed bias is positive in ten of the eleven cells (the model over-predicts): up to +0.34 on containers (c8m3g is $-0.03$) and +0.66 to +0.73 on the runners.
+Few-shot (operator): $k{=}1$ 30.90, $k{=}2$ 27.61, $k{=}3$ 26.24, $k{=}5$ 25.82, against naive $\approx$31--32. Cross-ISA calibrated ``72.84 $\to$ 23.38 vs naive 21.41'' appears in code comments and docs only and is not in a results file (\evCLAIM).
+
+\section{Study D: laptop to EC2 (95 pairs)}
+Naive 129.39; Gen-1 laptop signatures 160.68 (DOP-3) and 337.75 (nproc 8); the documented 324\% and 123\% come from \texttt{tier1\_laptop\_dev.csv} in git history. The best scalar predictor cannot do better than a floor of 59.68\%. The operator model could not be evaluated because the EC2 hosts were terminated. Conclusion: transfer from an M1 laptop to x86 EC2 fails for per-machine scalars.
+
+\section{Study E: uncertainty and gating}\label{sec:conformal}
+\begin{center}\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule \thead{Method} & \thead{Nominal} & \thead{Pooled coverage} & \thead{Worst machine}\\ \midrule
+split conformal & 0.90 & 0.912 & 0.780\\ split conformal & 0.95 & 0.970 & 0.905\\ split conformal & 0.99 & 0.996 & 0.988\\
+GBR quantile & 0.90 & 0.781 & 0.702\\ GBR quantile & 0.95 & 0.846 & 0.798\\ GBR quantile & 0.99 & 0.915 & 0.798\\
+\bottomrule
+\end{tabular}
+\end{center}
+\evRUN\ pooled coverage recomputed from \src{results/tier1\_conformal.csv} (equal fold sizes of 168). Quantile regression under-covers badly (0.846 at nominal 0.95), conformal slightly over-covers when pooled but a single machine can fall to 0.78 at nominal 0.90; coverage is marginal, as \src{models/calibration.json} warns. Multipliers (analytical): p90 $\times1.366$, p95 $\times1.472$, p99 $\times1.967$ \evFILE; a $\times1.97$ upper bound on a 3-second query is a six-second bound.
+
+\textbf{Gate.} On 840 evaluations: BLOCK 66 (7.86\%) of which 45.45\% actually breached (54.5\% false alarms); WARN 748 (breach 13.2\%); PASS 26 (3.1\%, breach 3.85\%) \evFILE\ (\src{results/phase7\_gate\_evaluation.csv}). The README's ``PASS covered 4 of 840'' does not match (\cref{app:issues}).
+\textbf{Confidence abstention.} AURC 25.44 for hardware-distance ordering vs 31.15 random; at threshold 0.6, 80\% coverage with selective MAPE 28.13\% (abstain 20\%). Tier MAPEs: conf 1.0 $\to$ 27.03 ($n{=}420$); 0.808 $\to$ 33.43; 0.801 $\to$ 22.97; 0.582 $\to$ 32.22; 0.419 $\to$ 70.66 \evFILE\ (\src{results/confidence\_abstention\_summary\_corrected.json}, \src{confidence\_tiers\_corrected.csv}). The score is not monotone with error.
+
+\section{Study F: concurrency, calibration loop, drift}
+\begin{itemize}
+\item \textbf{Concurrency} (8-core laptop): elasticity median 0.734, range 0.286--0.984, median $r^2$ 0.944; at 8 clients the runtime error is 41.8\% with the global default and 73.8\% ignoring concurrency; per-query oracle 6.7\% \evFILE.
+\item \textbf{Parallelism mechanism} (\src{fix3\_parallelism\_mechanism\_summary.csv}): Pearson $r=0.458$, $p=0.0367$; mean speed-up 1.98 for parallel-plan queries vs 0.99 for serial \evFILE.
+\item \textbf{Self-calibration simulation}: held-out MAPE 77.72 $\to$ 15.01 ($n{=}36$; retrain trigger 12); narrative q19 c7i$\to$c5a: error 52.85 $\to$ 18.02, confidence 0 $\to$ 1, WARN $\to$ PASS \evFILE. This is a simulation on the same data, not a deployment.
+\item \textbf{Cold start} (docs): 15.84 uncalibrated; 13.20 after one well-chosen query; 19.51 after one random query \evCLAIM.
+\item \textbf{Plan drift}: plan divergence is 70.5\% of the cross-environment difference when the plan changes; across PostgreSQL 14/15/17/18 about 30\% runtime shift and 12 of 22 plans change \evPACK.
+\item \textbf{Learning curve} (machines seen): learned 40.19 ($k{=}1$) $\to$ 30.51 $\to$ 29.86 $\to$ 28.10 ($k{=}4$) against that file's own naive baseline 23.03 (canonical naive-linear: 23.05; the two use slightly different baselines); the learned model needs more machines than exist \evFILE.
+\item \textbf{Learned model with plan features}: LOQO hw-only 16.10, base 17.29, base+plan 13.86, plan-only 13.29; LOMO hw-only 25.45, base 23.90, base+plan 23.33, plan-only 24.77 \evFILE\ (plan features help for unseen queries, not unseen machines).
+\end{itemize}
+
+\section{Summary of what the evidence supports}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{5.6cm}L{2.3cm}Y@{}}
+\toprule \thead{Claim} & \thead{Verdict} & \thead{Basis}\\ \midrule
+Analytical beats naive-linear on EC2 & Supported, small & CI [0.32, 2.56]\\
+Roofline weighting adds value over compute-only & Not supported & CI includes 0\\
+Parallel awareness is the key capability & \textbf{Supported strongly} & 66.97 $\to$ 22.2--22.4, grid\\
+Per-operator weighting beats scalar once parallelism handled & Not supported & $-0.17$ [$-0.49,+0.10$]\\
+Predicts zero-shot across ISAs & \textbf{Refuted} & 68.9 vs 21.7\\
+Works for any dev$\to$prod in the same ISA & Mixed & wins 2 of 7, loses 4 of 7\\
+Calibration fixes cross-ISA & Unproven in files & comment-only (\evCLAIM)\\
+Gate is useful for SLA decisions & Weak & 54.5\% of BLOCKs are false alarms; PASS is 3\% of cases\\
+Intervals have nominal coverage & Pooled yes, per-machine no & worst machine 0.78 at 0.90\\
+\bottomrule
+\end{tabularx}
+\end{center}

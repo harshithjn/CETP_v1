@@ -1,0 +1,51 @@
+{
+  "machines": {
+    "m1-local": {
+      "host": {
+        "arch": "arm64",
+        "cpu_brand": "Apple M1",
+        "eff_cores": 4,
+        "identity_source": "platform",
+        "mem_bytes": 8589934592,
+        "nproc": 8,
+        "perf_cores": 4,
+        "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O"
+      },
+      "note": "Apple M1 laptop, the dev machine for item 27",
+      "postgres": {
+        "achievable_dop": 3,
+        "max_parallel_workers": "8",
+        "max_parallel_workers_per_gather": "2",
+        "max_worker_processes": "8",
+        "server_version": "15.17 (Homebrew)",
+        "shared_buffers": "128MB",
+        "work_mem": "4MB"
+      },
+      "probe": {
+        "branch_cost_ns": 0.1583,
+        "cache_l1_ns": 1.278,
+        "cache_l2_ns": 4.778,
+        "cache_l3_ns": 9.034,
+        "checksum": "15035737328857804442/1.84788e+10",
+        "fp_scalar_gflops": 1.574,
+        "fp_vector_gflops": 12.294,
+        "fp_vector_gflops_dop": 34.899,
+        "fp_vector_gflops_nproc": 58.835,
+        "int_scalar_gops": 3.821,
+        "mem_bandwidth_gbs_1t": 51.649,
+        "mem_bandwidth_gbs_mt": 45.735,
+        "mem_latency_ns": 105.995,
+        "signature_version": 2,
+        "threads_dop": 3,
+        "threads_nproc": 8
+      },
+      "probe_source_sha": "d4ebbcaece5fb0a40d82df2e553d8eadbf29546532ae0d888ab8d82c0fd9a2eb",
+      "probed_at": "2026-10-12T22:59:12+0530",
+      "validation": {
+        "ok": true,
+        "problems": []
+      }
+    }
+  },
+  "schema": "cetp-hardware-signature/2"
+}

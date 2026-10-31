@@ -1,0 +1,102 @@
+\chapter{Problem statement and requirements}\label{ch:problem}
+
+\section{The problem}
+A developer tunes a query on a laptop or staging server. Production has different CPUs, memory
+bandwidth, core counts, storage and often a different instruction set. The question ``will this meet
+the latency budget there?'' is normally answered by deploying and measuring, which is slow and
+sometimes dangerous. CETP tries to answer it before deployment, using only information obtainable
+without privileged access to production.
+
+\section{Why it is hard}
+\begin{enumerate}
+\item \textbf{A query is not one thing.} Its runtime mixes sequential scanning (bandwidth-bound), hash
+  building and sorting (cache- and compute-bound), nested loops (latency-bound) and parallel workers.
+  Machines differ on each of these by different factors (serial-axis spread up to $1.39\times$ on the Docker
+  grid versus $3.57\times$ for parallelism, \evFILE\ \src{results/operator\_model\_metrics.json}).
+\item \textbf{Hardware counters are unavailable.} The AWS Nitro hypervisor blocks the PMU, so the
+  well-known ``counter-based prediction'' route is closed for the target cloud \evCLAIM.
+\item \textbf{Noise is large relative to the signal.} The first repetition of a cell is the slowest in
+  61 of 105 cells, worst case $8.33\times$; after discarding it, 11 of 105 cells still exceed 5\% CV
+  (\evFILE\ \src{results/canonical\_metrics.json}). Error numbers below about 5\% are meaningless.
+\item \textbf{The planner can change its mind.} Different versions or statistics can choose a different
+  plan; 12 of 22 TPC-H plans change across PostgreSQL 14/15/17/18 (research pack, \evPACK).
+\item \textbf{Only a few machines exist.} Five EC2 types and eight containers are tiny samples of the
+  population of machines, so any learned model is fitted on very few distinct hardware points.
+\end{enumerate}
+
+\section{Scope: what is in and out}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}YY@{}}
+\toprule \thead{In scope} & \thead{Out of scope (stated or observed)}\\ \midrule
+Predict runtime \emph{scaling} for a query whose dev plan is known & Predict plan changes; the model assumes the same plan\\
+Analyse EXPLAIN output; run a probe that creates and drops its own \texttt{UNLOGGED} tables & Touching user data. Note the probe is not read-only: it needs \texttt{CREATE} privilege and about 8.4 million scratch rows across three tables (2.0M + 0.4M + 6.0M)\\
+Confidence and refusal when extrapolating (low confidence, cross-ISA) & Absolute-time models of a machine unseen on both sides\\
+Concurrency scaling via a simple power law $N^{e}$ & Lock contention, buffer-pool eviction, I/O-bound workloads (classifier recall for I/O is 0)\\
+TPC-H scale factor 1 as the benchmark & Real customer workloads (none were measured)\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Requirements}
+These are reconstructed from the repository (README, CLI, tests, research pack). The original capstone
+requirement document was not provided; where a requirement is inferred from code rather than a stated
+document, it is marked. IDs are used by the traceability matrix in \cref{app:trace}.
+
+\subsection{Functional requirements}
+\begin{center}\small
+\begin{longtable}{@{}L{1.25cm}L{8.6cm}L{4.9cm}@{}}
+\toprule \thead{ID} & \thead{Requirement} & \thead{Source of requirement}\\ \midrule \endhead
+FR-1 & Capture a hardware signature of a machine (bandwidth, compute; operator rates) & README; \src{scripts/collection/operator\_probe.py}\\
+FR-2 & Decompose an EXPLAIN ANALYZE plan into per-operator self-times & \src{cetp/plan\_nodes.py}; tests\\
+FR-3 & Predict a scaling factor and runtime from dev plan + two signatures & \src{cetp/cross\_env.py}\\
+FR-4 & Refuse or warn when extrapolating (cross-ISA uncalibrated, low confidence); \textbf{partially met}: the CLI path bypasses the refusal (\cref{sec:cli-bypass}) & \src{cetp/cross\_env.py}; tests\\
+FR-5 & Calibrate from $k\ge3$ production observations; persist atomically & \src{cetp/calibration\_store.py}\\
+FR-6 & Apply a concurrency factor $N^{e}$ with elasticity $e$ & \src{cetp/operator\_model.py}\\
+FR-7 & Gate a query against an SLA with PASS/WARN/BLOCK & \src{gate/cetp\_gate.py}\\
+FR-8 & Detect regressions between two plans on the same hardware & \src{cetp/regress.py}\\
+FR-9 & Ingest queries from \texttt{auto\_explain}/\texttt{pg\_stat\_statements} & \src{cetp/ingest.py}\\
+FR-10 & Redact sensitive literals/identifiers before sharing plans & \src{cetp/redact.py}\\
+FR-11 & Local telemetry without query text or identifiers & \src{cetp/telemetry.py}\\
+FR-12 & Command-line interface for all of the above & \src{cetp/cli.py}\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\subsection{Non-functional requirements}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{1.25cm}Y L{4.3cm}@{}}
+\toprule \thead{ID} & \thead{Requirement} & \thead{Where checked}\\ \midrule
+NFR-1 & Reproducibility: published numbers regenerate byte-for-byte & \texttt{make verify-determinism} (\evPACK)\\
+NFR-2 & No runtime dependencies; Python $\ge$ 3.11 & \src{pyproject.toml}\\
+NFR-3 & Leakage-free evaluation (no test-fold information in fitting) & Leakage audit in \src{canonical\_evaluation.py}\\
+NFR-4 & Honest uncertainty: report CIs, paired differences, and negative results & \src{results/CANONICAL.md}\\
+NFR-5 & Privacy: telemetry and shared plans contain no query text/identifiers & \src{cetp/redact.py}, \src{cetp/telemetry.py}\\
+NFR-6 & Crash-safe persistence of calibration & atomic write in \src{cetp/calibration\_store.py}\\
+NFR-7 & Probe must not leave artefacts on the target database & \texttt{finally}-block drops in \src{operator\_probe.py}\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Success criteria}
+The repository states its own bar implicitly: a predictor is ``useful'' only if it beats the naive
+baseline with a confidence interval that excludes zero. By that bar, the status per scenario is:
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}L{4.2cm}L{2.2cm}L{2.2cm}Y@{}}
+\toprule \thead{Scenario} & \thead{Best model} & \thead{Naive} & \thead{Verdict}\\ \midrule
+EC2 LOMO (840 pairs) & 21.61 & 31.96 & Met vs naive; not vs compute-only\\
+Docker grid (1{,}232 pairs) & 22.41 & 72.52 & Met, large margin\\
+Laptop $\to$ prod, same ISA (7 cells) & 29.31 & 37.39 & Met\\
+Laptop $\to$ prod, all 11 cells & 43.72 & 31.70 & \textbf{Not met}\\
+Laptop $\to$ prod, x86 runners (4) & 68.92 & 21.74 & \textbf{Not met} (3$\times$ worse)\\
+Laptop $\to$ EC2 (95 pairs) & 160.68 & 129.39 & \textbf{Not met}\\
+\bottomrule
+\end{tabularx}
+\end{center}
+All values are MAPE (\%), \evFILE; sources in \cref{app:evidence}.
+
+\section{The central trade-off}
+A predictor can be safe by being right more often or by being honest about when it is not. CETP does
+the second at best: confidence-aware abstention helps modestly: dropping the least confident 20\% of predictions leaves a
+selective MAPE of 28.13\%, and the area under the risk--coverage curve is 25.44 for hardware-distance
+ordering against 31.15 for random ordering (\evFILE\ \src{results/confidence\_abstention\_summary\_corrected.json}), but
+this does not turn an inaccurate predictor into an accurate one.

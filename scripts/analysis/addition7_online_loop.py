@@ -14,7 +14,7 @@ import cetp_gate
 import measurement_store as ms
 
 RESULTS_DIR = PROJECT_DIR / "results"
-CORRECTED_CSV = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected.csv"
+CORRECTED_CSV = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected_v2.csv"
 DEMO_DB_PATH = PROJECT_DIR / "cetp_measurements_addition7_demo.db"
 
 RANDOM_STATE = 42

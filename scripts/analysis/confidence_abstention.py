@@ -9,7 +9,7 @@ from pathlib import Path
 from sklearn.ensemble import GradientBoostingRegressor
 
 PROJECT_DIR = Path("/Users/harshithj/Main/Resources/CETP")
-CSV_PATH = PROJECT_DIR / "data" / "raw" / "tpch_dataset.csv"
+CSV_PATH = PROJECT_DIR / "data" / "corrected" / "tpch_dataset_corrected_v2.csv"
 MODELS_DIR = PROJECT_DIR / "models"
 RESULTS_DIR = PROJECT_DIR / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
@@ -200,7 +200,7 @@ def random_abstention_curve(results_df, coverage_levels, n_trials, seed):
 
 def area_under_curve(coverage, risk):
     order = np.argsort(coverage)
-    return float(np.trapz(np.array(risk)[order], np.array(coverage)[order]))
+    return float(np.trapezoid(np.array(risk)[order], np.array(coverage)[order]))
 
 
 def plot_risk_coverage(hw_curve, random_curve, save_path):

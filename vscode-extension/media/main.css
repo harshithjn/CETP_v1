@@ -1,0 +1,299 @@
+/* CETP sidebar.
+   Everything is expressed in VS Code theme variables so the panel inherits the user's
+   theme instead of fighting it -- a webview that hardcodes colours looks wrong in half
+   the themes people actually use. */
+
+:root {
+  --gap: 10px;
+  --radius: 6px;
+  --ok: var(--vscode-testing-iconPassed, #3fb950);
+  --warn: var(--vscode-editorWarning-foreground, #d29922);
+  --bad: var(--vscode-editorError-foreground, #f85149);
+  --faint: var(--vscode-descriptionForeground);
+  --rule: var(--vscode-panel-border, var(--vscode-editorWidget-border, #3334));
+}
+
+body {
+  font-family: var(--vscode-font-family);
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  padding: 12px 12px 20px;
+  font-size: var(--vscode-font-size);
+  line-height: 1.5;
+}
+
+.hidden { display: none !important; }
+
+/* ---------------------------------------------------------------- form */
+
+.field { margin-bottom: var(--gap); }
+.field-inline { margin-bottom: 8px; }
+.field-checkbox { margin-bottom: 8px; }
+
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--faint);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.field-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--vscode-foreground);
+}
+
+input[type="text"], select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 8px;
+  border-radius: var(--radius);
+  color: var(--vscode-input-foreground);
+  background-color: var(--vscode-input-background);
+  border: 1px solid var(--vscode-input-border, transparent);
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+}
+input[type="text"]:focus, select:focus {
+  border-color: var(--vscode-focusBorder);
+}
+input[type="text"]::placeholder { color: var(--faint); opacity: .8; }
+
+.file-row { display: flex; gap: 6px; }
+.file-row input { flex: 1 1 auto; min-width: 0; }
+.file-row button { flex: 0 0 auto; }
+
+button {
+  padding: 5px 11px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background-color: var(--vscode-button-secondaryBackground, var(--vscode-button-background));
+  color: var(--vscode-button-secondaryForeground, var(--vscode-button-foreground));
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+button:hover { background-color: var(--vscode-button-secondaryHoverBackground, var(--vscode-button-hoverBackground)); }
+button:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: 1px; }
+
+#run-button {
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 12px;
+  font-weight: 600;
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+#run-button:hover { background-color: var(--vscode-button-hoverBackground); }
+#run-button:disabled { opacity: .55; cursor: default; }
+
+.manual-fields {
+  padding: 10px;
+  margin-bottom: var(--gap);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--vscode-editorWidget-background, transparent);
+}
+
+.form-error {
+  margin: 8px 0;
+  padding: 7px 9px;
+  border-left: 2px solid var(--bad);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--vscode-inputValidation-errorBackground, transparent);
+  color: var(--vscode-inputValidation-errorForeground, var(--bad));
+  font-size: 12px;
+}
+
+.status-row {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--faint);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.status-row::before {
+  content: "";
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--faint);
+  border-top-color: transparent;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .status-row::before { animation: none; } }
+
+.divider { border: 0; border-top: 1px solid var(--rule); margin: 16px 0 12px; }
+
+/* ---------------------------------------------------------------- results */
+
+.state { font-size: 12px; }
+#empty-state { color: var(--faint); font-style: italic; }
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.query-name {
+  font-weight: 600;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+}
+.badge.pass  { color: var(--ok); }
+.badge.warn  { color: var(--warn); }
+.badge.block { color: var(--bad); }
+
+.timestamp { color: var(--faint); font-size: 11px; margin-bottom: 10px; }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 8px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+.metric-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.metric-value {
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.confidence-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+.confidence-bar {
+  flex: 1 1 auto;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--vscode-progressBar-background, var(--rule));
+  opacity: .35;
+  overflow: hidden;
+}
+.confidence-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: var(--vscode-progressBar-background, var(--ok));
+  transition: width .25s ease;
+}
+@media (prefers-reduced-motion: reduce) { .confidence-fill { transition: none; } }
+#confidence-value {
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+.reason {
+  padding: 8px 10px;
+  border-left: 2px solid var(--rule);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--vscode-textBlockQuote-background, transparent);
+  color: var(--vscode-foreground);
+  font-size: 12px;
+}
+
+.error-title { font-weight: 600; color: var(--bad); margin-bottom: 2px; }
+.error-message {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-left: 2px solid var(--bad);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--vscode-textBlockQuote-background, transparent);
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ------------------------------------------------- honesty surface
+   A predicted millisecond figure with no error attached invites more trust than the
+   measurements support. These two blocks are not decoration: the expected error and the
+   cross-architecture caveat are the difference between a usable number and a misleading
+   one, so they sit next to the number rather than in documentation nobody opens. */
+
+.accuracy-note {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.accuracy-note strong { color: var(--vscode-foreground); font-weight: 600; }
+.accuracy-note code {
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: 10.5px;
+}
+
+.caveat {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-left: 2px solid var(--warn);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--vscode-inputValidation-warningBackground, transparent);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.caveat-title {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--warn);
+  margin-bottom: 3px;
+}
+
+/* The webview CSP sets style-src to the extension origin with no 'unsafe-inline', so an
+   inline style= attribute is dropped. Everything lives in this file for that reason. */
+.group-label { margin-bottom: 7px; }
+.manual-fields code {
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+}
