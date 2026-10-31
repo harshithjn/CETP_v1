@@ -45,13 +45,35 @@ GRID_DIR = PROJECT_DIR / "data" / "container_grid"
 PLANS_DIR = PROJECT_DIR / "data" / "plans_grid"
 RESULTS = PROJECT_DIR / "results"
 SIG = GRID_DIR / "operator_signature_grid.json"
+MANIFEST = GRID_DIR / "grid_manifest.json"
 DISCARD_WARMUP_REPS = 1
 
 
-def load_grid():
+def grid_machine_ids():
+    """
+    The cells that make up THE GRID, as declared by the collection manifest.
+
+    `data/container_grid/` also holds the GitHub Actions x86 cells (`tpch_gha-*.csv` and
+    their signatures), which were added there for the cross-ISA study. Globbing the
+    directory therefore silently turned this evaluation from an 8-cell single-ISA capability
+    grid into a 12-cell mixed-ISA one (2904 pairs instead of 1232) and changed every number
+    in it. Cross-ISA targets are evaluated by laptop_to_prod_evaluation.py, not here.
+    """
+    return [c["machine_id"] for c in json.loads(MANIFEST.read_text())["configs"]]
+
+
+def input_provenance(machine_ids):
+    """SHA-256 of every input the numbers depend on, so a stale result is detectable."""
+    import hashlib
+    files = [SIG, MANIFEST] + [GRID_DIR / f"tpch_{m}.csv" for m in machine_ids]
+    return {str(p.relative_to(PROJECT_DIR)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in files}
+
+
+def load_grid(machine_ids):
     """(machine, query) -> warm median runtime, and the plan file for the weights."""
     rows = []
-    for csv in sorted(GRID_DIR.glob("tpch_*.csv")):
+    for csv in (GRID_DIR / f"tpch_{m}.csv" for m in sorted(machine_ids)):
         df = pd.read_csv(csv)
         df = df[df["ok"] == True]                                   # noqa: E712
         rows.append(df)
@@ -342,7 +364,11 @@ def axis_collinearity(sigs):
 def main():
     if not SIG.exists():
         sys.exit(f"no operator signatures at {SIG}")
-    raw = json.loads(SIG.read_text())
+    grid_ids = grid_machine_ids()
+    raw = {m: r for m, r in json.loads(SIG.read_text()).items() if m in grid_ids}
+    missing = sorted(set(grid_ids) - set(raw))
+    if missing:
+        sys.exit(f"grid cells with no signature in {SIG}: {missing}")
     bad_kind = {m: r.get("signature_kind") for m, r in raw.items()
                 if r.get("signature_kind") != "operator_rates_v2"}
     if bad_kind:
@@ -363,7 +389,7 @@ def main():
     unreliable = sorted(m for m, r in raw.items() if r.get("reliable") is False)
     speedup_cv = {m: r.get("parallel_speedup_cv") for m, r in raw.items()}
     reliable = sorted(m for m in sigs if m not in unreliable)
-    cells = load_grid()
+    cells = load_grid(grid_ids)
     machines = sorted(cells["machine_id"].unique())
     print(f"grid: {len(machines)} configurations, {cells['query_id'].nunique()} queries, "
           f"{len(cells)} cells")
@@ -462,6 +488,7 @@ def main():
         print(f"  {k:3d} {sp:9.2f} {(f'{rd:9.2f}' if rd is not None else '        -')}")
 
     payload = {
+        "inputs_sha256": input_provenance(grid_ids),
         "grid": {"machines": machines, "n_queries": int(cells["query_id"].nunique()),
                  "n_pairs": int(len(pairs)), "skipped": skipped,
                  "warmup_reps_discarded": DISCARD_WARMUP_REPS},

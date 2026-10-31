@@ -42,7 +42,7 @@ verify-determinism:
 	  || (echo "NON-DETERMINISTIC: outputs differ between runs" && exit 1)
 
 test:
-	$(PY) -m pytest tests/test_e2e.py -q
+	$(PY) -m pytest tests -q
 
 gate-demo:
 	$(PY) gate/cetp_gate.py --demo

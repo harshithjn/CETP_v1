@@ -119,5 +119,8 @@ data/external/
 
 dist/
 data/plans*/
+# ...except the grid's plans: operator_model_evaluation.py needs them (268 small gz files,
+# ~1 MB) and a fresh clone cannot regenerate the per-operator results without them.
+!data/plans_grid/
 
 .docker-noauth/
